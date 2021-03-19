@@ -1,0 +1,26 @@
+version: "3"
+services:
+  stock:
+    image: stock
+    container_name: stock_service
+    #build : 
+    #context : . 
+    #dockerfile : Dockerfile
+    volumes: 
+      - .:/STOCK
+        #command: python3 manage.py runserver 0.0.0.0:8000
+    command: gunicorn STOCK.wsgi:application --bind 0.0.0.0:8000
+    expose : 
+      - "8000"
+  nginx:
+    image: nginx
+    container_name : nginx_service
+    volumes: 
+      - .:/STOCK
+      - ./config/nginx:/etc/nginx/conf.d
+#      - /home/docker/volumes/nginx:/etc/nginx/conf.d
+#      - /home/docker/volumes/.static_root/:/static
+    ports:
+      - "80:80"
+    depends_on : 
+      - stock
