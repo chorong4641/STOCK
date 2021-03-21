@@ -22,5 +22,18 @@ services:
 #      - /home/docker/volumes/.static_root/:/static
     ports:
       - "80:80"
+        #mysql:
+          #image: mysql
+    #environment:
+            #MYSQL_ROOT_PASSWORD: "ds64079376*"
+      #MYSQL_DATABASE: "STOCK"
+      #MYSQL_USER: "e3hope"
+      #MYSQL_PASSWORD: "ds64079376*"
+      #volumes:
+            #- .:/STOCK
+        #- ./config/mysql:/mysql:rw
+        #ports:
+        #- "3305:3306"
     depends_on : 
+    #- mysql
       - stock
