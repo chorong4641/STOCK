@@ -1,7 +1,12 @@
 FROM ubuntu
 
 ENV TZ=Asia/Seoul
-RUN apt-get update 
+RUN apt-get clean \
+	&& rm -rf /var/lib/apt/lists/* \
+	&& apt-get clean \
+	&& apt-get -y upgrade \
+	&& apt-get update -o Acquire::compressionTypes::Order::=gz \
+	&& apt-get update
 RUN apt-get install -y tzdata
 RUN apt-get install -y python3.8
 RUN apt-get install -y python3-pip
