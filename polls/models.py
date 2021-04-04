@@ -1,3 +1,5 @@
 from django.db import models
 
-# Create your models here.
+class Question(models.Model):
+    Id = models.CharField(max_length=50)
+    Pw = models.CharField(max_length=100)
