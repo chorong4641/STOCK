@@ -10,6 +10,9 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
+import json
+from django.core.exceptions import ImproperlyConfigured
+
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -19,8 +22,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
+with open("STOCK/secret.json") as f:
+    secrets = json.loads(f.read())
+
+def get_secret(key, setting, secrets=secrets):
+    try:
+        return secrets[key][setting]
+    except KeyError:
+        error_msg = "Set the {} environment variable".format(setting)
+        raise ImproperlyConfigured(error_msg)
+
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'fhu6_g^83mh&rce3t^y#pi)p+j7@y^5^uhu&7-@*%z4#6x&dn$'
+SECRET_KEY = get_secret("SECRET","SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -76,12 +89,12 @@ WSGI_APPLICATION = 'STOCK.wsgi.application'
 
 DATABASES = {
     'default' : {
-        'ENGINE': 'django.db.backends.mysql',    
-        'NAME': 'STOCK',                  
-        'USER': 'admin',                          
-        'PASSWORD': 'stock2021@',                  
-        'HOST': '115.68.178.60',                     
-        'PORT': '3306',                    
+        'ENGINE': get_secret("DATABASES","ENGINE"),    
+        'NAME': get_secret("DATABASES","NAME"),                  
+        'USER': get_secret("DATABASES","USER"),                          
+        'PASSWORD': get_secret("DATABASES","PASSWORD"),                  
+        'HOST': get_secret("DATABASES","HOST"),                     
+        'PORT': get_secret("DATABASES","PORT"),                    
     }
 }
 
