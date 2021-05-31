@@ -1,4 +1,10 @@
+html,
+body,
+#root {
+  height: 100%;
+}
+
 .App {
+  height: 100%;
   font-size: 14px;
-  text-align: center;
 }

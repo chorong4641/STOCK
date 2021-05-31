@@ -12,8 +12,7 @@ const HeaderStyled = styled.div`
   display: flex;
   justify-content: center;
   width: 100%;
-  height: 60px;
-  font-size: 15px;
+  height: 50px;
   background-color: #3f4753;
   box-shadow: rgb(0 0 0 / 8%) 0px 0px 8px;
 `;
@@ -44,8 +43,8 @@ const NavStyled = styled.div`
 
 const BodyStyled = styled.div`
   width: 100%;
-  height: calc(100% - 60px);
-  padding: 20px;
+  height: calc(100% - 100px);
+  padding: 20px 0;
 `;
 
 function App() {
