@@ -43,8 +43,9 @@ const NavStyled = styled.div`
 
 const BodyStyled = styled.div`
   width: 100%;
-  height: calc(100% - 100px);
+  height: calc(100% - 50px);
   padding: 20px 0;
+  overflow-y: auto;
 `;
 
 function App() {
