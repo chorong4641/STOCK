@@ -12,22 +12,22 @@ def heraldnews(request):
         soup = BeautifulSoup(webpage.content, 'html.parser')
 
         # 데이터 호출
-        list = soup.select('.list > ul > li > a')
+        list = soup.select('.list > ul > li')
         data = []
 
         #데이터 추출
         for i in list:
             temp = {}
-            href = i['href'] #링크
+            href = i.select_one('a')['href'] #링크
             try: # 이미지 예외처리
                 img = i.find('img')['src']
             except:
                 img = None
-            title = i.select_one('div > .list_title').get_text() #제목
-            text = i.select_one('div > .list_txt').get_text() #내용
-            temp = {'href':href, 'img':img, 'title':title, 'text':text }
+            title = i.select_one('a > div > .list_title').get_text() #제목
+            text = i.select_one('a > div > .list_txt').get_text() #내용
+            date = i.select_one('.l_date').get_text() # 날짜
+            temp = {'href':href, 'img':img, 'title':title, 'text':text, 'date':date }
             data.append(temp)
-        print(data)
         return JsonResponse(data,safe=False,json_dumps_params={'ensure_ascii': False}, status=200)
     
     # data = [{'href': 'view.php?ud=20210602000698','img': 'http://res.heraldm.com/phpwas/restmb_idxmake.php?idx=707&simg=/content/image/2021/06/02/20210602000559_p.jpg',
