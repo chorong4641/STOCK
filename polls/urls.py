@@ -16,4 +16,6 @@ urlpatterns = [
 
         # 뉴스 페이지
         path('api/news/heraldnews',news_views.heraldnews, name='heraldnews'),
+        path('api/news/ytnnews',news_views.ytnnews, name='ytnnews'),
+        path('api/news/joongangnews',news_views.joongangnews, name='joongangnews'),
 ]
