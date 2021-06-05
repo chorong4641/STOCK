@@ -10,11 +10,13 @@ import os
 import json
 import requests
 from bs4 import BeautifulSoup
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
+
 
 # 종목 코드로 종목 상세 정보 호출
 def getstock(request, stock_code):
     if request.method == 'GET':
-        # stock_code = request.GET['stock_code']
         pythoncom.CoInitialize()
         objCpCybos = win32com.client.Dispatch("CpUtil.CpCybos")
         bConnect = objCpCybos.IsConnect
@@ -78,6 +80,104 @@ def searchnews(request,stock_name):
         # {'source': 'https://www.etoday.co.kr/news/view/2031898','href': 'http://yna.kr/AKR20210602065000003?did=1195m',
         # 'title': '삼성·현대차·SK·LG가 71대 그룹 매출·고용의 절반 차지'}]
         
-        # 기간별 주가
-        # def price_by_period(request):
-        # http://money2.creontrade.com/e5/mboard/ptype_basic/plusPDS/DW_Basic_Read.aspx?boardseq=299&seq=42&page=1&searchString=%ec%9d%bc%ec%9e%90%eb%b3%84&prd=&lang=&p=8833&v=8639&m=9505
+# 기간별 주가
+def price_by_period(request,stock_code,term):
+    if request.method == 'GET':
+
+        if term == 'week':
+            term_date = 'D'
+        elif term == 'month':
+            term_date = 'W'
+        elif term == 'year':
+            term_date = 'M'
+
+        pythoncom.CoInitialize()
+        objCpCybos = win32com.client.Dispatch("CpUtil.CpCybos")
+        bConnect = objCpCybos.IsConnect
+        if (bConnect == 0):
+            print("PLUS가 정상적으로 연결되지 않음. ")
+            exit()
+
+        # 일자별 object 구하기
+        objStockChart = win32com.client.Dispatch("CpSysDib.StockChart")
+        objStockChart.SetInputValue(0,'A'+stock_code)  # 종목코드
+        objStockChart.SetInputValue(1, ord('2'))  # 개수로 받기
+        # objStockChart.SetInputValue(2, datetime.now().strftime("%Y%m%d"))  # To 날짜
+        # objStockChart.SetInputValue(3, from_date.strftime("%Y%m%d"))  # From 날짜
+        objStockChart.SetInputValue(4, 7)  # 최근 500일치
+        objStockChart.SetInputValue(5, [0,2,3,4,5,8])  # 날짜,종가
+        objStockChart.SetInputValue(6, ord(term_date))  # '차트 주기 - 일간 차트 요청
+        objStockChart.SetInputValue(9, ord('1'))  # 수정주가 사용
+        objStockChart.BlockRequest()
+
+        # 정보 데이터 처리
+        count = objStockChart.GetHeaderValue(3)
+        data = []
+        for i in range(count):
+            temp = {}
+            date = objStockChart.GetDataValue(0, i)
+            index = objStockChart.GetDataValue(4, i)
+            temp = {'date':date,'index':index}
+            data.append(temp)
+    
+        pythoncom.CoUninitialize()    
+        return JsonResponse(data,safe=False,json_dumps_params={'ensure_ascii': False}, status=200)
+        # data = {[{"date": 20210600, "index": 82300}, {"date": 20210500, "index": 80500}, {"date": 20210400, "index": 81500}]
+
+# 실시간 주가
+def real_time(request,stock_code):
+    if request.method == 'GET':
+        pythoncom.CoInitialize()
+        objCpCybos = win32com.client.Dispatch("CpUtil.CpCybos")
+        bConnect = objCpCybos.IsConnect
+        if (bConnect == 0):
+            print("PLUS가 정상적으로 연결되지 않음. ")
+            exit()
+
+        # 일자별 object 구하기
+        objStockChart = win32com.client.Dispatch("CpSysDib.StockChart")
+        objStockChart.SetInputValue(0,'A'+stock_code)  # 종목코드
+        objStockChart.SetInputValue(1, ord('2'))  # 횟수로 받기
+        # objStockChart.SetInputValue(2, datetime.now().strftime("%Y%m%d"))  # To 날짜
+        # objStockChart.SetInputValue(3, from_date.strftime("%Y%m%d"))  # From 날짜
+        objStockChart.SetInputValue(4, 1)  # 최근 500일치
+        objStockChart.SetInputValue(5, [0,2,3,4,5,8])  # 날짜,종가
+        objStockChart.SetInputValue(6, ord('m'))  # '차트 주기 - 일간 차트 요청
+        objStockChart.SetInputValue(9, ord('1'))  # 수정주가 사용
+        objStockChart.BlockRequest()
+
+        # 정보 데이터 처리
+        count = objStockChart.GetHeaderValue(3)
+        data = []
+        for i in range(count):
+            temp = {}
+            index = objStockChart.GetDataValue(4, i)
+            temp = {'index':index}
+            data.append(temp)
+    
+        pythoncom.CoUninitialize()    
+        return JsonResponse(data,safe=False,json_dumps_params={'ensure_ascii': False}, status=200)
+        #data = [{index:23122}]
+
+# 재무제표
+def Financial(request,stock_code):
+    if request.method == 'GET':
+        pythoncom.CoInitialize()
+        objCpCybos = win32com.client.Dispatch("CpUtil.CpCybos")
+        bConnect = objCpCybos.IsConnect
+        if (bConnect == 0):
+            print("PLUS가 정상적으로 연결되지 않음. ")
+            exit()
+
+        # 일자별 object 구하기
+        objMarketEye = win32com.client.Dispatch("cpsysdib.MarketEye")
+        objMarketEye.SetInputValue(0,'A'+stock_code)  # 종목코드
+        objMarketEye.SetInputValue(1, ord('2'))  # 횟수로 받기
+        # objStockChart.SetInputValue(2, datetime.now().strftime("%Y%m%d"))  # To 날짜
+        # objStockChart.SetInputValue(3, from_date.strftime("%Y%m%d"))  # From 날짜
+        objMarketEye.SetInputValue(4, 1)  # 최근 500일치
+        objMarketEye.SetInputValue(5, [0,2,3,4,5,8])  # 날짜,종가
+        objMarketEye.SetInputValue(6, ord('m'))  # '차트 주기 - 일간 차트 요청
+        objMarketEye.SetInputValue(9, ord('1'))  # 수정주가 사용
+        objMarketEye.BlockRequest()
+        

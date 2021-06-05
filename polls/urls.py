@@ -11,6 +11,8 @@ urlpatterns = [
         # 상세 페이지
         path('api/getstock/<str:stock_code>',stock_views.getstock, name='getstock'),
         path('api/searchnews/<str:stock_name>',stock_views.searchnews, name='searchnews'),
+        path('api/chart/time/<str:stock_code>',stock_views.real_time, name='real_time'),
+        path('api/chart/price/<str:stock_code>/<str:term>',stock_views.price_by_period, name='price_by_period'),
 
         # 뉴스 페이지
         path('api/news/heraldnews',news_views.heraldnews, name='heraldnews'),
