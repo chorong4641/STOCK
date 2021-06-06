@@ -219,7 +219,8 @@ function Stock(props) {
       // 종목 기간별 차트 조회
       onGetDetailChart(code);
     } else {
-      // onGetStockMarket();
+      // 시장지수 조회
+      onGetStockMarket();
     }
   }, [period]);
 
@@ -305,8 +306,6 @@ function Stock(props) {
 
   // 검색한 종목 선택 이벤트
   const onShowDetail = (value) => {
-    console.log("value", value);
-
     history.push(`/stock/${value}`);
   };
 
@@ -318,105 +317,73 @@ function Stock(props) {
     if (!code) return;
     setLoading(true);
 
-    setDetailData({
-      code: "A251270",
-      name: "넷마블",
-      price: 136500,
-      closing: 138500,
-      opening: 137500,
-      high: 138500,
-      low: 135000,
-      time: 1559,
-      trading_volume: 219664,
-      warning: "1",
-    });
-    setLoading(false);
-    // await axios
-    //   .get(`/api/getstock/${code}`)
-    //   .then((res) => {
-    //     setDetailData(res.data);
-    //     setLoading(false);
-    //   })
-    //   .catch((error) => {
-    //     console.log("onGetStockDetail", error);
-    //   });
+    // setDetailData({
+    //   code: "A251270",
+    //   name: "넷마블",
+    //   price: 136500,
+    //   closing: 138500,
+    //   opening: 137500,
+    //   high: 138500,
+    //   low: 135000,
+    //   time: 1559,
+    //   trading_volume: 219664,
+    //   warning: "1",
+    // });
+    // setLoading(false);
+
+    await axios
+      .get(`/api/getstock/${code}`)
+      .then((res) => {
+        setDetailData(res.data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.log("onGetStockDetail", error);
+      });
   };
 
   // 기간별 주가 차트 조회
   const onGetDetailChart = async (stockCode) => {
     setLoading(true);
 
-    const data = [
-      { date: 20210600, index: 82300 },
-      { date: 20210500, index: 80500 },
-      { date: 20210400, index: 81500 },
-      { date: 20210300, index: 80500 },
-      { date: 20210200, index: 82300 },
-      { date: 20210100, index: 80500 },
-      { date: 20201200, index: 80500 },
-    ];
+    // const data = [
+    //   { date: 20210600, index: 82300 },
+    //   { date: 20210500, index: 80500 },
+    //   { date: 20210400, index: 81500 },
+    //   { date: 20210300, index: 80500 },
+    //   { date: 20210200, index: 82300 },
+    //   { date: 20210100, index: 80500 },
+    //   { date: 20201200, index: 80500 },
+    // ];
 
-    const chartY = [];
-    const chartX = [];
-    data.map((data) => {
-      chartY.push(data.index);
-      chartX.push(data.date);
-    });
-
-    setPeriodChartData({
-      series: {
-        name: "index",
-        data: chartY,
-      },
-      options: {
-        chart: {
-          id: "period",
-        },
-        xaxis: {
-          categories: chartX,
-        },
-      },
-    });
-
-    // await axios
-    //   .get(` api/chart/price/${stockCode}/${period}`)
-    //   .then((res) => {
-    //     const data = [
-    //       { date: 20210600, index: 82300 },
-    //       { date: 20210500, index: 80500 },
-    //       { date: 20210400, index: 81500 },
-    //       { date: 20210300, index: 80500 },
-    //       { date: 20210200, index: 82300 },
-    //       { date: 20210100, index: 80500 },
-    //       { date: 20201200, index: 80500 },
-    //     ];
-
-    //     const chartY = [];
-    //     const chartX = [];
-    //     data.map((data) => {
-    //       chartY.push(data.index);
-    //       chartX.push(data.date);
-    //     });
-    //     setPeriodChartData({
-    //       series: {
-    //         name: "index",
-    //         data: chartY,
-    //       },
-    //       options: {
-    //         chart: {
-    //           id: "period",
-    //         },
-    //         xaxis: {
-    //           categories: chartX,
-    //         },
-    //       },
-    //     });
-    //     setLoading(false);
-    //     // [{"date": 20210600, "index": 82300}, {"date": 20210500, "index": 80500}]
-    //   })
-    //   .catch((error) => {
-    //     console.log("onGetDetailChart", error);
-    //   });
+    await axios
+      .get(` api/chart/price/${stockCode}/${period}`)
+      .then((res) => {
+        const chartY = [];
+        const chartX = [];
+        res.data.map((data) => {
+          chartY.push(data.index);
+          chartX.push(data.date);
+        });
+        setPeriodChartData({
+          series: {
+            name: "index",
+            data: chartY,
+          },
+          options: {
+            chart: {
+              id: "period",
+            },
+            xaxis: {
+              categories: chartX,
+            },
+          },
+        });
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.log("onGetDetailChart", error);
+      });
   };
 
   // 전일대비 비교 값
@@ -480,7 +447,7 @@ function Stock(props) {
                         {compare.icon}
                         {addComma(compare.value)}
                       </div>
-                      <div> {compare.rate}</div>
+                      <div>{compare.rate}</div>
                     </div>
                   </div>
                 </div>
