@@ -15,8 +15,8 @@ import json
 def main(request):
     return HttpResponse('main')
 
-#국내차트 데이터 호출
-def domestic(request):
+#차트 데이터 호출
+def stock(request):
     if request.method == 'GET':
         pythoncom.CoInitialize()
         objCpCybos = win32com.client.Dispatch("CpUtil.CpCybos")
@@ -26,11 +26,11 @@ def domestic(request):
             exit()
         else : print("Plus 연결 성공")
   
-        # 일자별 object 구하기
+        # 국내 지수 구하기
         objDomeindex = win32com.client.Dispatch("DsCbo1.StockWeek")
-        code = {'KOSPI':'U001','KOSDAQ':'U201'}
-        data = {'KOSPI':[],'KOSDAQ':[]}
-        for k,v in code.items() :
+        Domecode = {'KOSPI':'U001','KOSDAQ':'U201'}
+        Domedata = {'KOSPI':[],'KOSDAQ':[]}
+        for k,v in Domecode.items() :
             objDomeindex.SetInputValue(0,v) # 나스닥
             objDomeindex.SetInputValue(1,ord("D")) # 일자별
             objDomeindex.SetInputValue(3,9999) # 일자별
@@ -39,29 +39,14 @@ def domestic(request):
                 temp = {}
                 temp['date'] = objDomeindex.GetDataValue(0,i)
                 temp['index'] = objDomeindex.GetDataValue(1,i)
-                data[k].append(temp)
-        pythoncom.CoUninitialize()
-        return JsonResponse(data, json_dumps_params={'ensure_ascii': False}, status=200)
-        # data = {KOSPI:[{date:20210531,index:3232},{date:20210531,index:3232}],KOSDAQ:[{date:20210531,index:3232},{date:20210531,index:3232}]}
+                Domedata[k].append(temp)
+            Domedata[k].reverse()
 
-# 해외차트 데이터 호출
-def foreign(request):
-    if request.method == 'GET':
-        pythoncom.CoInitialize()
-        objCpStatus = win32com.client.Dispatch('CpUtil.CpCybos')
-
-        bConnect = objCpStatus.IsConnect
-        if (bConnect == 0):
-            print("PLUS가 정상적으로 연결되지 않음. ")
-            exit()
-        else : print("Plus 연결 성공")
-        
+        # 해외 지수 구하기
         objForeindex = win32com.client.Dispatch('Dscbo1.CpSvr8300')
-        # code = {'DOW':'.DJI','NASDAQ':'COMP'}
-        # data = {'DOW':{},'NASDAQ':{}}
-        code = {'DOW':'.DJI','NASDAQ':'COMP','SP500':'SPX','SH':'SHANG'}
-        data = {'DOW':[],'NASDAQ':[],'SP500':[],'SH':[]}
-        for k,v in code.items() :
+        Forecode = {'DOW':'.DJI','NASDAQ':'COMP','SP500':'SPX','SH':'SHANG'}
+        Foredata = {'DOW':[],'NASDAQ':[],'SP500':[],'SH':[]}
+        for k,v in Forecode.items() :
             objForeindex.SetInputValue(0,v) # 나스닥
             objForeindex.SetInputValue(1,ord("D")) # 일자별
             objForeindex.SetInputValue(3,9999) # 일자별
@@ -70,11 +55,12 @@ def foreign(request):
                 temp = {}
                 temp['date'] = objForeindex.GetDataValue(0,i)
                 temp['index'] = objForeindex.GetDataValue(1,i)
-                data[k].append(temp)
+                Foredata[k].append(temp)
+            Foredata[k].reverse()
         pythoncom.CoUninitialize()
-        return JsonResponse(data,json_dumps_params={'ensure_ascii': False}, status=200)
-        # data = {DOW:[{date:20210531,index:3232},{date:20210531,index:3232}],NASDAQ:[{date:20210531,index:3232},{date:20210531,index:3232}],
-        #         SP500:[{date:20210531,index:3232},{date:20210531,index:3232}],SH:[{date:20210531,index:3232},{date:20210531,index:3232}]}
+        Domedata.update(Foredata)
+        return JsonResponse(Domedata, json_dumps_params={'ensure_ascii': False}, status=200)
+        # data = {KOSPI:[{date:20210531,index:3232},{date:20210531,index:3232}],KOSDAQ:[{date:20210531,index:3232},{date:20210531,index:3232}]}
 
 # 종목명으로 유사 종목 검색값 호출
 def searchstock(request,stock_name):

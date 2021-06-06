@@ -119,7 +119,7 @@ def price_by_period(request,stock_code,term):
             index = objStockChart.GetDataValue(4, i)
             temp = {'date':date,'index':index}
             data.append(temp)
-    
+        data.reverse()
         pythoncom.CoUninitialize()    
         return JsonResponse(data,safe=False,json_dumps_params={'ensure_ascii': False}, status=200)
         # data = {[{"date": 20210600, "index": 82300}, {"date": 20210500, "index": 80500}, {"date": 20210400, "index": 81500}]
@@ -180,4 +180,22 @@ def Financial(request,stock_code):
         objMarketEye.SetInputValue(6, ord('m'))  # '차트 주기 - 일간 차트 요청
         objMarketEye.SetInputValue(9, ord('1'))  # 수정주가 사용
         objMarketEye.BlockRequest()
-        
+        # 분기매출액-101
+        # 분기영업이익-102
+        # 분기당기순이익-104
+        # 매출액증가율-78
+        # 영업이익증가율-90
+        # 순이익증가률-80
+        # 분기roe-107
+        # 부채비율-110
+        # 분기년월-111
+        # 담좌비율-
+        # 유보율-76
+        # eps-70
+        # per-67
+        # 분기bps-96
+        # pbr
+        # 액면가-72
+        # 배당률-73
+        # 배당수익률-74
+        # 부채비율-75
