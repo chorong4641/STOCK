@@ -1,6 +1,5 @@
 import { Redirect, Route, NavLink } from "react-router-dom";
 import styled from "styled-components";
-import Home from "./components/Home";
 import Stock from "./components/Stock";
 import News from "./components/News";
 import Word from "./components/Word";
@@ -11,14 +10,23 @@ import "./App.css";
 const HeaderStyled = styled.div`
   display: flex;
   justify-content: center;
+  align-items: center;
   width: 100%;
   height: 50px;
-  background-color: #3f4753;
+  // background-color: #3f4753;
   box-shadow: rgb(0 0 0 / 8%) 0px 0px 8px;
+
+  .logo {
+    position: absolute;
+    left: 30px;
+    width: 33px;
+    height: 33px;
+  }
 `;
 
 const NavStyled = styled.div`
   width: 50%;
+  height: 48px;
   min-width: 512px;
   display: flex;
   align-items: center;
@@ -29,14 +37,13 @@ const NavStyled = styled.div`
     justify-content: center;
     width: 100%;
     height: 100%;
-    color: #fff;
+    color: #3f4753;
     font-weight: 700;
     text-decoration: none;
 
     &:hover,
     &.active {
-      color: #3f4753;
-      background-color: #fff;
+      box-shadow: 0 2px 0 #9d141d;
     }
   }
 `;
@@ -53,12 +60,13 @@ function App() {
     <div className="App">
       {/* header */}
       <HeaderStyled>
+        <img src="/img/stock_logo.jpg" className="logo" />
         <NavStyled>
-          <NavLink to="/home" activeClassName="active">
+          {/* <NavLink to="/home" activeClassName="active">
             홈
-          </NavLink>
+          </NavLink> */}
           <NavLink to="/stock" activeClassName="active">
-            종목정보
+            홈
           </NavLink>
           <NavLink to="/recommend" activeClassName="active">
             추천종목
@@ -77,8 +85,8 @@ function App() {
 
       <BodyStyled>
         {/* router */}
-        <Route exact path="/" render={() => <Redirect to="/home" />} />
-        <Route path="/home" component={Home} />
+        <Route exact path="/" render={() => <Redirect to="/stock" />} />
+        {/* <Route path="/home" component={Home} /> */}
         <Route path="/stock" component={Stock} />
         <Route path="/recommend" component={Recommend} />
         <Route path="/news" component={News} />
