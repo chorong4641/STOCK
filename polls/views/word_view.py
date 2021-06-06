@@ -5,6 +5,7 @@ from ..models import Word
 
 import json
 
+# 주식 용어 데이터 호출 
 def stockword(request):
     if request.method == 'GET':
         queryset = Word.objects.all()
