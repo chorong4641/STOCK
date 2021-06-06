@@ -65,7 +65,7 @@ def stock(request):
 # 종목명으로 유사 종목 검색값 호출
 def searchstock(request,stock_name):
     if request.method == 'GET':
-        queryset = Stock.objects.filter(name__contains=stock_name)[:5] # 종목 유사값 최대 5개
+        queryset = Stock.objects.filter(name__icontains=stock_name)[:5] # 종목 유사값 최대 5개
         serialize = serializers.serialize('json', queryset)
         data = []
         

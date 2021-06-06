@@ -19,3 +19,12 @@ class User(models.Model):
     class Meta:
         managed = False
         db_table = 'user'
+
+class Word(models.Model):
+    idx = models.AutoField(primary_key=True)
+    word = models.CharField(max_length=30, blank=True, null=True)
+    mean = models.CharField(max_length=100, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'word'

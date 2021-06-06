@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import home_views, stock_views, news_views
+from .views import home_views, stock_views, news_views, word_view
 
 urlpatterns = [
         # 메인 페이지
@@ -17,4 +17,7 @@ urlpatterns = [
         path('api/news/heraldnews',news_views.heraldnews, name='heraldnews'),
         path('api/news/ytnnews',news_views.ytnnews, name='ytnnews'),
         path('api/news/joongangnews',news_views.joongangnews, name='joongangnews'),
+
+        # 주식 용어 페이지
+        path('api/word/stockword',word_view.stockword, name='stockword'),
 ]
