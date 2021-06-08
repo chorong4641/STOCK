@@ -223,13 +223,11 @@ function Stock() {
       const code = splitPath[2];
       // 종목 상세 정보 조회
       onGetStockDetail(code);
-      // 종목 기간별 차트 조회
-      onGetDetailChart(code);
     } else {
       // 시장지수 조회
       onGetStockMarket();
     }
-  }, [period]);
+  }, [pathname]);
 
   // 시장 지수 조회
   const onGetStockMarket = async () => {
@@ -242,7 +240,7 @@ function Stock() {
           Object.keys(res.data).forEach((key) => {
             const chartY = [];
             const chartX = [];
-            res.data[key].map((data) => {
+            res.data[key].forEach((data) => {
               chartY.push(data.index.toFixed(2));
               chartX.push(data.date);
             });
@@ -299,13 +297,11 @@ function Stock() {
   // 검색 문자열과 일치하는 주식 리스트 조회
   const onGetMatchedStock = async (value) => {
     if (!value) return;
-    setLoading(true);
 
     await axios
       .get(`/api/searchstock/${value}`)
       .then((res) => {
         setSearchData(res.data);
-        setLoading(false);
       })
       .catch((error) => {
         console.log("onGetMatchedStock", error);
@@ -329,7 +325,10 @@ function Stock() {
       .get(`/api/getstock/${code}`)
       .then((res) => {
         setDetailData(res.data);
-        setLoading(false);
+        // setLoading(false);
+
+        // 기간별 주가 차트 조회
+        onGetDetailChart(code, "week");
       })
       .catch((error) => {
         console.log("onGetStockDetail", error);
@@ -337,15 +336,15 @@ function Stock() {
   };
 
   // 기간별 주가 차트 조회
-  const onGetDetailChart = async (stockCode) => {
+  const onGetDetailChart = async (stockCode, term) => {
     setLoading(true);
 
     await axios
-      .get(` api/chart/price/${stockCode}/${period}`)
+      .get(`/api/chart/price/${stockCode}/${term}`)
       .then((res) => {
         const chartY = [];
         const chartX = [];
-        res.data.map((data) => {
+        res.data.forEach((data) => {
           chartY.push(data.index);
           chartX.push(data.date);
         });
@@ -363,6 +362,7 @@ function Stock() {
             },
           },
         });
+
         setLoading(false);
       })
       .catch((error) => {
@@ -387,6 +387,17 @@ function Stock() {
   // 천 단위로 콤마(,) 표시
   const addComma = (number) => {
     return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  };
+
+  // 차트 기간 변경 시(주,월,년)
+  const changePeriod = (term) => {
+    setPeriod(term);
+    const splitPath = pathname.split("/");
+    if (splitPath && splitPath[2]) {
+      const code = splitPath[2];
+      // 기간별 주가 차트 조회
+      onGetDetailChart(code, term);
+    }
   };
 
   return (
@@ -467,9 +478,9 @@ function Stock() {
 
             <div className="detail-chart">
               <div className="period-btns">
-                <button onClick={() => setPeriod("week")}>주</button>
-                <button onClick={() => setPeriod("month")}>월</button>
-                <button onClick={() => setPeriod("year")}>년</button>
+                <button onClick={() => changePeriod("week")}>주</button>
+                <button onClick={() => changePeriod("month")}>월</button>
+                <button onClick={() => changePeriod("year")}>년</button>
               </div>
               {Object.keys(periodChartData).length > 0 && (
                 <Chart
@@ -489,7 +500,7 @@ function Stock() {
             {marketData?.length > 0 &&
               marketData?.map((data) => {
                 return (
-                  <div className="chart-item">
+                  <div className="chart-item" key={data.text}>
                     <div className="chart-text">{data.text}</div>
                     <Chart className="chart-graph" options={data.options} series={[data.series]} type="line" />
                   </div>
