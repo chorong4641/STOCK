@@ -26,7 +26,7 @@ const HeaderStyled = styled.div`
 
 const NavStyled = styled.div`
   width: 50%;
-  height: 48px;
+  height: 46px;
   min-width: 512px;
   display: flex;
   align-items: center;
@@ -43,12 +43,13 @@ const NavStyled = styled.div`
 
     &:hover,
     &.active {
-      box-shadow: 0 2px 0 #9d141d;
+      box-shadow: 0 3px 0 #9d141d;
     }
   }
 `;
 
 const BodyStyled = styled.div`
+  position: relative;
   width: 100%;
   height: calc(100% - 50px);
   padding: 20px 0;

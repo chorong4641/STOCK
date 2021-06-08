@@ -1,65 +1,16 @@
 import React, { useEffect, useState } from "react";
 import Chart from "react-apexcharts";
-import { useLocation, useParams } from "react-router";
+import { useLocation } from "react-router";
 import { useHistory } from "react-router-dom";
-import { Select, Input } from "antd";
+import { Select } from "antd";
 import { SearchOutlined, CaretDownFilled, CaretUpFilled, MinusOutlined } from "@ant-design/icons";
 import styled from "styled-components";
 import axios from "axios";
+import Loading from "./Loading";
 
 const StockStyled = styled.div`
   width: 80%;
   margin: 0 auto;
-
-  .search-input {
-    position: relative;
-    display: flex;
-    align-items: center;
-    width: 50%;
-    margin: 10px auto 30px;
-
-    .ant-select {
-      width: 100%;
-
-      &.ant-select-focused {
-        .ant-select-selector {
-          border-color: #3f4753;
-          box-shadow: none;
-        }
-      }
-
-      &:hover {
-        border-color: #3f4753;
-
-        .ant-select-selector {
-          border-color: inherit;
-          box-shadow: none;
-        }
-      }
-
-      .ant-select-selector {
-        height: 45px;
-        padding-right: 45px;
-
-        input {
-          height: 100%;
-          padding-right: 35px;
-        }
-      }
-    }
-
-    .search-icon {
-      position: absolute;
-      right: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      width: 45px;
-      height: 45px;
-      color: #3f4753;
-      font-size: 18px;
-    }
-  }
 
   .apexcharts-toolbar {
     display: none;
@@ -191,7 +142,63 @@ const StockStyled = styled.div`
   }
 `;
 
-function Stock(props) {
+const SelectStyled = styled.div`
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 50%;
+  margin: 30px auto;
+
+  .ant-select {
+    width: 100%;
+
+    &.ant-select-focused {
+      .ant-select-selector {
+        border-color: #3f4753 !important;
+        box-shadow: none !important;
+      }
+    }
+
+    &:hover {
+      border-color: #3f4753;
+
+      .ant-select-selector {
+        border-color: inherit;
+        box-shadow: none;
+      }
+    }
+
+    .ant-select-selector {
+      height: 45px;
+      line-height: 43px;
+      padding-right: 45px;
+
+      input {
+        height: 100%;
+        padding-right: 35px;
+      }
+
+      .ant-select-selection-item,
+      .ant-select-selection-placeholder {
+        line-height: inherit;
+      }
+    }
+  }
+
+  .search-icon {
+    position: absolute;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 45px;
+    height: 45px;
+    color: #3f4753;
+    font-size: 18px;
+  }
+`;
+
+function Stock() {
   const history = useHistory();
   const { pathname } = useLocation();
   const [loading, setLoading] = useState(false);
@@ -317,20 +324,6 @@ function Stock(props) {
     if (!code) return;
     setLoading(true);
 
-    // setDetailData({
-    //   code: "A251270",
-    //   name: "넷마블",
-    //   price: 136500,
-    //   closing: 138500,
-    //   opening: 137500,
-    //   high: 138500,
-    //   low: 135000,
-    //   time: 1559,
-    //   trading_volume: 219664,
-    //   warning: "1",
-    // });
-    // setLoading(false);
-
     await axios
       .get(`/api/getstock/${code}`)
       .then((res) => {
@@ -345,16 +338,6 @@ function Stock(props) {
   // 기간별 주가 차트 조회
   const onGetDetailChart = async (stockCode) => {
     setLoading(true);
-
-    // const data = [
-    //   { date: 20210600, index: 82300 },
-    //   { date: 20210500, index: 80500 },
-    //   { date: 20210400, index: 81500 },
-    //   { date: 20210300, index: 80500 },
-    //   { date: 20210200, index: 82300 },
-    //   { date: 20210100, index: 80500 },
-    //   { date: 20201200, index: 80500 },
-    // ];
 
     await axios
       .get(` api/chart/price/${stockCode}/${period}`)
@@ -407,11 +390,13 @@ function Stock(props) {
 
   return (
     <StockStyled>
-      <div className="search-input">
+      <Loading loading={loading} />
+
+      <SelectStyled>
         <Select
           showSearch
-          value={searchText}
-          placeholder="종목명 입력"
+          value={searchText || null}
+          placeholder="종목명 검색"
           defaultActiveFirstOption={false}
           showArrow={false}
           filterOption={false}
@@ -424,7 +409,7 @@ function Stock(props) {
         <div className="search-icon">
           <SearchOutlined />
         </div>
-      </div>
+      </SelectStyled>
 
       {Object.keys(detailData).length > 0 ? (
         <>
@@ -481,9 +466,9 @@ function Stock(props) {
 
             <div className="detail-chart">
               <div className="period-btns">
-                <button onClick={() => setPeriod("week")}>주별</button>
-                <button onClick={() => setPeriod("month")}>월별</button>
-                <button onClick={() => setPeriod("year")}>연도별</button>
+                <button onClick={() => setPeriod("week")}>주</button>
+                <button onClick={() => setPeriod("month")}>월</button>
+                <button onClick={() => setPeriod("year")}>년</button>
               </div>
               {Object.keys(periodChartData).length > 0 && (
                 <Chart

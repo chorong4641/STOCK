@@ -1,6 +1,6 @@
 import React, { useEffect, useContext, useState } from "react";
 import { useHistory } from "react-router-dom";
-import { Select, Input } from "antd";
+import { Select } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import Chart from "react-apexcharts";
 import styled from "styled-components";

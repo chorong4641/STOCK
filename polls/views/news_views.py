@@ -26,7 +26,7 @@ def heraldnews(request):
             title = i.select_one('a > div > .list_title').get_text() #제목
             text = i.select_one('a > div > .list_txt').get_text() #내용
             date = i.select_one('.l_date').get_text() # 날짜
-            temp = {'href':href, 'img':img, 'title':title, 'text':text, 'date':date }
+            temp = {'href':'http://biz.heraldcorp.com/'+href, 'img':img, 'title':title, 'text':text, 'date':date }
             data.append(temp)
         return JsonResponse(data,safe=False,json_dumps_params={'ensure_ascii': False}, status=200)
     
