@@ -280,6 +280,7 @@ function Stock() {
           });
         }
         setMarketData(chartData);
+        setLoading(false);
       })
       .catch((error) => {
         console.log("onGetStockMarket", error);
