@@ -230,7 +230,7 @@ function Stock() {
       onGetStockDetail(code);
     } else {
       // 시장지수 조회
-      // onGetStockMarket();
+      onGetStockMarket();
     }
   }, [pathname]);
 
