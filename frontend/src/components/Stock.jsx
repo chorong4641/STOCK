@@ -134,7 +134,7 @@ const StockStyled = styled.div`
         text-align: right;
         padding-right: 10px;
 
-        button {
+        .period-btn {
           margin-left: 5px;
           padding: 2px 10px;
           font-size: 13px;
@@ -143,6 +143,11 @@ const StockStyled = styled.div`
           border: none;
           border-radius: 3px;
           cursor: pointer;
+
+          &.active {
+            color: #fff;
+            background-color: #3f4753;
+          }
         }
       }
     }
@@ -475,9 +480,24 @@ function Stock() {
 
             <div className="detail-chart">
               <div className="period-btns">
-                <button onClick={() => changePeriod("week")}>일주일</button>
-                <button onClick={() => changePeriod("month")}>한 달</button>
-                <button onClick={() => changePeriod("year")}>일 년</button>
+                <button
+                  onClick={() => changePeriod("week")}
+                  className={`period-btn ${period === "week" ? "active" : ""}`}
+                >
+                  일주일
+                </button>
+                <button
+                  onClick={() => changePeriod("month")}
+                  className={`period-btn ${period === "month" ? "active" : ""}`}
+                >
+                  한 달
+                </button>
+                <button
+                  onClick={() => changePeriod("year")}
+                  className={`period-btn ${period === "year" ? "active" : ""}`}
+                >
+                  일 년
+                </button>
               </div>
               {detailData && detailData[period] && (
                 <Chart
