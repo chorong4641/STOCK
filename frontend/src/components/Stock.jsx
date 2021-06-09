@@ -69,7 +69,7 @@ const StockStyled = styled.div`
         }
 
         .stock-price {
-          font-size: 26px;
+          font-size: 28px;
           font-weight: 700;
           margin: 10px 0 20px;
           padding: 10px;
@@ -78,13 +78,20 @@ const StockStyled = styled.div`
         }
 
         .compare {
-          font-size: 14px;
           font-weight: 500;
+          font-size: 18px;
 
           .compare-extra {
             display: flex;
             justify-content: center;
+            align-items: center;
             padding-bottom: 5px;
+
+            .compare-text {
+              position: relative;
+              top: 1px;
+              font-size: 13px;
+            }
 
             div {
               margin: 0 8px;
@@ -208,12 +215,10 @@ function Stock() {
   const [searchData, setSearchData] = useState([]);
   // 검색한 종목명
   const [searchText, setSearchText] = useState("");
-  // 검색한 종목의 상세정보(현재가, 시가, ...)
+  // 검색한 종목의 상세정보, 기간 차트정보
   const [detailData, setDetailData] = useState({});
-  // 차트 기간 선택값(주, 월, 년)
+  // 차트 기간 선택값
   const [period, setPeriod] = useState("week");
-  // 차트 기간 데이터
-  const [periodChartData, setPeriodChartData] = useState({});
 
   const { Option } = Select;
 
@@ -225,7 +230,7 @@ function Stock() {
       onGetStockDetail(code);
     } else {
       // 시장지수 조회
-      onGetStockMarket();
+      // onGetStockMarket();
     }
   }, [pathname]);
 
@@ -324,56 +329,53 @@ function Stock() {
     await axios
       .get(`/api/getstock/${code}`)
       .then((res) => {
-        setDetailData(res.data);
-        // setLoading(false);
+        const detailChartData = {};
+        if (Object.keys(res.data).length > 0) {
+          Object.keys(res.data).forEach((key) => {
+            if (key === "info") return;
 
-        // 기간별 주가 차트 조회
-        onGetDetailChart(code, "week");
+            const chartY = [];
+            const chartX = [];
+            res.data[key].forEach((data) => {
+              chartY.push(data.index.toFixed(2));
+              chartX.push(data.date);
+            });
+
+            detailChartData[key] = {
+              series: {
+                name: key,
+                data: chartY,
+              },
+              options: {
+                chart: {
+                  id: key,
+                },
+                xaxis: {
+                  categories: chartX,
+                },
+              },
+            };
+          });
+        }
+
+        setDetailData({
+          info: res.data.info[0],
+          week: detailChartData["week"],
+          month: detailChartData["month"],
+          year: detailChartData["year"],
+        });
+
+        setLoading(false);
       })
       .catch((error) => {
         console.log("onGetStockDetail", error);
       });
   };
 
-  // 기간별 주가 차트 조회
-  const onGetDetailChart = async (stockCode, term) => {
-    setLoading(true);
-
-    await axios
-      .get(`/api/chart/price/${stockCode}/${term}`)
-      .then((res) => {
-        const chartY = [];
-        const chartX = [];
-        res.data.forEach((data) => {
-          chartY.push(data.index);
-          chartX.push(data.date);
-        });
-        setPeriodChartData({
-          series: {
-            name: "index",
-            data: chartY,
-          },
-          options: {
-            chart: {
-              id: "period",
-            },
-            xaxis: {
-              categories: chartX,
-            },
-          },
-        });
-
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.log("onGetDetailChart", error);
-      });
-  };
-
   // 전일대비 비교 값
-  let compare = { status: "same", icon: <MinusOutlined />, value: 0, rate: 0.0 };
-  if (detailData) {
-    const { closing, price } = detailData;
+  let compare = { status: "same", icon: null, value: 0, rate: "0.00%" };
+  if (detailData?.info) {
+    const { closing, price } = detailData.info;
     // 등락율
     const rate = (((price - closing) / closing) * 100).toFixed(2);
 
@@ -389,15 +391,9 @@ function Stock() {
     return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
 
-  // 차트 기간 변경 시(주,월,년)
+  // 차트 기간 변경 시
   const changePeriod = (term) => {
     setPeriod(term);
-    const splitPath = pathname.split("/");
-    if (splitPath && splitPath[2]) {
-      const code = splitPath[2];
-      // 기간별 주가 차트 조회
-      onGetDetailChart(code, term);
-    }
   };
 
   return (
@@ -423,13 +419,13 @@ function Stock() {
         </div>
       </SelectStyled>
 
-      {Object.keys(detailData).length > 0 ? (
+      {detailData?.info ? (
         <>
           <div className="stock-detail">
             <div className="detail-info">
               <div className="stock-item">
-                <span className="stock-name">{detailData.name}</span>
-                <span className="stock-code">{` (${detailData.code})`}</span>
+                <span className="stock-name">{detailData.info.name}</span>
+                <span className="stock-code">{` (${detailData.info.code})`}</span>
               </div>
               <div className="stock-item">
                 <div
@@ -437,9 +433,10 @@ function Stock() {
                     compare.status === "down" ? "blue" : ""
                   }`}
                 >
-                  <div>{addComma(detailData.price)}</div>
+                  <div>{addComma(detailData.info.price)}</div>
                   <div className="compare">
                     <div className="compare-extra">
+                      <div className="compare-text">{`전일대비 `} </div>
                       <div>
                         {compare.icon}
                         {addComma(compare.value)}
@@ -453,23 +450,23 @@ function Stock() {
                   <tbody>
                     <tr>
                       <td>전일</td>
-                      <td className="value">{addComma(detailData.closing)}</td>
+                      <td className="value">{addComma(detailData.info.closing)}</td>
                     </tr>
                     <tr>
                       <td>시가</td>
-                      <td className="value">{addComma(detailData.opening)}</td>
+                      <td className="value">{addComma(detailData.info.opening)}</td>
                     </tr>
                     <tr>
                       <td>고가</td>
-                      <td className="value">{addComma(detailData.high)}</td>
+                      <td className="value">{addComma(detailData.info.high)}</td>
                     </tr>
                     <tr>
                       <td>저가</td>
-                      <td className="value">{addComma(detailData.low)}</td>
+                      <td className="value">{addComma(detailData.info.low)}</td>
                     </tr>
                     <tr>
                       <td>거래량</td>
-                      <td className="value">{addComma(detailData.trading_volume)}</td>
+                      <td className="value">{addComma(detailData.info.trading_volume)}</td>
                     </tr>
                   </tbody>
                 </table>
@@ -478,15 +475,15 @@ function Stock() {
 
             <div className="detail-chart">
               <div className="period-btns">
-                <button onClick={() => changePeriod("week")}>주</button>
-                <button onClick={() => changePeriod("month")}>월</button>
-                <button onClick={() => changePeriod("year")}>년</button>
+                <button onClick={() => changePeriod("week")}>일주일</button>
+                <button onClick={() => changePeriod("month")}>한 달</button>
+                <button onClick={() => changePeriod("year")}>일 년</button>
               </div>
-              {Object.keys(periodChartData).length > 0 && (
+              {detailData && detailData[period] && (
                 <Chart
                   className="detail-chart-graph"
-                  options={periodChartData?.options}
-                  series={[periodChartData?.series]}
+                  options={detailData[period].options}
+                  series={[detailData[period].series]}
                   type="line"
                   height={300}
                 />
