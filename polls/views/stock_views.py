@@ -35,9 +35,9 @@ def getstock(request, stock_code):
         print("통신상태", rqStatus, rqRet)
         if rqStatus != 0:
             exit()
-
+        
         # 현재가 정보 조회
-        data = {
+        stockdata = {
             'code':objStockMst.GetHeaderValue(0),  # 종목코드
             'name':objStockMst.GetHeaderValue(1),  # 종목명
             'price':objStockMst.GetHeaderValue(11), # 현재가
@@ -49,8 +49,36 @@ def getstock(request, stock_code):
             'trading_volume':objStockMst.GetHeaderValue(18),   #거래량
             'warning':chr(objStockMst.GetHeaderValue(67))   #투자경고구분
         }
+
+        # 일자별 object 구하기
+        datecode = {'week':'D','month':'W','year':'M'}
+        data = {'week':[],'month':[],'year':[]}
+        for k,v in datecode.items() :
+            objStockChart = win32com.client.Dispatch("CpSysDib.StockChart")
+            objStockChart.SetInputValue(0,'A'+stock_code)  # 종목코드
+            objStockChart.SetInputValue(1, ord('2'))  # 개수로 받기
+            # objStockChart.SetInputValue(2, datetime.now().strftime("%Y%m%d"))  # To 날짜
+            # objStockChart.SetInputValue(3, from_date.strftime("%Y%m%d"))  # From 날짜
+            objStockChart.SetInputValue(4, 7)  # 최근 500일치
+            objStockChart.SetInputValue(5, [0,2,3,4,5,8])  # 날짜,종가
+            objStockChart.SetInputValue(6, ord(v))  # '차트 주기 - 일간 차트 요청
+            objStockChart.SetInputValue(9, ord('1'))  # 수정주가 사용
+            objStockChart.BlockRequest()
+            
+            # 정보 데이터 처리
+            count = objStockChart.GetHeaderValue(3)
+            # chartdata = []
+            for i in range(count):
+                temp = {}
+                date = objStockChart.GetDataValue(0, i)
+                index = objStockChart.GetDataValue(4, i)
+                temp = {'date':date,'index':index}
+                data[k].append(temp)
+            data[k].reverse()
+            # data[k].append(chartdata)
+        data.update({'info':[stockdata]}) 
         pythoncom.CoUninitialize()
-        return JsonResponse(data,json_dumps_params={'ensure_ascii': False}, status=200)
+        return JsonResponse(data,safe=False,json_dumps_params={'ensure_ascii': False}, status=200)
         # data = {code:코드,name:종목명,price:현재가,closing:종가,opening:시가,high:고가,low:저가,
         #         time:기준시간,trading volume:거래량,warning:투자경고구분}
 
@@ -110,6 +138,12 @@ def price_by_period(request,stock_code,term):
         objStockChart.SetInputValue(9, ord('1'))  # 수정주가 사용
         objStockChart.BlockRequest()
 
+        rqStatus = objStockChart.GetDibStatus()
+        rqRet = objStockChart.GetDibMsg1()
+        print("통신상태", rqStatus, rqRet)
+        if rqStatus != 0:
+            exit()
+        
         # 정보 데이터 처리
         count = objStockChart.GetHeaderValue(3)
         data = []
@@ -145,7 +179,9 @@ def real_time(request,stock_code):
         objStockChart.SetInputValue(6, ord('m'))  # '차트 주기 - 일간 차트 요청
         objStockChart.SetInputValue(9, ord('1'))  # 수정주가 사용
         objStockChart.BlockRequest()
-
+        
+        print(objStockChart.BlockRequest())
+        
         # 정보 데이터 처리
         count = objStockChart.GetHeaderValue(3)
         data = []
