@@ -38,7 +38,7 @@ def stock(request):
             for i in range(0,6) :
                 temp = {}
                 temp['date'] = objDomeindex.GetDataValue(0,i)
-                temp['index'] = objDomeindex.GetDataValue(1,i)
+                temp['index'] = objDomeindex.GetDataValue(1,i) / 100
                 Domedata[k].append(temp)
             Domedata[k].reverse()
 

@@ -191,7 +191,7 @@ def real_time(request,stock_code):
             temp = {'index':index}
             data.append(temp)
     
-        pythoncom.CoUninitialize()    
+        pythoncom.CoUninitialize()   
         return JsonResponse(data,safe=False,json_dumps_params={'ensure_ascii': False}, status=200)
         #data = [{index:23122}]
 
