@@ -67,10 +67,10 @@ class AuthUserUserPermissions(models.Model):
 
 
 class Board(models.Model):
-    idx = models.IntegerField(primary_key=True)
-    id = models.CharField(max_length=30, blank=True, null=True)
-    code = models.CharField(max_length=20, blank=True, null=True)
-    contents = models.CharField(max_length=200, blank=True, null=True)
+    idx = models.AutoField(primary_key=True)
+    id = models.CharField(max_length=30)
+    code = models.CharField(max_length=20)
+    contents = models.CharField(max_length=200)
     date_insert = models.DateTimeField(blank=True, null=True)
     date_update = models.DateTimeField(blank=True, null=True)
 
@@ -79,16 +79,28 @@ class Board(models.Model):
         db_table = 'board'
 
 
-class Bookmark(models.Model):
-    idx = models.IntegerField(primary_key=True)
+class BookmarkGroup(models.Model):
+    idx = models.AutoField(primary_key=True)
     id = models.CharField(max_length=30, blank=True, null=True)
-    code = models.CharField(max_length=20, blank=True, null=True)
-    bookmark = models.BooleanField(blank=True, null=True)
+    name = models.CharField(max_length=50, blank=True, null=True)
     date_insert = models.DateTimeField(blank=True, null=True)
+    date_update = models.DateTimeField(blank=True, null=True)
 
     class Meta:
         managed = False
-        db_table = 'bookmark'
+        db_table = 'bookmark_group'
+
+
+class BookmarkStock(models.Model):
+    idx = models.AutoField(primary_key=True)
+    group_idx = models.IntegerField(blank=True, null=True)
+    code = models.CharField(max_length=20, blank=True, null=True)
+    date_insert = models.DateTimeField(blank=True, null=True)
+    date_update = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'bookmark_stock'
 
 
 class DjangoAdminLog(models.Model):
@@ -135,6 +147,20 @@ class DjangoSession(models.Model):
         db_table = 'django_session'
 
 
+class MockInvestment(models.Model):
+    idx = models.AutoField(primary_key=True)
+    id = models.CharField(max_length=30, blank=True, null=True)
+    code = models.CharField(max_length=20, blank=True, null=True)
+    price = models.IntegerField(blank=True, null=True)
+    count = models.IntegerField(blank=True, null=True)
+    date_insert = models.DateTimeField(blank=True, null=True)
+    date_update = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'mock_investment'
+
+
 class Stock(models.Model):
     field_idx = models.IntegerField(db_column='\ufeffidx', blank=True, null=True)  # Field renamed to remove unsuitable characters. Field renamed because it started with '_'.
     code = models.CharField(max_length=20, blank=True, null=True)
@@ -146,12 +172,11 @@ class Stock(models.Model):
 
 
 class User(models.Model):
-    idx = models.IntegerField(primary_key=True)
-    id = models.CharField(max_length=30, blank=True, null=True)
-    password = models.CharField(max_length=200, blank=True, null=True)
-    name = models.CharField(max_length=30, blank=True, null=True)
-    email = models.CharField(max_length=50, blank=True, null=True)
-    salt = models.CharField(max_length=200, blank=True, null=True)
+    idx = models.AutoField(primary_key=True)
+    id = models.CharField(max_length=30)
+    password = models.TextField()
+    name = models.CharField(max_length=30)
+    email = models.CharField(max_length=50)
     date_insert = models.DateTimeField(blank=True, null=True)
     date_update = models.DateTimeField(blank=True, null=True)
 
@@ -160,10 +185,23 @@ class User(models.Model):
         db_table = 'user'
 
 
+class UserCapital(models.Model):
+    idx = models.AutoField(primary_key=True)
+    id = models.CharField(max_length=30)
+    capital = models.TextField(blank=True, null=True)  # This field type is a guess.
+    date_check = models.DateTimeField(blank=True, null=True)
+    date_insert = models.DateTimeField(blank=True, null=True)
+    date_update = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'user_capital'
+
+
 class Word(models.Model):
-    idx = models.IntegerField(primary_key=True)
-    word = models.CharField(max_length=30, blank=True, null=True)
-    mean = models.CharField(max_length=100, blank=True, null=True)
+    idx = models.AutoField(primary_key=True)
+    word = models.CharField(max_length=30)
+    mean = models.CharField(max_length=100)
 
     class Meta:
         managed = False

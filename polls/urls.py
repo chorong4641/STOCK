@@ -1,11 +1,11 @@
 from django.urls import path
-from .views import home_views, stock_views, news_views, word_view
+from .views import home_views, stock_views, news_views, word_view, user_view
 
 urlpatterns = [
         # 메인 페이지
         # path('',main_views.main, name='main'),
-        path('api/chart/stock',home_views.stock, name='stock'),
-        path('api/searchstock/<str:stock_name>',home_views.searchstock, name='searchstock'),
+        path('api/chart/stock',home_views.creon.stock, name='stock'),
+        path('api/searchstock/<str:stock_name>',home_views.creon.searchstock, name='searchstock'),
         
         # 상세 페이지
         path('api/getstock/<str:stock_code>',stock_views.getstock, name='getstock'),
@@ -20,4 +20,8 @@ urlpatterns = [
 
         # 주식 용어 페이지
         path('api/word/stockword',word_view.stockword, name='stockword'),
+
+        # 회원가입/로그인 페이지
+        path('api/user/register',user_view.register, name='register'),
+        path('api/user/login',user_view.login, name='login'),
 ]
