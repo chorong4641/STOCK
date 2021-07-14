@@ -3,7 +3,7 @@ import Chart from "react-apexcharts";
 import { useLocation } from "react-router";
 import { useHistory } from "react-router-dom";
 import { Select } from "antd";
-import { SearchOutlined, CaretDownFilled, CaretUpFilled, MinusOutlined } from "@ant-design/icons";
+import { SearchOutlined, CaretDownFilled, CaretUpFilled } from "@ant-design/icons";
 import styled from "styled-components";
 import axios from "axios";
 import Loading from "./Loading";
