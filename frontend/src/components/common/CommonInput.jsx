@@ -45,21 +45,14 @@ function CommonInput({
 }) {
   const [showPassword, setShowPassword] = useState(false);
 
-  console.log("error", error);
-
   return (
     <>
       <InputStyled>
         <input
           type={showPassword ? "text" : type}
           name={name}
-          // {...register(name, validation)}
           ref={register(validation)}
-          // {value ? (value = { value }) : null}
-          // defaultValue={defaultValue || undefined}
           onChange={(value) => {
-            console.log("onchange", value);
-            // setValue(value);
             if (onChange) {
               onChange(value);
             }

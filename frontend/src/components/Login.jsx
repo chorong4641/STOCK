@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useContext } from "react";
 import styled from "styled-components";
 import { useForm } from "react-hook-form";
 import { useHistory, Link } from "react-router-dom";
 import axios from "axios";
+import { store } from "../store";
+import { login } from "../store/actions";
 import CommonInput from "./common/CommonInput";
 import { validRequired } from "../utils/validation";
 
@@ -62,6 +64,7 @@ const LoginStyled = styled.div`
 `;
 function Login(props) {
   const history = useHistory();
+  const [state, dispatch] = useContext(store);
   const { errors, register, handleSubmit } = useForm({ mode: "all" });
 
   const onLogin = async (formData) => {
@@ -74,7 +77,7 @@ function Login(props) {
       .post(`/api/user/login`, params)
       .then((res) => {
         if (!res?.data?.error) {
-          // localStorage.setItem('user', )
+          dispatch(login("chorong"));
           history.push(`/stock`);
         } else {
           //

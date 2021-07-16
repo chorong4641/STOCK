@@ -1,8 +1,10 @@
 import { useReducer, createContext } from "react";
 import { reducer } from "./actions";
 
+// 초기 상태값
 const initialState = {
   market: {},
+  user: { data: localStorage.getItem("user") },
 };
 
 const store = createContext(initialState);

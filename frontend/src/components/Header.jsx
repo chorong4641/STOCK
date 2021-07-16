@@ -1,6 +1,10 @@
 import { UserOutlined } from "@ant-design/icons";
-import { NavLink } from "react-router-dom";
+import { Divider, Popover } from "antd";
+import { useContext, useState } from "react";
+import { NavLink, useHistory } from "react-router-dom";
 import styled from "styled-components";
+import { store } from "../store";
+import { logout } from "../store/actions";
 
 const HeaderStyled = styled.div`
   display: flex;
@@ -16,6 +20,15 @@ const HeaderStyled = styled.div`
     left: 30px;
     width: 33px;
     height: 33px;
+  }
+
+  .user-icon {
+    position: absolute;
+    right: 30px;
+    padding: 8px;
+    background-color: #e9e9eb;
+    border-radius: 100%;
+    font-size: 16px;
   }
 `;
 
@@ -54,10 +67,44 @@ const LoginBtn = styled.button`
   }
 `;
 
+const UserPopoverStyled = styled.div`
+  font-size: 13px;
+
+  .info-title {
+    padding-bottom: 10px;
+    color: #3f4753;
+    font-weight: normal;
+    border-bottom: 1px solid #ddd;
+
+    span {
+      font-weight: bold;
+    }
+  }
+
+  .edit-user-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 10px;
+    font-size: 12px;
+    cursor: pointer;
+  }
+`;
+
 function Header(params) {
+  const history = useHistory();
+  const [state, dispatch] = useContext(store);
+  const [openModal, setOpenModal] = useState(false);
+
+  // 로그아웃
+  const onLogout = async () => {
+    await dispatch(logout());
+    history.push("/stock");
+  };
+
   return (
     <HeaderStyled>
-      <img src="/img/stock_logo.jpg" className="logo" />
+      <img src="/img/stock_logo.jpg" className="logo" alt="logo" />
       <NavStyled>
         <NavLink to="/stock" activeClassName="active">
           홈
@@ -75,16 +122,33 @@ function Header(params) {
           마이페이지
         </NavLink>
       </NavStyled>
-
-      {/* {localStorage.getItem("user") ? (
-        <UserOutlined />
-      ) : ( */}
+      {state.user.data ? (
+        <Popover
+          placement="bottomRight"
+          content={
+            <UserPopoverStyled>
+              <div className="info-title">
+                <span>{state.user.data}</span>님 환영합니다!
+              </div>
+              <div className="edit-user-info">
+                <div onClick={() => setOpenModal(true)}>내 정보 수정</div>
+                <Divider type="vertical" style={{ borderColor: "#ddd" }} />
+                <div onClick={onLogout}>로그아웃</div>
+              </div>
+            </UserPopoverStyled>
+          }
+          trigger="click"
+          arrowPointAtCenter
+        >
+          <UserOutlined className="user-icon" />
+        </Popover>
+      ) : (
         <LoginBtn>
           <NavLink to="/login" activeClassName="active">
             로그인
           </NavLink>
         </LoginBtn>
-      {/* )} */}
+      )}
     </HeaderStyled>
   );
 }

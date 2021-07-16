@@ -189,6 +189,7 @@ function News() {
                         </a>
                       );
                     }
+                    return <></>;
                   })}
               </div>
             </div>
