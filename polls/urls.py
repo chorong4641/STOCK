@@ -24,4 +24,5 @@ urlpatterns = [
         # 회원가입/로그인 페이지
         path('api/user/register',user_view.register, name='register'),
         path('api/user/login',user_view.login, name='login'),
+        path('api/user/edit',user_view.edit, name='edit'),
 ]

@@ -16,45 +16,38 @@ def main(request):
     return HttpResponse('main')
 
 #차트 데이터 호출
-def stock(request):
+def stock(self,request):
     if request.method == 'GET':
-        pythoncom.CoInitialize()
-        objCpCybos = win32com.client.Dispatch("CpUtil.CpCybos")
-        bConnect = objCpCybos.IsConnect
-        if (bConnect == 0):
-            print("PLUS가 정상적으로 연결되지 않음. ")
-            exit()
-        else : print("Plus 연결 성공")
-  
+
         # 국내 지수 구하기
-        objDomeindex = win32com.client.Dispatch("DsCbo1.StockWeek")
+        self.objDomeindex = win32com.client.Dispatch("DsCbo1.StockWeek")
         Domecode = {'KOSPI':'U001','KOSDAQ':'U201'}
         Domedata = {'KOSPI':[],'KOSDAQ':[]}
         for k,v in Domecode.items() :
-            objDomeindex.SetInputValue(0,v) # 나스닥
-            objDomeindex.SetInputValue(1,ord("D")) # 일자별
-            objDomeindex.SetInputValue(3,9999) # 일자별
-            objDomeindex.BlockRequest()
+            self.objDomeindex.SetInputValue(0,v) # 나스닥
+            self.objDomeindex.SetInputValue(1,ord("D")) # 일자별
+            self.objDomeindex.SetInputValue(3,9999) # 일자별
+            self.objDomeindex.BlockRequest()
             for i in range(0,6) :
                 temp = {}
-                temp['date'] = objDomeindex.GetDataValue(0,i)
-                temp['index'] = objDomeindex.GetDataValue(1,i) / 100
+                temp['date'] = self.objDomeindex.GetDataValue(0,i)
+                temp['index'] = self.objDomeindex.GetDataValue(1,i) / 100
                 Domedata[k].append(temp)
             Domedata[k].reverse()
 
         # 해외 지수 구하기
-        objForeindex = win32com.client.Dispatch('Dscbo1.CpSvr8300')
+        self.objForeindex = win32com.client.Dispatch('Dscbo1.CpSvr8300')
         Forecode = {'DOW':'.DJI','NASDAQ':'COMP','SP500':'SPX','SH':'SHANG'}
         Foredata = {'DOW':[],'NASDAQ':[],'SP500':[],'SH':[]}
         for k,v in Forecode.items() :
-            objForeindex.SetInputValue(0,v) # 나스닥
-            objForeindex.SetInputValue(1,ord("D")) # 일자별
-            objForeindex.SetInputValue(3,9999) # 일자별
-            objForeindex.BlockRequest()
+            self.objForeindex.SetInputValue(0,v) # 나스닥
+            self.objForeindex.SetInputValue(1,ord("D")) # 일자별
+            self.objForeindex.SetInputValue(3,9999) # 일자별
+            self.objForeindex.BlockRequest()
             for i in range(0,6) :
                 temp = {}
-                temp['date'] = objForeindex.GetDataValue(0,i)
-                temp['index'] = objForeindex.GetDataValue(1,i)
+                temp['date'] = self.objForeindex.GetDataValue(0,i)
+                temp['index'] = self.objForeindex.GetDataValue(1,i)
                 Foredata[k].append(temp)
             Foredata[k].reverse()
         pythoncom.CoUninitialize()
