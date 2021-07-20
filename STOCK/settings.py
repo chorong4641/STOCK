@@ -101,17 +101,17 @@ DATABASES = {
     }
 }
 
-EMAIL = {
-    'EMAIL_BACKEND' : 'django.core.mail.backends.smtp.EmailBackend',
-    'EMAIL_USE_TLS' : True,
-    'EMAIL_PORT' : 587,
-    'EMAIL_HOST' : 'smtp.naver.com',   
-    'EMAIL_HOST_USER' : get_secret("EMAIL","ID"),                   
-    'EMAIL_HOST_PASSWORD' : get_secret("EMAIL","PW"),
-    # 'SERVER_EMAIL' : 'e3hope21@gmail.com',
-    'DEFAULT_FROM_MAIL' : get_secret("EMAIL","ID"),
-    'SECURE_SSL_REDIRECT' : True
-}
+# EMAIL = {
+#     'EMAIL_BACKEND' : 'django.core.mail.backends.smtp.EmailBackend',
+#     'EMAIL_USE_TLS' : True,
+#     'EMAIL_PORT' : 587,
+#     'EMAIL_HOST' : 'smtp.naver.com',   
+#     'EMAIL_HOST_USER' : get_secret("EMAIL","ID"),                   
+#     'EMAIL_HOST_PASSWORD' : get_secret("EMAIL","PW"),
+#     # 'SERVER_EMAIL' : 'e3hope21@gmail.com',
+#     'DEFAULT_FROM_MAIL' : get_secret("EMAIL","ID"),
+#     'SECURE_SSL_REDIRECT' : True
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators

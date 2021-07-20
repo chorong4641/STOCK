@@ -62,7 +62,7 @@ def register(request):
 def edit(request):
     if request.method == 'POST':
         request_data = json.loads(request.body)
-        user = User.objects.get(id='test')
+        user = User.objects.get(id=request.session['id'])
         
         # 정보 수정 데이터 확인 변수
         change_data = False

@@ -162,7 +162,7 @@ class MockInvestment(models.Model):
 
 
 class Stock(models.Model):
-    field_idx = models.IntegerField(db_column='\ufeffidx', blank=True, null=True)  # Field renamed to remove unsuitable characters. Field renamed because it started with '_'.
+    field_idx = models.IntegerField(db_column='\ufeffidx', primary_key=True)  # Field renamed to remove unsuitable characters. Field renamed because it started with '_'.
     code = models.CharField(max_length=20, blank=True, null=True)
     name = models.CharField(max_length=100, blank=True, null=True)
 
