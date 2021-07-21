@@ -24,6 +24,7 @@ urlpatterns = [
         # 회원가입/로그인 페이지
         path('api/user/register',user_views.register, name='register'),
         path('api/user/login',user_views.login, name='login'),
+        path('api/user/logout',user_views.logout, name='logout'),
         path('api/user/edit',user_views.edit, name='edit'),
 
         # 게시판 페이지

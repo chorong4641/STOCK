@@ -29,13 +29,23 @@ def login(request):
             # 해쉬비번 검증 후 세션생성(로그인 성공)
             if check_password(request_data['pw'], querydata['password']) :
                 request.session['id'] = querydata['id']
-                request.session['name'] = querydata['name']
-                request.session['email'] = querydata['email']
                 data['error'] = 0
+                data['data'] = {'id':querydata['id'],'name':querydata['name'],'email':querydata['email']}
         except:
             data['error'] = 1
         
         return JsonResponse(data,json_dumps_params={'ensure_ascii': False})
+
+# 로그아웃
+@csrf_exempt
+def logout(request):
+    data = {'error':1}
+    try:
+        request.session.clear()
+        data['error'] = 0
+    except:
+        data['error'] = 1
+    return JsonResponse(data,json_dumps_params={'ensure_ascii': False})
 
 # 회원 가입
 @csrf_exempt
@@ -61,27 +71,28 @@ def register(request):
 @csrf_exempt
 def edit(request):
     if request.method == 'POST':
-        request_data = json.loads(request.body)
-        user = User.objects.get(id=request.session['id'])
-        
-        # 정보 수정 데이터 확인 변수
-        change_data = False
-        
-        # 정보 수정
-        for k,v in request_data.items() :
-            if v != request.session[k] :
-                setattr(user, k, v)
-                request.session[k] = v
-                change_data = True
-        
         data = {'error':1}
         try:
+            request_data = json.loads(request.body)
+            user = User.objects.get(id=request.session['id'])
+            
+            # 정보 수정 데이터 확인 변수
+            change_data = False
+            
+            # 정보 수정
+            for k,v in request_data.items() :
+                if v != request.session[k] :
+                    setattr(user, k, v)
+                    request.session[k] = v
+                    change_data = True
+
             if change_data == True :
                 user.save()
                 data['error'] = 0
+
         except:
             data['error'] = 1
-        
+
         return JsonResponse(data,json_dumps_params={'ensure_ascii': False})
 
 # 패스워드 찾기
