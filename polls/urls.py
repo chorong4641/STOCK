@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import home_views, stock_views, news_views, word_views, user_views , board_views
+from .views import home_views, stock_views, news_views, word_views, user_views , board_views , bookmark_views
 
 urlpatterns = [
         # 메인 페이지
@@ -32,4 +32,10 @@ urlpatterns = [
         path('api/board/read',board_views.read, name='read'),
         path('api/board/update',board_views.update, name='update'),
         path('api/board/delete',board_views.delete, name='delete'),
+
+        # 북마크 페이지
+        path('api/bookmark/group_create',bookmark_views.group_create, name='group_create'),
+        path('api/bookmark/group_delete',bookmark_views.group_delete, name='group_delete'),
+        path('api/bookmark/stock_create',bookmark_views.stock_create, name='stock_create'),
+        path('api/bookmark/stock_delete',bookmark_views.stock_delete, name='stock_delete'),
 ]

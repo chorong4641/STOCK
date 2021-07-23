@@ -96,7 +96,7 @@ class BookmarkStock(models.Model):
     group_idx = models.IntegerField(blank=True, null=True)
     code = models.CharField(max_length=20, blank=True, null=True)
     date_insert = models.DateTimeField(blank=True, null=True)
-    date_update = models.DateTimeField(blank=True, null=True)
+    id = models.CharField(max_length=30)
 
     class Meta:
         managed = False

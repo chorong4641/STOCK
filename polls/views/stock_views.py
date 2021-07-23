@@ -1,17 +1,18 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
+from django.core import serializers
+from PyQt5.QtWidgets import *
+from bs4 import BeautifulSoup
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 
 import sys
-from PyQt5.QtWidgets import *
 import win32com.client
 import pythoncom
 import pandas as pd
 import os
 import json
 import requests
-from bs4 import BeautifulSoup
-from datetime import datetime, timedelta
-from dateutil.relativedelta import relativedelta
 
 
 # 종목 코드로 종목 상세 정보 호출
@@ -57,6 +58,9 @@ def getstock(request, stock_code):
             objStockChart = win32com.client.Dispatch("CpSysDib.StockChart")
             objStockChart.SetInputValue(0,'A'+stock_code)  # 종목코드
             objStockChart.SetInputValue(1, ord('2'))  # 개수로 받기
+            objStockChart.SetInputValue(1, ord('2'))  # 개수로 받기
+            objStockChart.SetInputValue(1, ord('2'))  # 개수로 받기
+            objStockChart.SetInputValue(1, ord('2'))  # 개수로 받기
             # objStockChart.SetInputValue(2, datetime.now().strftime("%Y%m%d"))  # To 날짜
             # objStockChart.SetInputValue(3, from_date.strftime("%Y%m%d"))  # From 날짜
             objStockChart.SetInputValue(4, 7)  # 최근 500일치
@@ -76,7 +80,8 @@ def getstock(request, stock_code):
                 data[k].append(temp)
             data[k].reverse()
             # data[k].append(chartdata)
-        data.update({'info':[stockdata]}) 
+        data.update({'info':[stockdata]})
+        
         pythoncom.CoUninitialize()
         return JsonResponse(data,safe=False,json_dumps_params={'ensure_ascii': False}, status=200)
         # data = {code:코드,name:종목명,price:현재가,closing:종가,opening:시가,high:고가,low:저가,
@@ -150,8 +155,11 @@ def price_by_period(request,stock_code,term):
         for i in range(count):
             temp = {}
             date = objStockChart.GetDataValue(0, i)
-            index = objStockChart.GetDataValue(4, i)
-            temp = {'date':date,'index':index}
+            opening = objStockChart.GetDataValue(2, i) # 시가
+            high = objStockChart.GetDataValue(3, i) # 고가
+            low = objStockChart.GetDataValue(4, i) # 저가
+            closing = objStockChart.GetDataValue(5, i) # 종가
+            temp = {'date':date,'opening':opening,'high':high,'low':low,'closing':closing}
             data.append(temp)
         data.reverse()
         pythoncom.CoUninitialize()    
@@ -196,7 +204,7 @@ def real_time(request,stock_code):
         #data = [{index:23122}]
 
 # 재무제표
-def Financial(request,stock_code):
+def financial(request,stock_code):
     if request.method == 'GET':
         pythoncom.CoInitialize()
         objCpCybos = win32com.client.Dispatch("CpUtil.CpCybos")
