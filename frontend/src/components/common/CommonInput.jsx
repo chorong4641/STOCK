@@ -14,6 +14,12 @@ const InputStyled = styled.div`
     border: 1px solid #b1b1b1;
     border-radius: 3px;
     outline: none;
+
+    &.disabled {
+      background-color: #fbfbfb;
+      opacity: 0.7;
+      pointer-events: none;
+    }
   }
 `;
 
@@ -49,6 +55,7 @@ function CommonInput({
     <>
       <InputStyled>
         <input
+          className={disabled ? "disabled" : ""}
           type={showPassword ? "text" : type}
           name={name}
           ref={register(validation)}
@@ -57,9 +64,9 @@ function CommonInput({
               onChange(value);
             }
           }}
+          defaultValue={defaultValue || undefined}
           onBlur={onBlur || undefined}
           onFocus={onFocus || undefined}
-          disabled={disabled}
           placeholder={placeholder || undefined}
         />
         {type === "password" && (

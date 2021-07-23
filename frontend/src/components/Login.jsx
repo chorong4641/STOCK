@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import styled from "styled-components";
 import { useForm } from "react-hook-form";
 import { useHistory, Link } from "react-router-dom";
@@ -66,9 +66,9 @@ function Login(props) {
   const history = useHistory();
   const [state, dispatch] = useContext(store);
   const { errors, register, handleSubmit } = useForm({ mode: "all" });
+  const [errorMessage, setErrorMessage] = useState("");
 
   const onLogin = async (formData) => {
-    console.log("formData", formData);
     const params = {
       ...formData,
     };
@@ -77,10 +77,10 @@ function Login(props) {
       .post(`/api/user/login`, params)
       .then((res) => {
         if (!res?.data?.error) {
-          dispatch(login("chorong"));
+          dispatch(login(res.data.data));
           history.push(`/stock`);
         } else {
-          //
+          setErrorMessage("아이디/비밀번호가 일치하지 않습니다.");
         }
       })
       .catch((error) => {
@@ -114,6 +114,7 @@ function Login(props) {
             validation={{ validate: { required: (value) => validRequired(value) } }}
           />
         </div>
+        <div className="error-message">{errorMessage}</div>
 
         <button type="submit" className="login-btn">
           로그인
