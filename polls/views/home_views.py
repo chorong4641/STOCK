@@ -18,6 +18,12 @@ def main(request):
 #차트 데이터 호출
 def stock(request):
     if request.method == 'GET':
+        pythoncom.CoInitialize()
+        objCpCybos = win32com.client.Dispatch("CpUtil.CpCybos")
+        bConnect = objCpCybos.IsConnect
+        if (bConnect == 0):
+            print("PLUS가 정상적으로 연결되지 않음. ")
+            exit()
 
         # 국내 지수 구하기
         objDomeindex = win32com.client.Dispatch("DsCbo1.StockWeek")
