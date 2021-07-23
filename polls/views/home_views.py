@@ -16,38 +16,38 @@ def main(request):
     return HttpResponse('main')
 
 #차트 데이터 호출
-def stock(self,request):
+def stock(request):
     if request.method == 'GET':
 
         # 국내 지수 구하기
-        self.objDomeindex = win32com.client.Dispatch("DsCbo1.StockWeek")
+        objDomeindex = win32com.client.Dispatch("DsCbo1.StockWeek")
         Domecode = {'KOSPI':'U001','KOSDAQ':'U201'}
         Domedata = {'KOSPI':[],'KOSDAQ':[]}
         for k,v in Domecode.items() :
-            self.objDomeindex.SetInputValue(0,v) # 나스닥
-            self.objDomeindex.SetInputValue(1,ord("D")) # 일자별
-            self.objDomeindex.SetInputValue(3,9999) # 일자별
-            self.objDomeindex.BlockRequest()
+            objDomeindex.SetInputValue(0,v) # 나스닥
+            objDomeindex.SetInputValue(1,ord("D")) # 일자별
+            objDomeindex.SetInputValue(3,9999) # 일자별
+            objDomeindex.BlockRequest()
             for i in range(0,6) :
                 temp = {}
-                temp['date'] = self.objDomeindex.GetDataValue(0,i)
-                temp['index'] = self.objDomeindex.GetDataValue(1,i) / 100
+                temp['date'] = objDomeindex.GetDataValue(0,i)
+                temp['index'] = objDomeindex.GetDataValue(1,i) / 100
                 Domedata[k].append(temp)
             Domedata[k].reverse()
 
         # 해외 지수 구하기
-        self.objForeindex = win32com.client.Dispatch('Dscbo1.CpSvr8300')
+        objForeindex = win32com.client.Dispatch('Dscbo1.CpSvr8300')
         Forecode = {'DOW':'.DJI','NASDAQ':'COMP','SP500':'SPX','SH':'SHANG'}
         Foredata = {'DOW':[],'NASDAQ':[],'SP500':[],'SH':[]}
         for k,v in Forecode.items() :
-            self.objForeindex.SetInputValue(0,v) # 나스닥
-            self.objForeindex.SetInputValue(1,ord("D")) # 일자별
-            self.objForeindex.SetInputValue(3,9999) # 일자별
-            self.objForeindex.BlockRequest()
+            objForeindex.SetInputValue(0,v) # 나스닥
+            objForeindex.SetInputValue(1,ord("D")) # 일자별
+            objForeindex.SetInputValue(3,9999) # 일자별
+            objForeindex.BlockRequest()
             for i in range(0,6) :
                 temp = {}
-                temp['date'] = self.objForeindex.GetDataValue(0,i)
-                temp['index'] = self.objForeindex.GetDataValue(1,i)
+                temp['date'] = objForeindex.GetDataValue(0,i)
+                temp['index'] = objForeindex.GetDataValue(1,i)
                 Foredata[k].append(temp)
             Foredata[k].reverse()
         pythoncom.CoUninitialize()
