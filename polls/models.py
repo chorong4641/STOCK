@@ -93,7 +93,7 @@ class BookmarkGroup(models.Model):
 
 class BookmarkStock(models.Model):
     idx = models.AutoField(primary_key=True)
-    group_idx = models.IntegerField(blank=True, null=True)
+    group_idx = models.ForeignKey(BookmarkGroup, models.DO_NOTHING, related_name='group', db_column='group_idx', blank=True, null=True)
     code = models.CharField(max_length=20, blank=True, null=True)
     date_insert = models.DateTimeField(blank=True, null=True)
     id = models.CharField(max_length=30)

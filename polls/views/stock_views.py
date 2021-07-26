@@ -58,9 +58,6 @@ def getstock(request, stock_code):
             objStockChart = win32com.client.Dispatch("CpSysDib.StockChart")
             objStockChart.SetInputValue(0,'A'+stock_code)  # 종목코드
             objStockChart.SetInputValue(1, ord('2'))  # 개수로 받기
-            objStockChart.SetInputValue(1, ord('2'))  # 개수로 받기
-            objStockChart.SetInputValue(1, ord('2'))  # 개수로 받기
-            objStockChart.SetInputValue(1, ord('2'))  # 개수로 받기
             # objStockChart.SetInputValue(2, datetime.now().strftime("%Y%m%d"))  # To 날짜
             # objStockChart.SetInputValue(3, from_date.strftime("%Y%m%d"))  # From 날짜
             objStockChart.SetInputValue(4, 7)  # 최근 500일치
@@ -75,8 +72,11 @@ def getstock(request, stock_code):
             for i in range(count):
                 temp = {}
                 date = objStockChart.GetDataValue(0, i)
-                index = objStockChart.GetDataValue(4, i)
-                temp = {'date':date,'index':index}
+                opening = objStockChart.GetDataValue(1, i) # 시가
+                high = objStockChart.GetDataValue(2, i) # 고가
+                low = objStockChart.GetDataValue(3, i) # 저가
+                closing = objStockChart.GetDataValue(4, i) # 종가
+                temp = {'date':date,'opening':opening,'high':high,'low':low,'closing':closing}
                 data[k].append(temp)
             data[k].reverse()
             # data[k].append(chartdata)
@@ -84,8 +84,10 @@ def getstock(request, stock_code):
         
         pythoncom.CoUninitialize()
         return JsonResponse(data,safe=False,json_dumps_params={'ensure_ascii': False}, status=200)
-        # data = {code:코드,name:종목명,price:현재가,closing:종가,opening:시가,high:고가,low:저가,
-        #         time:기준시간,trading volume:거래량,warning:투자경고구분}
+        #{"week": [{"date": 20210716, "opening": 80100, "high": 80100, "low": 79500, "closing": 79800}, {"date": 20210719, "opening": 79100, "high": 79200, "low": 78800, "closing": 79000}], 
+        # "month": [{"date": 20210620, "opening": 80800, "high": 81900, "low": 80500, "closing": 80500}, {"date": 20210630, "opening": 79700, "high": 81900, "low": 79600, "closing": 81600}], 
+        # "year": [{"date": 20210100, "opening": 81000, "high": 96800, "low": 80200, "closing": 82000}, {"date": 20210200, "opening": 81700, "high": 86400, "low": 81000, "closing": 82500}], 
+        # "info": [{"code": "A005930", "name": "삼성전자", "price": 78800, "closing": 79300, "opening": 79400, "high": 79500, "low": 78800, "time": 1559, "trading_volume": 10040975, "warning": "1"}]}
 
 # 종목뉴스 크롤링
 def searchnews(request,stock_name):
@@ -155,10 +157,10 @@ def price_by_period(request,stock_code,term):
         for i in range(count):
             temp = {}
             date = objStockChart.GetDataValue(0, i)
-            opening = objStockChart.GetDataValue(2, i) # 시가
-            high = objStockChart.GetDataValue(3, i) # 고가
-            low = objStockChart.GetDataValue(4, i) # 저가
-            closing = objStockChart.GetDataValue(5, i) # 종가
+            opening = objStockChart.GetDataValue(1, i) # 시가
+            high = objStockChart.GetDataValue(2, i) # 고가
+            low = objStockChart.GetDataValue(3, i) # 저가
+            closing = objStockChart.GetDataValue(4, i) # 종가
             temp = {'date':date,'opening':opening,'high':high,'low':low,'closing':closing}
             data.append(temp)
         data.reverse()

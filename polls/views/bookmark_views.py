@@ -1,6 +1,8 @@
+from django.db.models.query import QuerySet
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
 from django.core import serializers
+from django.core.serializers.json import DjangoJSONEncoder
 from django.views.decorators.csrf import csrf_exempt
 from ..models import BookmarkGroup , BookmarkStock
 from datetime import datetime
@@ -8,7 +10,7 @@ from datetime import datetime
 import json
 
 # 그룹 추가
-def group_create(request,name):
+def group_create(request,group_name):
     if request.method == 'GET':
         data = {'error':1}
 
@@ -16,7 +18,7 @@ def group_create(request,name):
         if request.session['id']:
             bookmark_group = BookmarkGroup()
             bookmark_group.id = request.session['id']
-            bookmark_group.name = name
+            bookmark_group.name = group_name
             bookmark_group.date_insert = datetime.now()
             bookmark_group.date_update = datetime.now()
             data = {'error':1}
@@ -28,7 +30,7 @@ def group_create(request,name):
         return JsonResponse(data,json_dumps_params={'ensure_ascii': False})
 
 # 종목 추가
-def stock_create(request,group_idx,code):
+def stock_create(request,group_idx,stock_code):
     if request.method == 'GET':
         data = {'error':1}
         try:
@@ -36,7 +38,7 @@ def stock_create(request,group_idx,code):
             if serializers.serialize('json', queryset) :
                 bookmark_stock = BookmarkStock()
                 bookmark_stock.group_idx = group_idx
-                bookmark_stock.code = code
+                bookmark_stock.code = stock_code
                 bookmark_stock.id = request.session['id']
                 bookmark_stock.date_insert = datetime.now()
                 data = {'error':1}
@@ -78,21 +80,17 @@ def stock_delete(request,idx):
 
 
 # 조회 -> 조인필요
-# def bookmark_read(request):
-#     if request.method == 'GET':
-#         request_data = json.loads(request.body)
-#         queryset = Board.objects.filter(id=request.session['id'])
-#         serialize = serializers.serialize('json', queryset)
-#         data = []
-            
-#         # 데이터 가공
-#         for s in json.loads(serialize):
-#             temp = {}
-#             for k,v in s.items() :
-#                 if k == "pk" :
-#                     temp['idx'] = v
-#                 if k == "fields" :
-#                     temp.update(v)
-#             data.append(temp)
-#     return JsonResponse(data,safe=False,json_dumps_params={'ensure_ascii': False},status=200)
-#     # 데이터 반환
+def bookmark_read(request):
+    if request.method == 'GET':
+        group = BookmarkGroup.objects.filter(id='test').values('idx','name')
+        stock = BookmarkStock.objects.filter(id='test').values('idx','group_idx','code')
+        
+        # 데이터 가공
+        for s in stock :
+            for g in group :
+                if s['group_idx'] == g['idx'] :
+                    s['name'] = g['name']
+        
+        data = list(stock)
+    return JsonResponse(data,safe=False,json_dumps_params={'ensure_ascii': False},status=200)
+    # [{'idx': 1, 'group_idx': 1, 'code': '032300', 'name': '테마'}, {'idx': 2, 'group_idx': 2, 'code': '036570', 'name': '게임'}, {'idx': 3, 'group_idx': 2, 'code': '251270', 'name': '게임'}, {'idx': 4, 'group_idx': 2, 'code': '293490', 'name': '게임'}]
