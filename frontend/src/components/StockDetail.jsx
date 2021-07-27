@@ -159,7 +159,6 @@ const DetailStyled = styled.div`
     }
   }
 `;
-
 function StockDetail() {
   const { path } = useRouteMatch();
   const { pathname } = useLocation();
@@ -174,7 +173,7 @@ function StockDetail() {
 
   useEffect(() => {
     // 종목 상세 정보 조회
-    // onGetStockDetail(code);
+    onGetStockDetail(state.stock?.code);
 
     // 종목 뉴스 조회
     onGetDetailNews();
@@ -220,19 +219,6 @@ function StockDetail() {
       .catch((error) => {
         console.log("onGetStockDetail", error);
       });
-
-    // const data = {
-    //   closing: 147500,
-    //   code: "A035720",
-    //   high: 153500,
-    //   low: 147500,
-    //   name: "카카오",
-    //   opening: 148500,
-    //   price: 150000,
-    //   time: 1519,
-    //   trading_volume: 5053969,
-    //   warning: "1",
-    // };
   };
 
   // 종목 뉴스 조회

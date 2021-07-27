@@ -116,12 +116,15 @@ function Stock(props) {
 
   useEffect(() => {
     // 시장지수 조회
-    // onGetStockMarket();
+    onGetStockMarket();
   }, []);
 
   // 시장 지수 조회
   const onGetStockMarket = async () => {
     setLoading(true);
+    // 종목 상세 초기화
+    await dispatch(selectStock(null));
+
     await axios
       .get("/api/chart/stock")
       .then((res) => {
