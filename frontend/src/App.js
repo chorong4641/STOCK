@@ -4,7 +4,7 @@ import Stock from "./components/Stock";
 import News from "./components/News";
 import Word from "./components/Word";
 import Recommend from "./components/Recommend";
-import MyPage from "./components/MyPage";
+import MyStock from "./components/MyStock";
 import Register from "./components/Register";
 import Login from "./components/Login";
 import Header from "./components/Header";
@@ -19,6 +19,12 @@ const BodyStyled = styled.div`
   height: calc(100% - 50px);
   padding: 20px 0;
   overflow-y: auto;
+
+  .ant-table {
+    .ant-table-thead {
+      font-weight: bold;
+    }
+  }
 `;
 
 function App() {
@@ -34,7 +40,7 @@ function App() {
           <Route path="/recommend" component={Recommend} />
           <Route path="/news" component={News} />
           <Route path="/word" component={Word} />
-          <Route path="/mypage" component={MyPage} />
+          <Route path="/mystock" component={MyStock} />
           <Route path="/register" component={Register} />
           <Route path="/login" component={Login} />
           <Route path="/findId" component={FindId} />

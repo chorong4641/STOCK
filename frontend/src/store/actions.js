@@ -2,11 +2,13 @@
 const LOGIN = "LOGIN";
 const LOGOUT = "LOGOUT";
 const EDIT_USER = "EDIT_USER";
+const SELECT_STOCK = "SELECT_STOCK";
 
 // action creators
 export const login = (params) => ({ type: LOGIN, payload: params });
 export const logout = () => ({ type: LOGOUT, payload: {} });
 export const editUser = (params) => ({ type: EDIT_USER, payload: params });
+export const selectStock = (params) => ({ type: SELECT_STOCK, payload: params });
 
 // reducers
 export const reducer = (state, action) => {
@@ -26,6 +28,12 @@ export const reducer = (state, action) => {
       if (action.payload) {
         state = { ...state, user: { ...state.user, ...action.payload } };
       }
+      return state;
+
+    /* stock */
+    // 종목 상세 정보 저장
+    case SELECT_STOCK:
+      state = { ...state, stock: payload };
       return state;
     default:
       return state;

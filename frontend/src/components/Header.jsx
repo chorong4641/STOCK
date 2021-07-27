@@ -149,8 +149,8 @@ function Header(params) {
           <NavLink to="/word" activeClassName="active">
             용어검색
           </NavLink>
-          <NavLink to="/mypage" activeClassName="active">
-            마이페이지
+          <NavLink to="/mystock" activeClassName="active">
+            관심종목
           </NavLink>
         </NavStyled>
         {state.user ? (

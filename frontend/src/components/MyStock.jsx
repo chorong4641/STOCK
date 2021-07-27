@@ -1,14 +1,14 @@
 import React from "react";
 import styled from "styled-components";
 
-const MyPageStyled = styled.div`
+const MyStockStyled = styled.div`
   display: flex;
   width: 80%;
   margin: 0 auto;
   padding: 30px 0;
 `;
-function MyPage(props) {
-  return <MyPageStyled>마이페이지</MyPageStyled>;
+function MyStock(props) {
+  return <MyStockStyled>관심종목</MyStockStyled>;
 }
 
-export default MyPage;
+export default MyStock;

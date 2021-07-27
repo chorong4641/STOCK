@@ -97,7 +97,7 @@ def searchnews(request,stock_name):
         soup = BeautifulSoup(webpage.content, 'html.parser')
 
         # 데이터 호출
-        list = soup.select('.news_area')[:5]
+        list = soup.select('.news_area')[:10]
         data = []
 
         #데이터 추출
