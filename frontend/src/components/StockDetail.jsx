@@ -2,17 +2,19 @@ import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import axios from "axios";
 import Chart from "react-apexcharts";
-import { CaretDownFilled, CaretUpFilled } from "@ant-design/icons";
+import { CaretDownFilled, CaretUpFilled, HeartFilled, HeartOutlined, PlusSquareFilled } from "@ant-design/icons";
 import { NavLink, Redirect, Route, Router, Switch, useLocation, useRouteMatch } from "react-router-dom";
 import Loading from "./Loading";
 import DetailNews from "./StockDetail/DetailNews";
 import { store } from "../store";
+import { Popover } from "antd";
+import { getBookmark } from "../store/actions";
 
 const DetailStyled = styled.div`
   .detail-top {
     display: flex;
     justify-content: space-between;
-    height: 300px;
+    height: 350px;
     padding: 20px 30px;
     background-color: #fbfbfb;
     border-radius: 5px;
@@ -27,9 +29,15 @@ const DetailStyled = styled.div`
 
       .stock-item {
         text-align: center;
+
         .stock-name {
           font-size: 20px;
           font-weight: 700;
+
+          .anticon-heart {
+            margin-right: 5px;
+            cursor: pointer;
+          }
         }
 
         .stock-code {
@@ -58,21 +66,18 @@ const DetailStyled = styled.div`
             .compare-text {
               position: relative;
               top: 1px;
+              margin-right: 10px;
               font-size: 13px;
-            }
-
-            div {
-              margin: 0 8px;
             }
           }
         }
 
         .red {
-          color: #ff0000;
+          color: #d23a3a;
         }
 
         .blue {
-          color: #004eff;
+          color: #3a77d2;
         }
 
         table {
@@ -130,6 +135,7 @@ const DetailStyled = styled.div`
       display: flex;
       align-items: center;
       background-color: #fbfbfb;
+      font-weight: bold;
       border-top: 1px solid #ddd;
       border-bottom: 1px solid #ddd;
 
@@ -159,9 +165,45 @@ const DetailStyled = styled.div`
     }
   }
 `;
+
+const PopoverStyled = styled.div`
+  min-width: 140px;
+
+  .bookmark-list {
+    min-height: 100px;
+
+    .bookmark-list-item {
+      padding: 3px;
+      cursor: pointer;
+
+      &:hover {
+        background-color: #f5f5f5;
+      }
+
+      &.active {
+        font-weight: bold;
+        background-color: #f5f5f5;
+      }
+    }
+  }
+
+  .bookmark-footer {
+    padding-top: 12px;
+    font-size: 13px;
+    text-align: center;
+    border-top: 1px solid #f0f0f0;
+
+    button {
+      color: #fff;
+      font-size: 12px;
+      background-color: #3f4753;
+    }
+  }
+`;
+
 function StockDetail() {
   const { path } = useRouteMatch();
-  const { pathname } = useLocation();
+  const [state, dispatch] = useContext(store);
   // 차트 기간 선택값
   const [period, setPeriod] = useState("week");
   // 검색한 종목의 상세정보, 기간 차트정보
@@ -169,15 +211,17 @@ function StockDetail() {
   // 종목 뉴스 정보
   const [newsData, setNewsData] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [state, dispatch] = useContext(store);
+  // 관심그룹 리스트
+  const [groupData, setGroupData] = useState({});
+  // 선택한 관심그룹번호
+  const [selectGroupIdx, setSelectGroupIdx] = useState(0);
+  // 팝오버 열기/닫기
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     // 종목 상세 정보 조회
     onGetStockDetail(state.stock?.code);
-
-    // 종목 뉴스 조회
-    onGetDetailNews();
-  }, [pathname]);
+  }, [state.stock?.code]);
 
   // 종목 상세 정보 조회
   const onGetStockDetail = async (code) => {
@@ -187,21 +231,67 @@ function StockDetail() {
     await axios
       .get(`/api/getstock/${code}`)
       .then((res) => {
+        // 종목 뉴스 조회
+        onGetDetailNews();
+
         const detailChartData = {};
         if (Object.keys(res.data).length > 0) {
           Object.keys(res.data).forEach((key) => {
             if (key === "info") return;
-            const chartY = [];
-            res.data[key].forEach((data) => {
-              // chartY.push(data.index.toFixed(2));
-              console.log("chart", key, data);
-              // chartY.push({ x: data.date, y: [data.opening, data.high, data.low, data.closing] });
-              // chartX.push(data.date);
+            const chartData = [];
+            res.data[key].forEach((value) => {
+              const { date, opening, high, low, closing } = value;
+              chartData.push({
+                x: date.toString(),
+                y: [opening, high, low, closing],
+              });
             });
+
             detailChartData[key] = {
-              series: {
-                name: key,
-                data: chartY,
+              series: [{ data: chartData }],
+              options: {
+                chart: {
+                  type: "candlestick",
+                  height: 300,
+                },
+                plotOptions: {
+                  candlestick: {
+                    colors: {
+                      upward: "#d23a3a",
+                      downward: "#3a77d2",
+                    },
+                  },
+                },
+                xaxis: {
+                  labels: {
+                    formatter: function (value) {
+                      if (!value) return;
+                      const date = value.substring(4, 8);
+                      return date;
+                    },
+                  },
+                  tooltip: {
+                    enabled: false,
+                  },
+                },
+                yaxis: {
+                  labels: {
+                    formatter: function (value) {
+                      return addComma(value);
+                    },
+                  },
+                },
+                tooltip: {
+                  custom: function ({ series, seriesIndex, dataPointIndex, w }) {
+                    const [opening, high, low, closing] = w.config.series[0].data[dataPointIndex].y;
+                    return `<div class="custom-tooltip">
+                    <div><span>시가</span>: <span class="bold">${addComma(opening)}</span></div>
+                    <div><span>고가</span>: <span class="bold">${addComma(high)}</span></div>
+                    <div><span>저가</span>: <span class="bold">${addComma(low)}</span></div>
+                    <div><span>종가</span>: <span class="bold">${addComma(closing)}</span></div>
+                    </div>`;
+                  },
+                },
               },
             };
           });
@@ -227,12 +317,52 @@ function StockDetail() {
     await axios
       .get(`/api/searchnews/${state.stock?.name}`)
       .then((res) => {
-        console.log("res", res.data);
         setNewsData(res.data);
         setLoading(false);
       })
       .catch((error) => {
         console.log("onGetDetailNews", error);
+      });
+  };
+
+  // 관심그룹 및 종목 조회
+  const onGetBookmark = async () => {
+    await axios
+      .get("/api/bookmark/read")
+      .then((res) => {
+        const groupObj = {};
+        // dispatch(getBookmark(res.data));
+
+        if (res.data) {
+          res.data.forEach((item) => {
+            if (groupObj[item.group_idx]) {
+              groupObj[item.group_idx] = { key: item.group_idx, name: item.name };
+            } else {
+              groupObj[item.group_idx] = {};
+              groupObj[item.group_idx] = { key: item.group_idx, name: item.name };
+            }
+          });
+
+          setGroupData(groupObj);
+          console.log("group", groupObj);
+        }
+      })
+      .catch((error) => {
+        console.log("onGetBookmark", error);
+      });
+  };
+
+  // 관심종목 추가
+  const onAddBookmark = async () => {
+    console.log("selectGroupIdx", selectGroupIdx);
+    await axios
+      .get(`/api/bookmark/stock_create/${state.stock?.code}/${selectGroupIdx}`)
+      .then((res) => {
+        console.log("res", res);
+        setVisible(false);
+      })
+      .catch((error) => {
+        console.log("onAddBookmark", error);
       });
   };
 
@@ -279,6 +409,8 @@ function StockDetail() {
     },
   ];
 
+  console.log("Object.keys(groupData)", Object.keys(groupData));
+
   return (
     <DetailStyled>
       <Loading loading={loading} />
@@ -287,7 +419,47 @@ function StockDetail() {
       <div className="detail-top">
         <div className="detail-info">
           <div className="stock-item">
-            <span className="stock-name">{data.info?.name}</span>
+            <span className="stock-name">
+              <Popover
+                title="종목그룹 선택"
+                placement="bottomLeft"
+                overlayClassName="common-popover"
+                content={
+                  <PopoverStyled>
+                    <div className="bookmark-list">
+                      {Object.keys(groupData).map((key) => {
+                        return (
+                          <div
+                            className={`bookmark-list-item${selectGroupIdx === key ? " active" : ""}`}
+                            onClick={() => setSelectGroupIdx(key)}
+                          >
+                            {groupData[key].name}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div className="bookmark-footer">
+                      <button className={!selectGroupIdx ? "disabled" : ""} onClick={onAddBookmark}>
+                        확인
+                      </button>
+                    </div>
+                  </PopoverStyled>
+                }
+                trigger="click"
+                arrowPointAtCenter
+                visible={visible}
+                onVisibleChange={(visible) => setVisible(visible)}
+              >
+                <PlusSquareFilled
+                  title="관심종목에 추가"
+                  style={{ marginRight: "5px", color: "#3f4753" }}
+                  onClick={onGetBookmark}
+                />
+              </Popover>
+
+              {/* {북마크 ? <HeartOutlined /> : <HeartFilled />} */}
+              {data.info?.name}
+            </span>
             <span className="stock-code">{` (${data.info?.code})`}</span>
           </div>
           <div className="stock-item">
@@ -299,12 +471,11 @@ function StockDetail() {
               <div>{addComma(data.info?.price)}</div>
               <div className="compare">
                 <div className="compare-extra">
-                  <div className="compare-text">{`전일대비 `} </div>
+                  <div className="compare-text">{`어제보다 `} </div>
                   <div>
                     {compare.icon}
-                    {addComma(compare.value)}
+                    {`${addComma(compare.value)} (${compare.rate})`}
                   </div>
-                  <div>{compare.rate}</div>
                 </div>
               </div>
             </div>
@@ -339,16 +510,16 @@ function StockDetail() {
         <div className="detail-chart">
           <div className="period-btns">
             <button onClick={() => changePeriod("week")} className={`period-btn ${period === "week" ? "active" : ""}`}>
-              일주일
+              일
             </button>
             <button
               onClick={() => changePeriod("month")}
               className={`period-btn ${period === "month" ? "active" : ""}`}
             >
-              한 달
+              월
             </button>
             <button onClick={() => changePeriod("year")} className={`period-btn ${period === "year" ? "active" : ""}`}>
-              일 년
+              년
             </button>
           </div>
           {/* {data && data[period] && (
@@ -360,6 +531,9 @@ function StockDetail() {
               height={300}
             />
           )} */}
+          {data && data[period] && (
+            <Chart series={data[period].series} options={data[period].options} type="candlestick" height={300} />
+          )}
         </div>
       </div>
 
@@ -375,6 +549,11 @@ function StockDetail() {
         </div>
 
         <div className="detail-contents">
+          <Route
+            exact
+            path={`${path}/${state.stock?.code}`}
+            render={() => <Redirect to={`${path}/${state.stock?.code}/news`} />}
+          />
           <Route path={`${path}/${state.stock?.code}/news`} render={() => <DetailNews newsInfo={newsData} />} />
         </div>
       </div>

@@ -1,6 +1,6 @@
 import React, { useContext, useEffect, useState } from "react";
 import Chart from "react-apexcharts";
-import { useHistory } from "react-router-dom";
+import { useHistory, useLocation } from "react-router-dom";
 import { Select } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 import styled from "styled-components";
@@ -103,6 +103,7 @@ const SelectStyled = styled.div`
 
 function Stock(props) {
   const history = useHistory();
+  const { pathname } = useLocation();
   const [state, dispatch] = useContext(store);
   const [loading, setLoading] = useState(false);
   // 시장지수(국내, 해외)
@@ -115,8 +116,11 @@ function Stock(props) {
   const { Option } = Select;
 
   useEffect(() => {
-    // 시장지수 조회
-    onGetStockMarket();
+    console.log("pathname", pathname);
+    if (pathname === "/stock") {
+      // 시장지수 조회
+      onGetStockMarket();
+    }
   }, []);
 
   // 시장 지수 조회
@@ -134,8 +138,9 @@ function Stock(props) {
             const chartY = [];
             const chartX = [];
             res.data[key].forEach((data) => {
+              console.log("data.date", data.date);
               chartY.push(data.index.toFixed(2));
-              chartX.push(data.date);
+              chartX.push(data.date.toString().substring(4, 8));
             });
 
             let marketText = "";
@@ -165,6 +170,9 @@ function Stock(props) {
                 },
                 xaxis: {
                   categories: chartX,
+                  tooltip: {
+                    enabled: false,
+                  },
                 },
               },
             });

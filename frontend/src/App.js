@@ -12,6 +12,8 @@ import FindId from "./components/FindId";
 import FindPwd from "./components/FindPwd";
 
 import "./App.css";
+import { store } from "./store";
+import { useContext } from "react";
 
 const BodyStyled = styled.div`
   position: relative;
@@ -20,14 +22,75 @@ const BodyStyled = styled.div`
   padding: 20px 0;
   overflow-y: auto;
 
+  .custom-tooltip {
+    padding: 10px;
+  }
+
+  .bold {
+    font-weight: bold;
+  }
+
+  // ant-design
   .ant-table {
     .ant-table-thead {
-      font-weight: bold;
+      //
+    }
+
+    .ant-table-tbody {
+      .ant-table-row-selected {
+        > td {
+          background-color: transparent;
+        }
+      }
+    }
+  }
+
+  .ant-pagination-item {
+    &.ant-pagination-item-active {
+      border-color: #3f4753;
+
+      a {
+        color: #3f4753;
+      }
+    }
+  }
+
+  // 체크박스
+  .ant-checkbox {
+    &:hover {
+      .ant-checkbox-inner {
+        border-color: #3f4753;
+      }
+    }
+
+    &.ant-checkbox-checked {
+      &::after {
+        border-color: #3f4753;
+      }
+
+      .ant-checkbox-inner {
+        background-color: #3f4753;
+        border-color: #3f4753;
+      }
+    }
+
+    .ant-checkbox-input:focus {
+      + .ant-checkbox-inner {
+        border-color: #3f4753;
+      }
+    }
+
+    .ant-checkbox-inner {
+      &::after {
+        background-color: #3f4753;
+      }
     }
   }
 `;
 
 function App() {
+  const [state] = useContext(store);
+
   return (
     <div className="App">
       <Header />
@@ -40,7 +103,7 @@ function App() {
           <Route path="/recommend" component={Recommend} />
           <Route path="/news" component={News} />
           <Route path="/word" component={Word} />
-          <Route path="/mystock" component={MyStock} />
+          <Route path="/mystock" render={() => (state.user ? <MyStock /> : <Redirect to="/login" />)} />
           <Route path="/register" component={Register} />
           <Route path="/login" component={Login} />
           <Route path="/findId" component={FindId} />

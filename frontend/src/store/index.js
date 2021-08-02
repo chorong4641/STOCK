@@ -4,7 +4,8 @@ import { reducer } from "./actions";
 // 초기 상태값
 const initialState = {
   user: null,
-  stock: null
+  stock: null,
+  bookmark: null
 };
 
 // localStorage에서 값 가져옴

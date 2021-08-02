@@ -3,12 +3,14 @@ const LOGIN = "LOGIN";
 const LOGOUT = "LOGOUT";
 const EDIT_USER = "EDIT_USER";
 const SELECT_STOCK = "SELECT_STOCK";
+const GET_BOOKMARK = "GET_BOOKMARK";
 
 // action creators
 export const login = (params) => ({ type: LOGIN, payload: params });
 export const logout = () => ({ type: LOGOUT, payload: {} });
 export const editUser = (params) => ({ type: EDIT_USER, payload: params });
 export const selectStock = (params) => ({ type: SELECT_STOCK, payload: params });
+export const getBookmark = (params) => ({ type: GET_BOOKMARK, payload: params });
 
 // reducers
 export const reducer = (state, action) => {
@@ -34,6 +36,13 @@ export const reducer = (state, action) => {
     // 종목 상세 정보 저장
     case SELECT_STOCK:
       state = { ...state, stock: payload };
+      return state;
+
+    /* bookmark */
+    // 관심종목 목록 저장
+    case GET_BOOKMARK:
+      console.log('GET_BOOKMARK', payload)
+      state = { ...state, bookmark: payload };
       return state;
     default:
       return state;

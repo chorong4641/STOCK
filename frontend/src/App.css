@@ -41,3 +41,15 @@ button {
   margin-bottom: 5px;
   color: #3f4753;
 }
+
+.common-popover .ant-popover-title {
+  font-weight: bold;
+}
+.common-popover .ant-popover-inner-content {
+  padding: 10px 12px;
+}
+
+.disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
