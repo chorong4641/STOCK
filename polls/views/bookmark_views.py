@@ -14,14 +14,14 @@ def group_create(request,group_name):
     if request.method == 'GET':
         data = {'error':1}
 
-                # 로그인 사용자만 추가 가능
+        # 로그인 사용자만 추가 가능
         if request.session['id']:
             bookmark_group = BookmarkGroup()
             bookmark_group.id = request.session['id']
             bookmark_group.name = group_name
             bookmark_group.date_insert = datetime.now()
             bookmark_group.date_update = datetime.now()
-            data = {'error':1}
+            data['error'] = 1
             try:
                 bookmark_group.save()
                 data['error'] = 0
@@ -41,21 +41,19 @@ def stock_create(request,group_idx,stock_code):
                 bookmark_stock.code = stock_code
                 bookmark_stock.id = request.session['id']
                 bookmark_stock.date_insert = datetime.now()
-                data = {'error':1}
-                try:
-                    bookmark_stock.save()
-                    data['error'] = 0
-                except:
-                    data['error'] = 1
+                bookmark_stock.save()
+                data['error'] = 0
         except:
             data['error'] = 1
         
         return JsonResponse(data,json_dumps_params={'ensure_ascii': False})
 
 #그룹 삭제
-def group_delete(request,idx):
-    if request.method == 'GET':
-        bookmark_group = BookmarkGroup.objects.get(idx=idx)
+@csrf_exempt
+def group_delete(request):
+    if request.method == 'POST':
+        request_data = json.loads(request.body)
+        bookmark_group = BookmarkGroup.objects.get(idx=request_data['idx'])
         data = {'error':1}
         if request.session['id'] == bookmark_group.id :
             try:
@@ -66,24 +64,27 @@ def group_delete(request,idx):
         return JsonResponse(data,json_dumps_params={'ensure_ascii': False})
 
 # 종목 삭제
-def stock_delete(request,idx):
-    if request.method == 'GET':
-        bookmark_stock = BookmarkStock.objects.get(idx=idx)
-        data = {'error':1}
-        if request.session['id'] == bookmark_stock.id :
-            try:
-                bookmark_stock.delete()
-                data['error'] = 0
-            except:
-                data['error'] = 1
+@csrf_exempt
+def stock_delete(request):
+    if request.method == 'POST':
+        request_data = json.loads(request.body)
+        for idx in request_data['idx']:
+            bookmark_stock = BookmarkStock.objects.get(idx=idx)
+            data = {'error':1}
+            if request.session['id'] == bookmark_stock.id :
+                try:
+                    bookmark_stock.delete()
+                    data['error'] = 0
+                except:
+                    data['error'] = 1
         return JsonResponse(data,json_dumps_params={'ensure_ascii': False})
 
 
 # 조회 -> 조인필요
 def bookmark_read(request):
     if request.method == 'GET':
-        group = BookmarkGroup.objects.filter(id='test').values('idx','name')
-        stock = BookmarkStock.objects.filter(id='test').values('idx','group_idx','code')
+        group = BookmarkGroup.objects.filter(id=request.session['id']).values('idx','name')
+        stock = BookmarkStock.objects.filter(id=request.session['id']).values('idx','group_idx','code')
         
         # 데이터 가공
         for s in stock :

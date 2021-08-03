@@ -35,8 +35,8 @@ urlpatterns = [
 
         # 북마크 페이지
         path('api/bookmark/group_create/<str:group_name>',bookmark_views.group_create, name='group_create'),
-        path('api/bookmark/group_delete/<str:idx>',bookmark_views.group_delete, name='group_delete'),
+        path('api/bookmark/group_delete',bookmark_views.group_delete, name='group_delete'),
         path('api/bookmark/stock_create/<str:group_idx>/<str:stock_code>',bookmark_views.stock_create, name='stock_create'),
-        path('api/bookmark/stock_delete/<str:idx>',bookmark_views.stock_delete, name='stock_delete'),
+        path('api/bookmark/stock_delete',bookmark_views.stock_delete, name='stock_delete'),
         path('api/bookmark/read',bookmark_views.bookmark_read, name='bookmark_read'),
 ]

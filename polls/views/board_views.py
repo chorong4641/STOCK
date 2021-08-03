@@ -71,7 +71,7 @@ def update(request):
 @csrf_exempt
 def delete(request):
     if request.method == 'POST':
-        request_data  = json.loads(request.body)
+        request_data = json.loads(request.body)
         board = Board.objects.get(idx=request_data['idx'])
         data = {'error':1}
         if request.session['id'] == board.id :
