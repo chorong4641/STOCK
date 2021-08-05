@@ -138,7 +138,6 @@ function Stock(props) {
             const chartY = [];
             const chartX = [];
             res.data[key].forEach((data) => {
-              console.log("data.date", data.date);
               chartY.push(data.index.toFixed(2));
               chartX.push(data.date.toString().substring(4, 8));
             });
@@ -167,6 +166,9 @@ function Stock(props) {
               options: {
                 chart: {
                   id: key,
+                  zoom: {
+                    enabled: false,
+                  },
                 },
                 xaxis: {
                   categories: chartX,
@@ -174,6 +176,7 @@ function Stock(props) {
                     enabled: false,
                   },
                 },
+                colors: ["#3f4753"],
               },
             });
           });

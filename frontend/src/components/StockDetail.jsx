@@ -96,19 +96,22 @@ const DetailStyled = styled.div`
       display: flex;
       flex-direction: column;
 
-      .period-btns {
-        text-align: right;
-        padding-right: 10px;
+      .btn-area {
+        display: flex;
+        justify-content: space-between;
 
-        .period-btn {
+        .left-btns {
+        }
+
+        .right-btns {
+          padding-right: 10px;
+        }
+
+        button {
           margin-left: 5px;
           padding: 2px 10px;
           font-size: 13px;
           font-weight: 700;
-          background-color: #3f47530d;
-          border: none;
-          border-radius: 3px;
-          cursor: pointer;
 
           &.active {
             color: #fff;
@@ -203,13 +206,14 @@ function StockDetail() {
   const [data, setData] = useState({});
   // 종목 뉴스 정보
   const [newsData, setNewsData] = useState([]);
+  // 로딩
   const [loading, setLoading] = useState(false);
-  // 관심그룹 리스트
-  const [groupData, setGroupData] = useState({});
   // 선택한 관심그룹번호
   const [selectGroupIdx, setSelectGroupIdx] = useState(0);
   // 팝오버 열기/닫기
   const [visible, setVisible] = useState(false);
+  // 차트 종류(봉차트, 선차트)
+  const [chartType, setChartType] = useState("candlestick");
 
   useEffect(() => {
     // 종목 상세 정보 조회
@@ -227,25 +231,64 @@ function StockDetail() {
         // 종목 뉴스 조회
         onGetDetailNews();
 
-        const detailChartData = {};
+        const detailChartData = { line: {}, candlestick: {} };
         if (Object.keys(res.data).length > 0) {
           Object.keys(res.data).forEach((key) => {
             if (key === "info") return;
-            const chartData = [];
+            const lineData = { x: [], y: [] };
+            const candlestickData = [];
             res.data[key].forEach((value) => {
               const { date, opening, high, low, closing } = value;
-              chartData.push({
+              lineData.x.push(date.toString().substring(4, 8));
+              lineData.y.push(closing);
+              candlestickData.push({
                 x: date.toString(),
                 y: [opening, high, low, closing],
               });
             });
 
-            detailChartData[key] = {
-              series: [{ data: chartData }],
+            detailChartData.line[key] = {
+              series: {
+                name: "price",
+                data: lineData.y,
+              },
+              options: {
+                chart: {
+                  id: key,
+                  type: "line",
+                  zoom: {
+                    enabled: false,
+                  },
+                },
+                xaxis: {
+                  categories: lineData.x,
+                  tooltip: {
+                    enabled: false,
+                  },
+                },
+                yaxis: {
+                  labels: {
+                    formatter: function (value) {
+                      return addComma(value);
+                    },
+                  },
+                },
+                stroke: {
+                  curve: "straight",
+                },
+                colors: ["#3f4753"],
+              },
+            };
+
+            detailChartData.candlestick[key] = {
+              series: [{ data: candlestickData }],
               options: {
                 chart: {
                   type: "candlestick",
                   height: 300,
+                  zoom: {
+                    enabled: false,
+                  },
                 },
                 plotOptions: {
                   candlestick: {
@@ -278,11 +321,11 @@ function StockDetail() {
                   custom: function ({ series, seriesIndex, dataPointIndex, w }) {
                     const [opening, high, low, closing] = w.config.series[0].data[dataPointIndex].y;
                     return `<div class="custom-tooltip">
-                    <div><span>시가</span>: <span class="bold">${addComma(opening)}</span></div>
-                    <div><span>고가</span>: <span class="bold">${addComma(high)}</span></div>
-                    <div><span>저가</span>: <span class="bold">${addComma(low)}</span></div>
-                    <div><span>종가</span>: <span class="bold">${addComma(closing)}</span></div>
-                    </div>`;
+                      <div><span>시가</span>: <span class="bold">${addComma(opening)}</span></div>
+                      <div><span>고가</span>: <span class="bold">${addComma(high)}</span></div>
+                      <div><span>저가</span>: <span class="bold">${addComma(low)}</span></div>
+                      <div><span>종가</span>: <span class="bold">${addComma(closing)}</span></div>
+                      </div>`;
                   },
                 },
               },
@@ -292,9 +335,9 @@ function StockDetail() {
 
         setData({
           info: res.data.info[0],
-          week: detailChartData["week"],
-          month: detailChartData["month"],
-          year: detailChartData["year"],
+          week: { line: detailChartData.line["week"], candlestick: detailChartData.candlestick["week"] },
+          month: { line: detailChartData.line["month"], candlestick: detailChartData.candlestick["month"] },
+          year: { line: detailChartData.line["year"], candlestick: detailChartData.candlestick["year"] },
         });
 
         setLoading(false);
@@ -358,11 +401,7 @@ function StockDetail() {
     }
   }
 
-  // 차트 기간 변경 시
-  const changePeriod = (term) => {
-    setPeriod(term);
-  };
-
+  // 하단 탭 메뉴
   const bottomMenu = [
     {
       name: "종목뉴스",
@@ -385,6 +424,8 @@ function StockDetail() {
       path: "/dart",
     },
   ];
+
+  console.log("data", data);
 
   return (
     <DetailStyled>
@@ -431,8 +472,6 @@ function StockDetail() {
                   onClick={onGetBookmark}
                 />
               </Popover>
-
-              {/* {북마크 ? <HeartOutlined /> : <HeartFilled />} */}
               {data.info?.name}
             </span>
             <span className="stock-code">{` (${data.info?.code})`}</span>
@@ -483,31 +522,49 @@ function StockDetail() {
         </div>
 
         <div className="detail-chart">
-          <div className="period-btns">
-            <button onClick={() => changePeriod("week")} className={`period-btn ${period === "week" ? "active" : ""}`}>
-              일
-            </button>
-            <button
-              onClick={() => changePeriod("month")}
-              className={`period-btn ${period === "month" ? "active" : ""}`}
-            >
-              월
-            </button>
-            <button onClick={() => changePeriod("year")} className={`period-btn ${period === "year" ? "active" : ""}`}>
-              년
-            </button>
+          <div className="btn-area">
+            <div className="left-btns">
+              <button
+                onClick={() => setChartType("candlestick")}
+                className={`${chartType === "candlestick" ? "active" : ""}`}
+              >
+                봉차트
+              </button>
+              <button onClick={() => setChartType("line")} className={`${chartType === "line" ? "active" : ""}`}>
+                선차트
+              </button>
+            </div>
+            <div className="right-btns">
+              <button onClick={() => setPeriod("week")} className={`period-btn ${period === "week" ? "active" : ""}`}>
+                일
+              </button>
+              <button onClick={() => setPeriod("month")} className={`period-btn ${period === "month" ? "active" : ""}`}>
+                월
+              </button>
+              <button onClick={() => setPeriod("year")} className={`period-btn ${period === "year" ? "active" : ""}`}>
+                년
+              </button>
+            </div>
           </div>
-          {/* {data && data[period] && (
+
+          {/* 선차트 */}
+          {data && data[period] && chartType === "line" && (
             <Chart
               className="detail-chart-graph"
-              options={data[period].options}
-              series={[data[period].series]}
+              options={data[period]?.line?.options}
+              series={[data[period]?.line?.series]}
               type="line"
               height={300}
             />
-          )} */}
-          {data && data[period] && (
-            <Chart series={data[period].series} options={data[period].options} type="candlestick" height={300} />
+          )}
+          {/* 봉차트 */}
+          {data && data[period] && chartType === "candlestick" && (
+            <Chart
+              series={data[period]?.candlestick?.series}
+              options={data[period]?.candlestick?.options}
+              type="candlestick"
+              height={300}
+            />
           )}
         </div>
       </div>

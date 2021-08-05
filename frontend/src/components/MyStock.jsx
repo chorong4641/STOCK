@@ -56,8 +56,6 @@ const MyStockStyled = styled.div`
 `;
 function MyStock(props) {
   const [state, dispatch] = useContext(store);
-  // 그룹별 데이터
-  const [groupData, setGroupData] = useState({});
   // 선택(체크)한 종목 리스트
   const [selectedStock, setSelectedStock] = useState([]);
   // 그룹 추가 모달 열기/닫기
