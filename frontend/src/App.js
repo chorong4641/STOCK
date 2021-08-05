@@ -53,6 +53,12 @@ const BodyStyled = styled.div`
         color: #3f4753;
       }
     }
+
+    &:hover {
+      a {
+        color: #3f4753;
+      }
+    }
   }
 
   // 체크박스

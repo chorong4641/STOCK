@@ -197,6 +197,8 @@ function Header(params) {
           visible={openModal}
           onOk={handleSubmit(onEditUserInfo)}
           onCancel={() => setOpenModal(false)}
+          okText="수정"
+          cancelText="취소"
           maskClosable={false}
         >
           <form onSubmit={(e) => e.stopPropagation()} autoComplete="off">

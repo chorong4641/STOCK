@@ -41,7 +41,6 @@ export const reducer = (state, action) => {
     /* bookmark */
     // 관심종목 목록 저장
     case GET_BOOKMARK:
-      console.log('GET_BOOKMARK', payload)
       state = { ...state, bookmark: payload };
       return state;
     default:

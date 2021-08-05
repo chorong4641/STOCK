@@ -1,10 +1,16 @@
-import { CloseOutlined, DeleteOutlined } from "@ant-design/icons";
+import { CloseOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { Table } from "antd";
+import Modal from "antd/lib/modal/Modal";
 import axios from "axios";
 import React, { useContext, useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import styled from "styled-components";
 import { store } from "../store";
 import { getBookmark } from "../store/actions";
+import { validRequired } from "../utils/validation";
+import { addComma } from "./common/CommonFunctions";
+import CommonInput from "./common/CommonInput";
+import Loading from "./Loading";
 
 const MyStockStyled = styled.div`
   display: flex;
@@ -13,6 +19,10 @@ const MyStockStyled = styled.div`
   width: 80%;
   margin: 0 auto;
   padding: 30px 0;
+
+  .add-btn-area {
+    margin-left: 20px;
+  }
 
   .group-item {
     position: relative;
@@ -28,25 +38,32 @@ const MyStockStyled = styled.div`
       .group-btn {
         position: absolute;
         right: 0;
-
-        button {
-          margin-left: 10px;
-          color: #fff;
-          font-size: 13px;
-          background-color: #3f4753;
-
-          .anticon {
-            margin-right: 5px;
-          }
-        }
       }
+    }
+  }
+
+  .stock-btn {
+    margin-left: 10px;
+    padding: 3px 10px;
+    color: #fff;
+    font-size: 13px;
+    background-color: #3f4753;
+
+    .anticon {
+      margin-right: 5px;
     }
   }
 `;
 function MyStock(props) {
   const [state, dispatch] = useContext(store);
+  // 그룹별 데이터
   const [groupData, setGroupData] = useState({});
+  // 선택(체크)한 종목 리스트
   const [selectedStock, setSelectedStock] = useState([]);
+  // 그룹 추가 모달 열기/닫기
+  const [openModal, setOpenModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { errors, register, handleSubmit, watch } = useForm({ mode: "all" });
 
   useEffect(() => {
     onGetBookmark();
@@ -54,132 +71,191 @@ function MyStock(props) {
 
   // 관심그룹 및 종목 조회
   const onGetBookmark = async () => {
+    setLoading(true);
+
     await axios
       .get("/api/bookmark/read")
       .then((res) => {
-        const groupObj = {};
         dispatch(getBookmark(res.data));
-
-        if (res.data) {
-          res.data.forEach((item) => {
-            if (groupObj[item.group_idx]) {
-              groupObj[item.group_idx].push({ key: item.code, ...item });
-            } else {
-              groupObj[item.group_idx] = [];
-              groupObj[item.group_idx].push({ key: item.code, ...item });
-            }
-          });
-
-          setGroupData(groupObj);
-        }
+        setLoading(false);
       })
       .catch((error) => {
         console.log("onGetBookmark", error);
       });
   };
 
+  // 관심그룹 추가
+  const onAddGroup = async () => {
+    const { groupName } = watch();
+
+    await axios
+      .get(`/api/bookmark/group_create/${groupName}`)
+      .then((res) => {
+        if (!res.error) {
+          setOpenModal(false);
+          onGetBookmark();
+        }
+      })
+      .catch((error) => {
+        console.log("onAddGroup", error);
+      });
+  };
+
   // 관심그룹 삭제
   const onDeleteGroup = async (groupKey) => {
-    console.log("groupKey", groupKey);
-    // param: group_idx
-    // await axios
-    //   .get(`/api/bookmark/group_delete/${groupKey}`)
-    //   .then((res) => {
-    //     const groupObj = {};
-    //     dispatch(getBookmark(res.data));
+    const params = {
+      idx: groupKey,
+    };
 
-    //     if (res.data) {
-    //       // setGroupData(groupObj);
-    //     }
-    //   })
-    //   .catch((error) => {
-    //     console.log("onDeleteGroup", error);
-    //   });
+    await axios
+      .post("/api/bookmark/group_delete", params)
+      .then((res) => {
+        if (!res.error) {
+          onGetBookmark();
+        }
+      })
+      .catch((error) => {
+        console.log("onDeleteGroup", error);
+      });
   };
 
   // 관심종목 삭제
   const onDeleteStock = async () => {
-    console.log("onDeleteStock", selectedStock);
-    // await axios
-    //   .get("/api/bookmark/stock_delete")
-    //   .then((res) => {
-    //     const groupObj = {};
-    //     dispatch(getBookmark(res.data));
-    //     if (res.data) {
-    //       // setGroupData(groupObj);
-    //     }
-    //   })
-    //   .catch((error) => {
-    //     console.log("onDeleteStock", error);
-    //   });
+    const params = {
+      idx: selectedStock.map((code) => Number(code)),
+    };
+
+    await axios
+      .post("/api/bookmark/stock_delete", params)
+      .then((res) => {
+        if (!res.error) {
+          onGetBookmark();
+        }
+      })
+      .catch((error) => {
+        console.log("onDeleteStock", error);
+      });
   };
 
   // 테이블 항목
   const columns = [
-    // {
-    //   title: "그룹번호",
-    //   dataIndex: "group_idx",
-    //   key: "group_idx",
-    // },
-    {
-      title: "종목코드",
-      dataIndex: "code",
-      key: "code",
-    },
     {
       title: "종목명",
-      dataIndex: "stock_name",
-      key: "stock_name",
+      dataIndex: "name",
+      key: "name",
     },
     {
       title: "현재가",
       dataIndex: "price",
       key: "price",
+      width: 200,
+      render: (value) => addComma(value),
     },
     {
       title: "전일대비",
-      dataIndex: "compare",
-      key: "compare",
+      dataIndex: "dtd",
+      key: "dtd",
+      width: 200,
+      render: (value) => {
+        let color = "";
+        if (value) {
+          color = value > 0 ? "red" : "blue";
+        }
+        return <div className={color}>{color === "red" ? `+${addComma(value)}` : addComma(value)}</div>;
+      },
     },
     {
       title: "등락률",
-      dataIndex: "rate",
-      key: "rate",
+      dataIndex: "rating",
+      key: "rating",
+      width: 200,
+      render: (value) => {
+        let color = "";
+        if (value) {
+          color = value > 0 ? "red" : "blue";
+        }
+        return <div className={color}>{color === "red" ? `+${value}` : value}%</div>;
+      },
     },
   ];
 
   // rowSelection object indicates the need for row selection
   const rowSelection = {
-    // selectedRowKeys: selectedStock,
     onChange: (selectedRowKeys, selectedRows) => {
       setSelectedStock(selectedRowKeys);
     },
   };
 
   return (
-    <MyStockStyled>
-      {Object.keys(groupData)?.map((key, index) => {
-        return (
-          <div className="group-item" key={index}>
-            <div className="group-title">
-              <span>{groupData[key][0].name}</span>
+    <>
+      <Loading loading={loading} />
 
-              <div className="group-btn">
-                <button onClick={onDeleteStock}>
-                  <DeleteOutlined />
-                  종목 삭제
-                </button>
-                <button onClick={() => onDeleteGroup(groupData[key][0].group_idx)}>
-                  <DeleteOutlined />
-                  그룹 삭제
-                </button>
+      <MyStockStyled>
+        <div className="add-btn-area">
+          <button className="stock-btn" onClick={() => setOpenModal(true)}>
+            <PlusOutlined style={{ color: " #fff" }} />
+            그룹 추가
+          </button>
+        </div>
+        {state.bookmark?.map((data, index) => {
+          const tableData = [];
+          data.values?.forEach((value) => {
+            tableData.push({ key: value.idx, ...value });
+          });
+
+          return (
+            <div className="group-item" key={index}>
+              <div className="group-title">
+                <span>{data.name}</span>
+                <div className="group-btn">
+                  <button className="stock-btn" onClick={onDeleteStock}>
+                    <DeleteOutlined />
+                    종목 삭제
+                  </button>
+                  <button className="stock-btn" onClick={() => onDeleteGroup(data.idx)}>
+                    <DeleteOutlined />
+                    그룹 삭제
+                  </button>
+                </div>
               </div>
+              <Table
+                dataSource={tableData}
+                columns={columns}
+                size="small"
+                rowSelection={rowSelection}
+                pagination={{ pageSize: 5 }}
+              />
             </div>
-            <Table dataSource={groupData[key]} columns={columns} size="small" rowSelection={rowSelection} />
-          </div>
-        );
-      })}
-    </MyStockStyled>
+          );
+        })}
+      </MyStockStyled>
+
+      {openModal && (
+        <Modal
+          title="그룹 추가"
+          visible={openModal}
+          onOk={handleSubmit(onAddGroup)}
+          onCancel={() => setOpenModal(false)}
+          okText="추가"
+          cancelText="취소"
+          maskClosable={false}
+          // centered
+        >
+          <form onSubmit={(e) => e.stopPropagation()} autoComplete="off">
+            <div className="input-item">
+              <div className="label">그룹명</div>
+              <CommonInput
+                type="text"
+                name="groupName"
+                error={errors.groupName}
+                register={register}
+                validation={{ validate: { required: (value) => validRequired(value) } }}
+              />
+            </div>
+          </form>
+        </Modal>
+      )}
+    </>
   );
 }
 

@@ -21,6 +21,7 @@ code {
 }
 
 .ant-btn-primary {
+  color: #fff !important;
   background-color: #3f4753 !important;
   border-color: #3f4753 !important;
 }

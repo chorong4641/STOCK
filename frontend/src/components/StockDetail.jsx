@@ -2,12 +2,13 @@ import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import axios from "axios";
 import Chart from "react-apexcharts";
-import { CaretDownFilled, CaretUpFilled, HeartFilled, HeartOutlined, PlusSquareFilled } from "@ant-design/icons";
-import { NavLink, Redirect, Route, Router, Switch, useLocation, useRouteMatch } from "react-router-dom";
+import { Popover } from "antd";
+import { CaretDownFilled, CaretUpFilled, PlusSquareFilled } from "@ant-design/icons";
+import { NavLink, Redirect, Route, useRouteMatch } from "react-router-dom";
+import { store } from "../store";
 import Loading from "./Loading";
 import DetailNews from "./StockDetail/DetailNews";
-import { store } from "../store";
-import { Popover } from "antd";
+import { addComma } from "./common/CommonFunctions";
 import { getBookmark } from "../store/actions";
 
 const DetailStyled = styled.div`
@@ -70,14 +71,6 @@ const DetailStyled = styled.div`
               font-size: 13px;
             }
           }
-        }
-
-        .red {
-          color: #d23a3a;
-        }
-
-        .blue {
-          color: #3a77d2;
         }
 
         table {
@@ -330,22 +323,7 @@ function StockDetail() {
     await axios
       .get("/api/bookmark/read")
       .then((res) => {
-        const groupObj = {};
-        // dispatch(getBookmark(res.data));
-
-        if (res.data) {
-          res.data.forEach((item) => {
-            if (groupObj[item.group_idx]) {
-              groupObj[item.group_idx] = { key: item.group_idx, name: item.name };
-            } else {
-              groupObj[item.group_idx] = {};
-              groupObj[item.group_idx] = { key: item.group_idx, name: item.name };
-            }
-          });
-
-          setGroupData(groupObj);
-          console.log("group", groupObj);
-        }
+        dispatch(getBookmark(res.data));
       })
       .catch((error) => {
         console.log("onGetBookmark", error);
@@ -356,7 +334,7 @@ function StockDetail() {
   const onAddBookmark = async () => {
     console.log("selectGroupIdx", selectGroupIdx);
     await axios
-      .get(`/api/bookmark/stock_create/${state.stock?.code}/${selectGroupIdx}`)
+      .get(`/api/bookmark/stock_create/${selectGroupIdx}/${state.stock?.code}`)
       .then((res) => {
         console.log("res", res);
         setVisible(false);
@@ -370,7 +348,7 @@ function StockDetail() {
   let compare = { status: "same", icon: null, value: 0, rate: "0.00%" };
   if (data?.info) {
     const { closing, price } = data.info;
-    // 등락율
+    // 등락률
     const rate = (((price - closing) / closing) * 100).toFixed(2);
 
     if (closing > price) {
@@ -379,11 +357,6 @@ function StockDetail() {
       compare = { status: "up", icon: <CaretUpFilled />, value: price - closing, rate: `${rate}%` };
     }
   }
-
-  // 천 단위로 콤마(,) 표시
-  const addComma = (number) => {
-    return number?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  };
 
   // 차트 기간 변경 시
   const changePeriod = (term) => {
@@ -404,12 +377,14 @@ function StockDetail() {
       path: "/board",
     },
     {
+      name: "재무제표",
+      path: "/finance",
+    },
+    {
       name: "전자공시",
       path: "/dart",
     },
   ];
-
-  console.log("Object.keys(groupData)", Object.keys(groupData));
 
   return (
     <DetailStyled>
@@ -427,13 +402,13 @@ function StockDetail() {
                 content={
                   <PopoverStyled>
                     <div className="bookmark-list">
-                      {Object.keys(groupData).map((key) => {
+                      {state.bookmark?.map((data) => {
                         return (
                           <div
-                            className={`bookmark-list-item${selectGroupIdx === key ? " active" : ""}`}
-                            onClick={() => setSelectGroupIdx(key)}
+                            className={`bookmark-list-item${selectGroupIdx === data.idx ? " active" : ""}`}
+                            onClick={() => setSelectGroupIdx(data.idx)}
                           >
-                            {groupData[key].name}
+                            {data.name}
                           </div>
                         );
                       })}
