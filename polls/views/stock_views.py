@@ -13,7 +13,8 @@ import pandas as pd
 import os
 import json
 import requests
-
+import OpenDartReader
+import pandas as pd
 
 # 종목 코드로 종목 상세 정보 호출
 def getstock(request, stock_code):
@@ -205,43 +206,26 @@ def real_time(request,stock_code):
         return JsonResponse(data,safe=False,json_dumps_params={'ensure_ascii': False}, status=200)
         #data = [{index:23122}]
 
+# 공시
+def disclosure(request,stock_code):
+    if request.method == 'GET':
+        api_key = '1ddffd13985be3f62f4c11828d4239377347bf16'
+        dart = OpenDartReader(api_key)
+        data = dart.list(stock_code,start='2016').iloc[1:10]    # 데이터값 세팅 및 제한 10줄
+        data.drop(['corp_code','corp_name','stock_code','corp_cls'],axis=1,inplace=True) # 불필요컬럼 제거
+        data = data.transpose()	#행 열 전환
+        data.rename(columns=data.iloc[0], inplace=True)	# 행열이 전환된 데이터프레임의 열 이름 제대로 수정
+        data = json.loads(json.dumps(list(data.to_dict().values())))
+    return JsonResponse(data,safe=False,json_dumps_params={'ensure_ascii': False}, status=200)
+
 # 재무제표
 def financial(request,stock_code):
     if request.method == 'GET':
-        pythoncom.CoInitialize()
-        objCpCybos = win32com.client.Dispatch("CpUtil.CpCybos")
-        bConnect = objCpCybos.IsConnect
-        if (bConnect == 0):
-            print("PLUS가 정상적으로 연결되지 않음. ")
-            exit()
+        api_key = '1ddffd13985be3f62f4c11828d4239377347bf16'
+        dart = OpenDartReader(api_key)
+        data = dart.list(stock_code,start='2016').iloc[1:10]    # 데이터값 세팅 및 제한 10줄
+        data.drop(['corp_code','corp_name','stock_code','corp_cls'],axis=1,inplace=True) # 불필요컬럼 제거
 
-        # 일자별 object 구하기
-        objMarketEye = win32com.client.Dispatch("cpsysdib.MarketEye")
-        objMarketEye.SetInputValue(0,'A'+stock_code)  # 종목코드
-        objMarketEye.SetInputValue(1, ord('2'))  # 횟수로 받기
-        # objStockChart.SetInputValue(2, datetime.now().strftime("%Y%m%d"))  # To 날짜
-        # objStockChart.SetInputValue(3, from_date.strftime("%Y%m%d"))  # From 날짜
-        objMarketEye.SetInputValue(4, 1)  # 최근 500일치
-        objMarketEye.SetInputValue(5, [0,2,3,4,5,8])  # 날짜,종가
-        objMarketEye.SetInputValue(6, ord('m'))  # '차트 주기 - 일간 차트 요청
-        objMarketEye.SetInputValue(9, ord('1'))  # 수정주가 사용
-        objMarketEye.BlockRequest()
-        # 분기매출액-101
-        # 분기영업이익-102
-        # 분기당기순이익-104
-        # 매출액증가율-78
-        # 영업이익증가율-90
-        # 순이익증가률-80
-        # 분기roe-107
-        # 부채비율-110
-        # 분기년월-111
-        # 담좌비율-
-        # 유보율-76
-        # eps-70
-        # per-67
-        # 분기bps-96
-        # pbr
-        # 액면가-72
-        # 배당률-73
-        # 배당수익률-74
-        # 부채비율-75
+
+        print(data)
+    return JsonResponse({'sd':'sd'},safe=False,json_dumps_params={'ensure_ascii': False}, status=200)
