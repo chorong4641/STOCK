@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import *
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
+from datetime import datetime
 
 import sys
 import win32com.client
@@ -211,7 +212,7 @@ def disclosure(request,stock_code):
     if request.method == 'GET':
         api_key = '1ddffd13985be3f62f4c11828d4239377347bf16'
         dart = OpenDartReader(api_key)
-        data = dart.list(stock_code,start='2016').iloc[1:10]    # 데이터값 세팅 및 제한 10줄
+        data = dart.list(stock_code,start='2016').iloc[1:10]    # 공시 데이터 세팅 및 제한 10줄
         data.drop(['corp_code','corp_name','stock_code','corp_cls'],axis=1,inplace=True) # 불필요컬럼 제거
         data = data.transpose()	#행 열 전환
         data.rename(columns=data.iloc[0], inplace=True)	# 행열이 전환된 데이터프레임의 열 이름 제대로 수정
@@ -223,9 +224,37 @@ def financial(request,stock_code):
     if request.method == 'GET':
         api_key = '1ddffd13985be3f62f4c11828d4239377347bf16'
         dart = OpenDartReader(api_key)
-        data = dart.list(stock_code,start='2016').iloc[1:10]    # 데이터값 세팅 및 제한 10줄
-        data.drop(['corp_code','corp_name','stock_code','corp_cls'],axis=1,inplace=True) # 불필요컬럼 제거
+        data = dart.finstate(stock_code, 2020,'11013')    # 재무제표 데이터값 
 
+        year = datetime.today().year        # 현재 연도 가져오기
+        month = datetime.today().month      # 현재 월 가져오기
+        month_reprt = {
+                        1:11013, 2:11013, 3:11013,
+                        4:11012, 5:11012, 6:11012,
+                        7:11014, 8:11014, 9:11014,
+                        10:11011, 11:11011, 12:11011
+                    }
+        count = 0
+        data = []
+        # 4개의 최신재무제표 뽑기
+        while count < 4 :
+            # 3월이전 예외처리
+            if month < 4 :
+                month = month + 9
+                year = year - 1
+            else :
+                month = month - 3
 
-        print(data)
-    return JsonResponse({'sd':'sd'},safe=False,json_dumps_params={'ensure_ascii': False}, status=200)
+            temp = dart.finstate(stock_code, year, month_reprt[month])
+            if temp is not None :
+                temp.drop(['reprt_code','bsns_year','sj_div','corp_code','stock_code','fs_div','fs_nm','sj_nm','ord'],axis=1,inplace=True) # 불필요컬럼 제거            
+                temp = temp.transpose()	#행 열 전환
+                temp.rename(columns=temp.iloc[0], inplace=True)	# 행열이 전환된 데이터프레임의 열 이름 제대로 수정
+                temp = {str(year) + '-' + str(((month - 1)//3 + 1)) + '분기' : list(temp.to_dict().values())}
+                data.append(temp)
+                count = count + 1
+            else :
+                continue
+    return JsonResponse(data,safe=False,json_dumps_params={'ensure_ascii': False}, status=200)
+    # [{"rcept_no": "20180515001699", "account_nm": "당기순이익", "thstrm_nm": "제 50 기1분기", "thstrm_dt": "2018.01.01 ~ 2018.03.31", "thstrm_amount": "8,452,458,000,000", "frmtrm_nm": "제 49 기1분기", "frmtrm_dt": "2017.01.01 ~ 2017.03.31", "frmtrm_amount": "4,873,767,000,000", "thstrm_add_amount": "8,452,458,000,000", "frmtrm_add_amount": "4,873,767,000,000"}]
+    # 참고: https://opendart.fss.or.kr/guide/detail.do?apiGrpCd=DS003&apiId=2019020
