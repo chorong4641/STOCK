@@ -20,11 +20,19 @@ const HeaderStyled = styled.div`
   // background-color: #3f4753;
   box-shadow: rgb(0 0 0 / 8%) 0px 0px 8px;
 
-  .logo {
+  .logo-area {
     position: absolute;
     left: 30px;
-    width: 33px;
-    height: 33px;
+
+    .logo-text {
+      position: relative;
+      top: 4px;
+      margin-left: 3px;
+      color: #3f4753;
+      font-size: 20px;
+      font-weight: bold;
+      letter-spacing: -1px;
+    }
   }
 
   .user-icon {
@@ -135,7 +143,11 @@ function Header(params) {
   return (
     <>
       <HeaderStyled>
-        <img src="/img/stock_logo.jpg" className="logo" alt="logo" />
+        <div className="logo-area">
+          <img src="/img/logo.png" alt="logo" />
+          <span className="logo-text">Easy Stock</span>
+        </div>
+
         <NavStyled>
           <NavLink to="/stock" activeClassName="active">
             홈
