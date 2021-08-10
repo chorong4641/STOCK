@@ -62,7 +62,7 @@ def getstock(request, stock_code):
             objStockChart.SetInputValue(1, ord('2'))  # 개수로 받기
             # objStockChart.SetInputValue(2, datetime.now().strftime("%Y%m%d"))  # To 날짜
             # objStockChart.SetInputValue(3, from_date.strftime("%Y%m%d"))  # From 날짜
-            objStockChart.SetInputValue(4, 7)  # 최근 500일치
+            objStockChart.SetInputValue(4, 50)  # 최근 500일치
             objStockChart.SetInputValue(5, [0,2,3,4,5,8])  # 날짜,종가
             objStockChart.SetInputValue(6, ord(v))  # '차트 주기 - 일간 차트 요청
             objStockChart.SetInputValue(9, ord('1'))  # 수정주가 사용
