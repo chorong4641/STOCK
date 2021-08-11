@@ -15,7 +15,7 @@ const StockStyled = styled.div`
   margin: 0 auto;
 
   .apexcharts-toolbar {
-    display: none;
+    // display: none;
   }
 
   .market-chart {
@@ -116,7 +116,6 @@ function Stock(props) {
   const { Option } = Select;
 
   useEffect(() => {
-    console.log("pathname", pathname);
     if (pathname === "/stock") {
       // 시장지수 조회
       onGetStockMarket();
@@ -126,7 +125,6 @@ function Stock(props) {
   // 시장 지수 조회
   const onGetStockMarket = async () => {
     setLoading(true);
-    // 종목 상세 초기화
     await dispatch(selectStock(null));
 
     await axios
@@ -231,9 +229,9 @@ function Stock(props) {
       <SelectStyled>
         <Select
           showSearch
-          value={searchText || null}
+          // value={searchText || null}
           placeholder="종목명 검색"
-          defaultActiveFirstOption={false}
+          // defaultActiveFirstOption={false}
           showArrow={false}
           filterOption={false}
           onSearch={onChangeSearch}

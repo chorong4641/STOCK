@@ -65,7 +65,6 @@ function FindId(props) {
   const { errors, register, handleSubmit } = useForm({ mode: "all" });
 
   const onFindId = async (formData) => {
-    console.log("formData", formData);
     const params = {
       ...formData,
     };

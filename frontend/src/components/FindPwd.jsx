@@ -65,7 +65,6 @@ function FindPwd(props) {
   const { errors, register, handleSubmit } = useForm({ mode: "all" });
 
   const onFindPwd = async (formData) => {
-    console.log("formData", formData);
     const params = {
       ...formData,
     };

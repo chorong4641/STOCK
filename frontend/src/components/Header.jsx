@@ -125,12 +125,11 @@ function Header(params) {
         params[key] = formData[key];
       }
     });
-    console.log("params", params);
+    
     await axios
       .post(`/api/user/edit`, params)
       .then((res) => {
         if (!res?.data?.error) {
-          console.log(res.data);
           dispatch(editUser(params));
         }
         setOpenModal(false);

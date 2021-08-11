@@ -12,17 +12,24 @@ function DetailNews({ newsInfo }) {
       title: "제목",
       dataIndex: "title",
       key: "title",
+      render: (value, record) => {
+        return (
+          <a href={record.href} target="_blank" rel="noreferrer">
+            {value}
+          </a>
+        );
+      },
     },
     {
       title: "언론사",
       dataIndex: "source",
       key: "source",
     },
-    {
-      title: "날짜",
-      dataIndex: "date",
-      key: "date",
-    },
+    // {
+    //   title: "발행시간",
+    //   dataIndex: "time",
+    //   key: "time",
+    // },
   ];
 
   return (

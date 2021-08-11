@@ -98,13 +98,15 @@ const DetailStyled = styled.div`
 
       .btn-area {
         display: flex;
-        justify-content: space-between;
+        margin: 10px;
 
         .left-btns {
+          padding-right: 15px;
+          border-right: 1px solid #ddd;
         }
 
         .right-btns {
-          padding-right: 10px;
+          padding-left: 10px;
         }
 
         button {
@@ -146,7 +148,7 @@ const DetailStyled = styled.div`
         border-right: 1px solid #ddd;
 
         &.active {
-          color: #fff;
+          color: #fff !important;
           background-color: #3f4753;
         }
 
@@ -256,15 +258,17 @@ function StockDetail() {
                 chart: {
                   id: key,
                   type: "line",
-                  zoom: {
-                    enabled: false,
-                  },
+                  // zoom: {
+                  //   enabled: false,
+                  // },
                 },
                 xaxis: {
                   categories: lineData.x,
                   tooltip: {
                     enabled: false,
                   },
+                  labels: { rotate: 0 },
+                  tickAmount: 5,
                 },
                 yaxis: {
                   labels: {
@@ -285,10 +289,10 @@ function StockDetail() {
               options: {
                 chart: {
                   type: "candlestick",
-                  height: 300,
-                  zoom: {
-                    enabled: false,
-                  },
+                  // height: 300,
+                  // zoom: {
+                  //   enabled: false,
+                  // },
                 },
                 plotOptions: {
                   candlestick: {
@@ -305,10 +309,12 @@ function StockDetail() {
                       const date = value.substring(4, 8);
                       return date;
                     },
+                    rotate: 0,
                   },
                   tooltip: {
                     enabled: false,
                   },
+                  tickAmount: 5,
                 },
                 yaxis: {
                   labels: {
@@ -321,6 +327,7 @@ function StockDetail() {
                   custom: function ({ series, seriesIndex, dataPointIndex, w }) {
                     const [opening, high, low, closing] = w.config.series[0].data[dataPointIndex].y;
                     return `<div class="custom-tooltip">
+                      <div><span class="bold">${w.config.series[0].data[dataPointIndex].x}</span></div>
                       <div><span>시가</span>: <span class="bold">${addComma(opening)}</span></div>
                       <div><span>고가</span>: <span class="bold">${addComma(high)}</span></div>
                       <div><span>저가</span>: <span class="bold">${addComma(low)}</span></div>
@@ -375,11 +382,9 @@ function StockDetail() {
 
   // 관심종목 추가
   const onAddBookmark = async () => {
-    console.log("selectGroupIdx", selectGroupIdx);
     await axios
       .get(`/api/bookmark/stock_create/${selectGroupIdx}/${state.stock?.code}`)
       .then((res) => {
-        console.log("res", res);
         setVisible(false);
       })
       .catch((error) => {
@@ -425,7 +430,16 @@ function StockDetail() {
     },
   ];
 
-  console.log("data", data);
+  const getFin = async () => {
+    await axios
+      .get(`/api/financial/${state.stock?.code}`)
+      .then((res) => {
+        // dispatch(getBookmark(res.data));
+      })
+      .catch((error) => {
+        console.log("onGetBookmark", error);
+      });
+  };
 
   return (
     <DetailStyled>
@@ -436,42 +450,44 @@ function StockDetail() {
         <div className="detail-info">
           <div className="stock-item">
             <span className="stock-name">
-              <Popover
-                title="종목그룹 선택"
-                placement="bottomLeft"
-                overlayClassName="common-popover"
-                content={
-                  <PopoverStyled>
-                    <div className="bookmark-list">
-                      {state.bookmark?.map((data) => {
-                        return (
-                          <div
-                            className={`bookmark-list-item${selectGroupIdx === data.idx ? " active" : ""}`}
-                            onClick={() => setSelectGroupIdx(data.idx)}
-                          >
-                            {data.name}
-                          </div>
-                        );
-                      })}
-                    </div>
-                    <div className="bookmark-footer">
-                      <button className={!selectGroupIdx ? "disabled" : ""} onClick={onAddBookmark}>
-                        확인
-                      </button>
-                    </div>
-                  </PopoverStyled>
-                }
-                trigger="click"
-                arrowPointAtCenter
-                visible={visible}
-                onVisibleChange={(visible) => setVisible(visible)}
-              >
-                <PlusSquareFilled
-                  title="관심종목에 추가"
-                  style={{ marginRight: "5px", color: "#3f4753" }}
-                  onClick={onGetBookmark}
-                />
-              </Popover>
+              {state.user && (
+                <Popover
+                  title="종목그룹 선택"
+                  placement="bottomLeft"
+                  overlayClassName="common-popover"
+                  content={
+                    <PopoverStyled>
+                      <div className="bookmark-list">
+                        {state.bookmark?.map((data) => {
+                          return (
+                            <div
+                              className={`bookmark-list-item${selectGroupIdx === data.idx ? " active" : ""}`}
+                              onClick={() => setSelectGroupIdx(data.idx)}
+                            >
+                              {data.name}
+                            </div>
+                          );
+                        })}
+                      </div>
+                      <div className="bookmark-footer">
+                        <button className={!selectGroupIdx ? "disabled" : ""} onClick={onAddBookmark}>
+                          확인
+                        </button>
+                      </div>
+                    </PopoverStyled>
+                  }
+                  trigger="click"
+                  arrowPointAtCenter
+                  visible={visible}
+                  onVisibleChange={(visible) => setVisible(visible)}
+                >
+                  <PlusSquareFilled
+                    title="관심종목에 추가"
+                    style={{ marginRight: "5px", color: "#3f4753" }}
+                    onClick={onGetBookmark}
+                  />
+                </Popover>
+              )}
               {data.info?.name}
             </span>
             <span className="stock-code">{` (${data.info?.code})`}</span>
@@ -554,7 +570,7 @@ function StockDetail() {
               options={data[period]?.line?.options}
               series={[data[period]?.line?.series]}
               type="line"
-              height={300}
+              height={280}
             />
           )}
           {/* 봉차트 */}
@@ -563,7 +579,7 @@ function StockDetail() {
               series={data[period]?.candlestick?.series}
               options={data[period]?.candlestick?.options}
               type="candlestick"
-              height={300}
+              height={280}
             />
           )}
         </div>
@@ -587,6 +603,7 @@ function StockDetail() {
             render={() => <Redirect to={`${path}/${state.stock?.code}/news`} />}
           />
           <Route path={`${path}/${state.stock?.code}/news`} render={() => <DetailNews newsInfo={newsData} />} />
+          <Route path={`${path}/${state.stock?.code}/finance`} render={() => <div onClick={getFin}>재무제표</div>} />
         </div>
       </div>
     </DetailStyled>
