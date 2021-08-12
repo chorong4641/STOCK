@@ -15,16 +15,18 @@ def read(request):
         queryset = Board.objects.filter(code=request_data['code'])
         serialize = serializers.serialize('json', queryset)
         data = []
-            
-        # 데이터 가공
-        for s in json.loads(serialize):
-            temp = {}
-            for k,v in s.items() :
-                if k == "pk" :
-                    temp['idx'] = v
-                if k == "fields" :
-                    temp.update(v)
-            data.append(temp)
+        try:    
+            # 데이터 가공
+            for s in json.loads(serialize):
+                temp = {}
+                for k,v in s.items() :
+                    if k == "pk" :
+                        temp['idx'] = v
+                    if k == "fields" :
+                        temp.update(v)
+                data.append(temp)
+        except:
+            data['error'] = 1
     return JsonResponse(data,safe=False,json_dumps_params={'ensure_ascii': False},status=200)
     # 데이터 반환
 

@@ -78,6 +78,13 @@ def getstock(request, stock_code):
                 high = objStockChart.GetDataValue(2, i) # 고가
                 low = objStockChart.GetDataValue(3, i) # 저가
                 closing = objStockChart.GetDataValue(4, i) # 종가
+                if v == 'D' :
+                    date = str(date)[0:4] + '년' + str(date)[4:6] + '월' + str(date)[6:8] + '일'
+                elif v == 'W' :
+                    date = str(date)[0:4] + '년' + str(date)[4:6] + '월' + str(date)[6:7] + '주차'
+                else :
+                    date = str(date)[0:4] + '년' + str(date)[4:6] + '월'
+                print(date)
                 temp = {'date':date,'opening':opening,'high':high,'low':low,'closing':closing}
                 data[k].append(temp)
             data[k].reverse()
