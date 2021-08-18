@@ -72,7 +72,8 @@ def stock(request):
                 temp['index'] = objDomeindex.GetDataValue(1,i) / 100
                 Domedata[k].append(temp)
             Domedata[k].reverse()
-
+        pythoncom.CoUninitialize()
+        pythoncom.CoInitialize()
         # 해외 지수 구하기
         objForeindex = win32com.client.Dispatch('Dscbo1.CpSvr8300')
         Forecode = {'DOW':'.DJI','NASDAQ':'COMP','SP500':'SPX','SH':'SHANG'}
@@ -81,14 +82,15 @@ def stock(request):
             objForeindex.SetInputValue(0,v) # 나스닥
             objForeindex.SetInputValue(1,ord("D")) # 일자별
             objForeindex.SetInputValue(3,9999) # 일자별
-            objForeindex.BlockRequest()
+            objForeindex.Request()
+            MessagePump(1000)
             for i in range(0,6) :
                 temp = {}
                 temp['date'] = objForeindex.GetDataValue(0,i)
                 temp['index'] = objForeindex.GetDataValue(1,i)
                 Foredata[k].append(temp)
             Foredata[k].reverse()
-        pythoncom.CoUninitialize()
+        pythoncom.CoUninitialize() 
         Domedata.update(Foredata)
         return JsonResponse(Domedata, json_dumps_params={'ensure_ascii': False}, status=200)
         # data = {KOSPI:[{date:20210531,index:3232},{date:20210531,index:3232}],KOSDAQ:[{date:20210531,index:3232},{date:20210531,index:3232}]}

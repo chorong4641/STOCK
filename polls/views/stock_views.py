@@ -70,7 +70,6 @@ def getstock(request, stock_code):
             
             # 정보 데이터 처리
             count = objStockChart.GetHeaderValue(3)
-            # chartdata = []
             for i in range(count):
                 temp = {}
                 date = objStockChart.GetDataValue(0, i)
@@ -84,11 +83,9 @@ def getstock(request, stock_code):
                     date = str(date)[0:4] + '년' + str(date)[4:6] + '월' + str(date)[6:7] + '주차'
                 else :
                     date = str(date)[0:4] + '년' + str(date)[4:6] + '월'
-                print(date)
                 temp = {'date':date,'opening':opening,'high':high,'low':low,'closing':closing}
                 data[k].append(temp)
             data[k].reverse()
-            # data[k].append(chartdata)
         data.update({'info':[stockdata]})
         
         pythoncom.CoUninitialize()

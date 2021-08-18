@@ -12,7 +12,7 @@ import json
 def read(request):
     if request.method == 'POST':
         request_data = json.loads(request.body)
-        queryset = Board.objects.filter(code=request_data['code'])
+        queryset = Board.objects.filter(code=request_data['code']).order_by('-idx')
         serialize = serializers.serialize('json', queryset)
         data = []
         try:    
@@ -61,6 +61,7 @@ def update(request):
         if request.session['id'] == board.id :
             try:
                 board.contents = request_data['contents']
+                board.date_update = datetime.now()
                 board.save()
                 data['error'] = 0
             except:
