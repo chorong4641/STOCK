@@ -8,6 +8,7 @@ import { NavLink, Redirect, Route, useRouteMatch } from "react-router-dom";
 import { store } from "../store";
 import Loading from "./Loading";
 import DetailNews from "./StockDetail/DetailNews";
+import DetailBoard from "./StockDetail/DetailBoard";
 import { addComma } from "./common/CommonFunctions";
 import { getBookmark } from "../store/actions";
 
@@ -159,7 +160,7 @@ const DetailStyled = styled.div`
     }
 
     .detail-contents {
-      padding: 20px 0;
+      padding: 10px 0;
     }
   }
 `;
@@ -241,7 +242,7 @@ function StockDetail() {
             const candlestickData = [];
             res.data[key].forEach((value) => {
               const { date, opening, high, low, closing } = value;
-              lineData.x.push(date.toString().substring(4, 8));
+              lineData.x.push(date.toString());
               lineData.y.push(closing);
               candlestickData.push({
                 x: date.toString(),
@@ -306,7 +307,7 @@ function StockDetail() {
                   labels: {
                     formatter: function (value) {
                       if (!value) return;
-                      const date = value.substring(4, 8);
+                      const date = value;
                       return date;
                     },
                     rotate: 0,
@@ -602,8 +603,12 @@ function StockDetail() {
             path={`${path}/${state.stock?.code}`}
             render={() => <Redirect to={`${path}/${state.stock?.code}/news`} />}
           />
-          <Route path={`${path}/${state.stock?.code}/news`} render={() => <DetailNews newsInfo={newsData} />} />
+          <Route
+            path={`${path}/${state.stock?.code}/news`}
+            render={() => <DetailNews newsInfo={newsData} loading={loading} />}
+          />
           <Route path={`${path}/${state.stock?.code}/finance`} render={() => <div onClick={getFin}>재무제표</div>} />
+          <Route path={`${path}/${state.stock?.code}/board`} render={() => <DetailBoard />} />
         </div>
       </div>
     </DetailStyled>

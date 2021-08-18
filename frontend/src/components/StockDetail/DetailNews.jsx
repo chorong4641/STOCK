@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { Table } from "antd";
+import Loading from "../Loading";
 
 const DetailNewsStyled = styled.div`
   //
 `;
 
-function DetailNews({ newsInfo }) {
+function DetailNews({ newsInfo, loading }) {
+
   const columns = [
     {
       title: "제목",
@@ -14,7 +16,7 @@ function DetailNews({ newsInfo }) {
       key: "title",
       render: (value, record) => {
         return (
-          <a href={record.href} target="_blank" rel="noreferrer">
+          <a href={record.href} target="_blank" rel="noreferrer" style={{ textAlign: "left" }}>
             {value}
           </a>
         );
@@ -24,6 +26,7 @@ function DetailNews({ newsInfo }) {
       title: "언론사",
       dataIndex: "source",
       key: "source",
+      align: "center",
     },
     // {
     //   title: "발행시간",
@@ -34,6 +37,8 @@ function DetailNews({ newsInfo }) {
 
   return (
     <DetailNewsStyled>
+      <Loading loading={loading} />
+
       <Table
         dataSource={newsInfo}
         columns={columns}

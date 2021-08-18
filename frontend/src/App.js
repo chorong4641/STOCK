@@ -3,7 +3,6 @@ import styled from "styled-components";
 import Stock from "./components/Stock";
 import News from "./components/News";
 import Word from "./components/Word";
-import Recommend from "./components/Recommend";
 import MyStock from "./components/MyStock";
 import Register from "./components/Register";
 import Login from "./components/Login";
@@ -32,6 +31,10 @@ const BodyStyled = styled.div`
 
   // ant-design
   .ant-table {
+    &.ant-table-small {
+      line-height: 2;
+    }
+
     .ant-table-thead {
       //
     }
@@ -106,7 +109,6 @@ function App() {
         <Switch>
           <Route exact path="/" render={() => <Redirect to="/stock" />} />
           <Route path="/stock" component={Stock} />
-          <Route path="/recommend" component={Recommend} />
           <Route path="/news" component={News} />
           <Route path="/word" component={Word} />
           <Route path="/mystock" render={() => (state.user ? <MyStock /> : <Redirect to="/login" />)} />

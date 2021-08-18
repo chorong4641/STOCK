@@ -21,6 +21,14 @@ const InputStyled = styled.div`
       pointer-events: none;
     }
   }
+
+  textarea {
+    padding: 5px;
+    resize: none;
+    border-radius: 5px;
+    border: 1px solid #b1b1b1;
+    outline: none;
+  }
 `;
 
 const LockStyled = styled.div`
@@ -48,31 +56,47 @@ function CommonInput({
   onChange,
   onBlur,
   onFocus,
+  style,
 }) {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
     <>
-      <InputStyled>
-        <input
-          className={disabled ? "disabled" : ""}
-          type={showPassword ? "text" : type}
-          name={name}
-          ref={register(validation)}
-          onChange={(value) => {
-            if (onChange) {
-              onChange(value);
-            }
-          }}
-          defaultValue={defaultValue || undefined}
-          onBlur={onBlur || undefined}
-          onFocus={onFocus || undefined}
-          placeholder={placeholder || undefined}
-        />
-        {type === "password" && (
-          <LockStyled onClick={() => setShowPassword(!showPassword)}>
-            {showPassword ? <UnlockFilled /> : <LockFilled />}
-          </LockStyled>
+      <InputStyled style={{ ...style }}>
+        {type === "textarea" ? (
+          <textarea
+            className={disabled ? "disabled" : ""}
+            name={name}
+            ref={register(validation)}
+            onChange={(value) => {
+              if (onChange) {
+                onChange(value);
+              }
+            }}
+          ></textarea>
+        ) : (
+          <>
+            <input
+              className={disabled ? "disabled" : ""}
+              type={showPassword ? "text" : type}
+              name={name}
+              ref={register(validation)}
+              onChange={(value) => {
+                if (onChange) {
+                  onChange(value);
+                }
+              }}
+              defaultValue={defaultValue || undefined}
+              onBlur={onBlur || undefined}
+              onFocus={onFocus || undefined}
+              placeholder={placeholder || undefined}
+            />
+            {type === "password" && (
+              <LockStyled onClick={() => setShowPassword(!showPassword)}>
+                {showPassword ? <UnlockFilled /> : <LockFilled />}
+              </LockStyled>
+            )}
+          </>
         )}
       </InputStyled>
 

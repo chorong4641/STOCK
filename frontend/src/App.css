@@ -80,3 +80,21 @@ a {
 .blue {
   color: #3a77d2;
 }
+
+.burgundy {
+  color: #9d141d;
+}
+
+.dark {
+  color: #3f4753;
+}
+
+.burgundy-bg {
+  color: #fff;
+  background-color: #9d141d;
+}
+
+.dark-bg {
+  color: #fff;
+  background-color: #3f4753;
+}

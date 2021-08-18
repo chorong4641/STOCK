@@ -7,7 +7,7 @@ import { useForm } from "react-hook-form";
 import { NavLink, useHistory } from "react-router-dom";
 import styled from "styled-components";
 import { store } from "../store";
-import { editUser, logout } from "../store/actions";
+import { editUser, logout, selectStock } from "../store/actions";
 import { validEmail, validRequired } from "../utils/validation";
 import CommonInput from "./common/CommonInput";
 
@@ -113,6 +113,7 @@ function Header(params) {
 
   // 로그아웃
   const onLogout = async () => {
+    await dispatch(selectStock(null));
     await dispatch(logout());
     history.push("/stock");
   };

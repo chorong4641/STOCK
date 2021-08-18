@@ -117,6 +117,7 @@ function Stock(props) {
 
   useEffect(() => {
     if (pathname === "/stock") {
+      dispatch(selectStock(null));
       // 시장지수 조회
       onGetStockMarket();
     }
@@ -125,7 +126,6 @@ function Stock(props) {
   // 시장 지수 조회
   const onGetStockMarket = async () => {
     setLoading(true);
-    await dispatch(selectStock(null));
 
     await axios
       .get("/api/chart/stock")
