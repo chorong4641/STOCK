@@ -218,6 +218,7 @@ def disclosure(request,stock_code):
         dart = OpenDartReader(api_key)
         data = dart.list(stock_code,start='2016').iloc[1:10]    # 공시 데이터 세팅 및 제한 10줄
         data.drop(['corp_code','corp_name','stock_code','corp_cls'],axis=1,inplace=True) # 불필요컬럼 제거
+        data['url'] = 'http://dart.fss.or.kr/dsaf001/main.do?rcpNo=' + data['rcept_no'] # 링크 추가
         data = data.transpose()	#행 열 전환
         data.rename(columns=data.iloc[0], inplace=True)	# 행열이 전환된 데이터프레임의 열 이름 제대로 수정
         data = json.loads(json.dumps(list(data.to_dict().values())))
