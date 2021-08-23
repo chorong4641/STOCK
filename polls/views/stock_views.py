@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 from datetime import datetime
+from pykrx import stock
 
 import sys
 import win32com.client
@@ -16,6 +17,7 @@ import json
 import requests
 import OpenDartReader
 import pandas as pd
+import numpy as np
 
 # 종목 코드로 종목 상세 정보 호출
 def getstock(request, stock_code):
@@ -229,37 +231,67 @@ def financial(request,stock_code):
     if request.method == 'GET':
         api_key = '1ddffd13985be3f62f4c11828d4239377347bf16'
         dart = OpenDartReader(api_key)
-        data = dart.finstate(stock_code, 2020,'11013')    # 재무제표 데이터값 
-
+        # data = dart.finstate(stock_code, 2020,'11013')    # 재무제표 데이터값
         year = datetime.today().year        # 현재 연도 가져오기
-        month = datetime.today().month      # 현재 월 가져오기
-        month_reprt = {
-                        1:11013, 2:11013, 3:11013,
-                        4:11012, 5:11012, 6:11012,
-                        7:11014, 8:11014, 9:11014,
-                        10:11011, 11:11011, 12:11011
-                    }
-        count = 0
+        dart = dart.finstate(stock_code, year - 1 )
+        dart.drop(['rcept_no','reprt_code','sj_nm','bsns_year','corp_code','stock_code','fs_div','sj_div','thstrm_nm','thstrm_dt','frmtrm_nm','frmtrm_dt','bfefrmtrm_nm','bfefrmtrm_dt','ord'],axis=1,inplace=True)
+        dart = dart[dart['fs_nm'] == '연결재무제표' ]
+        bfefrm_year = dart['bfefrmtrm_amount']
+        frm_year = dart['frmtrm_amount']
+        ths_year = dart['thstrm_amount']
+        title = dart['account_nm']
         data = []
-        # 4개의 최신재무제표 뽑기
-        while count < 4 :
-            # 3월이전 예외처리
-            if month < 4 :
-                month = month + 9
-                year = year - 1
-            else :
-                month = month - 3
-
-            temp = dart.finstate(stock_code, year, month_reprt[month])
-            if temp is not None :
-                temp.drop(['reprt_code','bsns_year','sj_div','corp_code','stock_code','fs_div','fs_nm','sj_nm','ord'],axis=1,inplace=True) # 불필요컬럼 제거            
-                temp = temp.transpose()	#행 열 전환
-                temp.rename(columns=temp.iloc[0], inplace=True)	# 행열이 전환된 데이터프레임의 열 이름 제대로 수정
-                temp = {str(year) + '-' + str(((month - 1)//3 + 1)) + '분기' : list(temp.to_dict().values())}
+        df = stock.get_market_cap_by_date(str(datetime.today().year - 2) + '0101',datetime.today(),stock_code,'y') # 시가 총액 / 주식 발행수
+        for k in range(len(title)) :
+            temp = []
+            temp = {title[k]:{year-2:bfefrm_year[k],year-1:frm_year[k],year:ths_year[k]}}
+            data.append(temp)
+            if title[k] == '자본총계':
+                temp = []
+                temp = {'PBR':{year-2:df['시가총액'][0]/int(bfefrm_year[k].replace(',','')),year-1:df['시가총액'][1]/int(frm_year[k].replace(',','')),year:df['시가총액'][2]/int(ths_year[k].replace(',',''))}}
                 data.append(temp)
-                count = count + 1
-            else :
-                continue
+            elif title[k] == '당기순이익':
+                temp = []
+                temp = {'EPS':{year-2:int(bfefrm_year[k].replace(',',''))/df['상장주식수'][0],year-1:int(frm_year[k].replace(',',''))/df['상장주식수'][1],year:int(ths_year[k].replace(',',''))/df['상장주식수'][2]}}
+                data.append(temp)
+
     return JsonResponse(data,safe=False,json_dumps_params={'ensure_ascii': False}, status=200)
     # [{"rcept_no": "20180515001699", "account_nm": "당기순이익", "thstrm_nm": "제 50 기1분기", "thstrm_dt": "2018.01.01 ~ 2018.03.31", "thstrm_amount": "8,452,458,000,000", "frmtrm_nm": "제 49 기1분기", "frmtrm_dt": "2017.01.01 ~ 2017.03.31", "frmtrm_amount": "4,873,767,000,000", "thstrm_add_amount": "8,452,458,000,000", "frmtrm_add_amount": "4,873,767,000,000"}]
     # 참고: https://opendart.fss.or.kr/guide/detail.do?apiGrpCd=DS003&apiId=2019020
+
+# 재무제표
+def trading(request,stock_code):
+    if request.method == 'GET':
+        pythoncom.CoInitialize()
+        objCpCybos = win32com.client.Dispatch("CpUtil.CpCybos")
+        bConnect = objCpCybos.IsConnect
+        if (bConnect == 0):
+            print("PLUS가 정상적으로 연결되지 않음. ")
+            exit()
+        
+        # 객체 구하기
+        objtrade = win32com.client.Dispatch("CpSysDib.CpSvrNew7216")
+        objtrade.SetInputValue(0,'A'+stock_code)
+        objtrade.SetInputValue(1,30)
+        # objtrade.SetInputValue(2,'')
+        objtrade.BlockRequest()
+        
+        # 통신 및 통신 에러 처리 
+        rqStatus = objtrade.GetDibStatus()
+        rqRet = objtrade.GetDibMsg1()
+        print("통신상태", rqStatus, rqRet)
+        if rqStatus != 0:
+            exit()
+        data = []
+        for i in range(0,29) :
+            temp = []
+            date = objtrade.GetDataValue(0,i),  # 일자
+            trading_volume = objtrade.GetDataValue(5,i),  # 거래량
+            institutional_trade = objtrade.GetDataValue(6,i), # 기관매매
+            institutional_trade_sum = objtrade.GetDataValue(7,i), # 기관매매 누적
+            foreign_trade = objtrade.GetDataValue(8,i),  # 외국인 순매매
+            foreign_ownership_rate = round(objtrade.GetDataValue(9,i),2) # 외국인 지분율
+            temp = {'date':date[0],'trading_volume':trading_volume[0],'institutional_trade':institutional_trade[0],'institutional_trade_sum':institutional_trade_sum[0],'foreign_trade':foreign_trade[0],'foreign_ownership_rate':foreign_ownership_rate}
+            data.append(temp)
+        data.reverse()
+        return JsonResponse(data,safe=False,json_dumps_params={'ensure_ascii': False}, status=200)

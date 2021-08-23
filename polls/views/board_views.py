@@ -15,6 +15,7 @@ def read(request):
         queryset = Board.objects.filter(code=request_data['code']).order_by('-idx')
         serialize = serializers.serialize('json', queryset)
         data = []
+        print(datetime.now())
         try:    
             # 데이터 가공
             for s in json.loads(serialize):
@@ -65,8 +66,7 @@ def update(request):
                 board.save()
                 data['error'] = 0
             except:
-                data['error'] = 1
-        
+                data['error'] = 1   
         return JsonResponse(data,json_dumps_params={'ensure_ascii': False})
         # 성공 실패 여부 반환
     
