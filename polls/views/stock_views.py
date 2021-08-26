@@ -233,7 +233,7 @@ def financial(request,stock_code):
         dart = OpenDartReader(api_key)
         # data = dart.finstate(stock_code, 2020,'11013')    # 재무제표 데이터값
         year = datetime.today().year        # 현재 연도 가져오기
-        dart = dart.finstate(stock_code, year - 1 )
+        dart = dart.finstate(stock_code, year-1)
         dart.drop(['rcept_no','reprt_code','sj_nm','bsns_year','corp_code','stock_code','fs_div','sj_div','thstrm_nm','thstrm_dt','frmtrm_nm','frmtrm_dt','bfefrmtrm_nm','bfefrmtrm_dt','ord'],axis=1,inplace=True)
         dart = dart[dart['fs_nm'] == '연결재무제표' ]
         bfefrm_year = dart['bfefrmtrm_amount']
@@ -242,24 +242,32 @@ def financial(request,stock_code):
         title = dart['account_nm']
         data = []
         df = stock.get_market_cap_by_date(str(datetime.today().year - 2) + '0101',datetime.today(),stock_code,'y') # 시가 총액 / 주식 발행수
+        df2 = stock.get_market_ohlcv_by_date(str(datetime.today().year - 2) + '0101',datetime.today(),stock_code,'y') # 주가
         for k in range(len(title)) :
             temp = []
             temp = {title[k]:{year-2:bfefrm_year[k],year-1:frm_year[k],year:ths_year[k]}}
             data.append(temp)
             if title[k] == '자본총계':
-                temp = []
-                temp = {'PBR':{year-2:df['시가총액'][0]/int(bfefrm_year[k].replace(',','')),year-1:df['시가총액'][1]/int(frm_year[k].replace(',','')),year:df['시가총액'][2]/int(ths_year[k].replace(',',''))}}
+                temp = {}
+                pbr = {year-2:df['시가총액'][0]/int(bfefrm_year[k].replace(',','')),year-1:df['시가총액'][1]/int(frm_year[k].replace(',','')),year:df['시가총액'][2]/int(ths_year[k].replace(',',''))}
+                temp = {'PBR':{year-2:pbr[year-2],year-1:pbr[year-1],year:pbr[year]}}
                 data.append(temp)
             elif title[k] == '당기순이익':
-                temp = []
-                temp = {'EPS':{year-2:int(bfefrm_year[k].replace(',',''))/df['상장주식수'][0],year-1:int(frm_year[k].replace(',',''))/df['상장주식수'][1],year:int(ths_year[k].replace(',',''))/df['상장주식수'][2]}}
+                temp = {}
+                eps = {year-2:int(bfefrm_year[k].replace(',',''))/df['상장주식수'][0],year-1:int(frm_year[k].replace(',',''))/df['상장주식수'][1],year:int(ths_year[k].replace(',',''))/df['상장주식수'][2]}
+                per = {year-2:df2['종가'][0]/eps[year-2],year-1:df2['종가'][1]/eps[year-1],year:df2['종가'][2]/eps[year]}
+                temp = {
+                        'EPS':{year-2:eps[year-2],year-1:eps[year-1],year:eps[year]},
+                        'PER':{year-2:per[year-2],year-1:per[year-1],year:per[year]},
+                        'ROE':{year-2:round(pbr[year-2]/per[year-2]*100,2),year-1:round(pbr[year-1]/per[year-1]*100,2),year:round(pbr[year]/per[year]*100,2)},
+                }
                 data.append(temp)
 
     return JsonResponse(data,safe=False,json_dumps_params={'ensure_ascii': False}, status=200)
     # [{"rcept_no": "20180515001699", "account_nm": "당기순이익", "thstrm_nm": "제 50 기1분기", "thstrm_dt": "2018.01.01 ~ 2018.03.31", "thstrm_amount": "8,452,458,000,000", "frmtrm_nm": "제 49 기1분기", "frmtrm_dt": "2017.01.01 ~ 2017.03.31", "frmtrm_amount": "4,873,767,000,000", "thstrm_add_amount": "8,452,458,000,000", "frmtrm_add_amount": "4,873,767,000,000"}]
     # 참고: https://opendart.fss.or.kr/guide/detail.do?apiGrpCd=DS003&apiId=2019020
 
-# 재무제표
+# 매매동향
 def trading(request,stock_code):
     if request.method == 'GET':
         pythoncom.CoInitialize()
