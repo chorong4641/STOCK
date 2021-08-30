@@ -278,10 +278,12 @@ def trading(request,stock_code):
             exit()
         
         # 객체 구하기
-        objtrade = win32com.client.Dispatch("CpSysDib.CpSvrNew7216")
+        objtrade = win32com.client.Dispatch("CpSysDib.CpSvr7254")
         objtrade.SetInputValue(0,'A'+stock_code)
-        objtrade.SetInputValue(1,30)
-        # objtrade.SetInputValue(2,'')
+        objtrade.SetInputValue(1,1)
+        objtrade.SetInputValue(4,ord('0'))
+        objtrade.SetInputValue(5,0)
+        objtrade.SetInputValue(6,ord('1'))
         objtrade.BlockRequest()
         
         # 통신 및 통신 에러 처리 
@@ -291,15 +293,30 @@ def trading(request,stock_code):
         if rqStatus != 0:
             exit()
         data = []
-        for i in range(0,29) :
+        count = objtrade.GetHeaderValue(1)
+        for i in range(count) :
             temp = []
             date = objtrade.GetDataValue(0,i),  # 일자
-            trading_volume = objtrade.GetDataValue(5,i),  # 거래량
-            institutional_trade = objtrade.GetDataValue(6,i), # 기관매매
-            institutional_trade_sum = objtrade.GetDataValue(7,i), # 기관매매 누적
-            foreign_trade = objtrade.GetDataValue(8,i),  # 외국인 순매매
-            foreign_ownership_rate = round(objtrade.GetDataValue(9,i),2) # 외국인 지분율
-            temp = {'date':date[0],'trading_volume':trading_volume[0],'institutional_trade':institutional_trade[0],'institutional_trade_sum':institutional_trade_sum[0],'foreign_trade':foreign_trade[0],'foreign_ownership_rate':foreign_ownership_rate}
+            person = objtrade.GetDataValue(1,i) # 개인
+            foreign = objtrade.GetDataValue(2,i)    # 외국인
+            institutional = objtrade.GetDataValue(3,i) # 기관
+            finance = objtrade.GetDataValue(4,i) # 금융투자
+            insurance = objtrade.GetDataValue(5,i) # 보험
+            commit = objtrade.GetDataValue(6,i) # 투신
+            bank = objtrade.GetDataValue(7,i) # 은행
+            other_finance = objtrade.GetDataValue(8,i) # 기타금융
+            pension_fund = objtrade.GetDataValue(9,i) # 연기금등
+            other_corporations = objtrade.GetDataValue(10,i) # 기타법인
+            other_outsiders = objtrade.GetDataValue(11,i) # 기타외인
+            private_equity = objtrade.GetDataValue(12,i) # 사모펀드
+            national_municipality = objtrade.GetDataValue(13,i) # 국가지자체
+            trading_volume = objtrade.GetDataValue(17,i) # 거래량
+
+            temp = {
+                'date':date[0],'person':person,'foreign':foreign,'institutional':institutional,'finance':finance,'insurance':insurance,
+                'commit':commit,'bank':bank,'other_finance':other_finance,'pension_fund':pension_fund,'other_corporations':other_corporations,
+                'other_outsiders':other_outsiders,'private_equity':private_equity,'national_municipality':national_municipality,'trading_volume':trading_volume
+            }
             data.append(temp)
-        data.reverse()
         return JsonResponse(data,safe=False,json_dumps_params={'ensure_ascii': False}, status=200)
+        # [{"date": 20210805, "person": -18855105, "foreign": 10243285, "institutional": 7940680, "finance": 7020298, "insurance": 71302, "commit": 363058, "bank": -9071, "other_finance": -15048, "pension_fund": -554536, "other_corporations": 720923, "other_outsiders": -49783, "private_equity": 1064677, "national_municipality": 0, "trading_volume": 18485469}]
