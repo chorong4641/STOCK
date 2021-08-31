@@ -69,12 +69,6 @@ function DetailNews() {
         dataSource={newsData}
         columns={columns}
         size="small"
-        // expandable={{
-        //   expandedRowRender: (record) => {
-        //     return <p style={{ margin: 0 }}>{record.href}</p>;
-        //   },
-        // }}
-        pagination={false}
       />
     </DetailNewsStyled>
   );

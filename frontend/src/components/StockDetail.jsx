@@ -223,6 +223,13 @@ function StockDetail() {
     onGetStockDetail(state.stock?.code);
   }, [state.stock?.code]);
 
+  useEffect(() => {
+    // 1분마다 주가 갱신
+    setInterval(() => {
+      if (data && data.info) onGetRealTimeStock();
+    }, 60000);
+  }, [data.info]);
+
   // 종목 상세 정보 조회
   const onGetStockDetail = async (code) => {
     if (!code) return;
@@ -349,6 +356,19 @@ function StockDetail() {
       })
       .catch((error) => {
         console.log("onGetStockDetail", error);
+      });
+  };
+
+  // 실시간 주가 조회
+  const onGetRealTimeStock = async () => {
+    setLoading(true);
+    await axios
+      .get(`/api/chart/time/${state.stock?.code}`)
+      .then((res) => {
+        //
+      })
+      .catch((error) => {
+        console.log("onGetRealTimeStock", error);
       });
   };
 
@@ -575,10 +595,16 @@ function StockDetail() {
             path={`${path}/${state.stock?.code}`}
             render={() => <Redirect to={`${path}/${state.stock?.code}/news`} />}
           />
-          <Route path={`${path}/${state.stock?.code}/news`} render={() => <DetailNews />} />
-          <Route path={`${path}/${state.stock?.code}/finance`} render={() => <DetailFinancial />} />
-          <Route path={`${path}/${state.stock?.code}/board`} render={() => <DetailBoard />} />
-          <Route path={`${path}/${state.stock?.code}/investor`} render={() => <DetailInvestor />} />
+          <Route path={`${path}/${state.stock?.code}/news`} render={() => data && data?.info && <DetailNews />} />
+          <Route
+            path={`${path}/${state.stock?.code}/finance`}
+            render={() => data && data?.info && <DetailFinancial />}
+          />
+          <Route path={`${path}/${state.stock?.code}/board`} render={() => data && data?.info && <DetailBoard />} />
+          <Route
+            path={`${path}/${state.stock?.code}/investor`}
+            render={() => data && data?.info && <DetailInvestor />}
+          />
         </div>
       </div>
     </DetailStyled>
