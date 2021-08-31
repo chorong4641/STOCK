@@ -11,6 +11,8 @@ import DetailNews from "./StockDetail/DetailNews";
 import DetailBoard from "./StockDetail/DetailBoard";
 import { addComma } from "./common/CommonFunctions";
 import { getBookmark } from "../store/actions";
+import DetailInvestor from "./StockDetail/DetailInvestor";
+import DetailFinancial from "./StockDetail/DetailFinancial";
 
 const DetailStyled = styled.div`
   .detail-top {
@@ -207,8 +209,6 @@ function StockDetail() {
   const [period, setPeriod] = useState("week");
   // 검색한 종목의 상세정보, 기간 차트정보
   const [data, setData] = useState({});
-  // 종목 뉴스 정보
-  const [newsData, setNewsData] = useState([]);
   // 로딩
   const [loading, setLoading] = useState(false);
   // 선택한 관심그룹번호
@@ -231,9 +231,6 @@ function StockDetail() {
     await axios
       .get(`/api/getstock/${code}`)
       .then((res) => {
-        // 종목 뉴스 조회
-        onGetDetailNews();
-
         const detailChartData = { line: {}, candlestick: {} };
         if (Object.keys(res.data).length > 0) {
           Object.keys(res.data).forEach((key) => {
@@ -355,20 +352,6 @@ function StockDetail() {
       });
   };
 
-  // 종목 뉴스 조회
-  const onGetDetailNews = async () => {
-    setLoading(true);
-    await axios
-      .get(`/api/searchnews/${state.stock?.name}`)
-      .then((res) => {
-        setNewsData(res.data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.log("onGetDetailNews", error);
-      });
-  };
-
   // 관심그룹 및 종목 조회
   const onGetBookmark = async () => {
     await axios
@@ -430,17 +413,6 @@ function StockDetail() {
       path: "/dart",
     },
   ];
-
-  const getFin = async () => {
-    await axios
-      .get(`/api/financial/${state.stock?.code}`)
-      .then((res) => {
-        // dispatch(getBookmark(res.data));
-      })
-      .catch((error) => {
-        console.log("onGetBookmark", error);
-      });
-  };
 
   return (
     <DetailStyled>
@@ -603,12 +575,10 @@ function StockDetail() {
             path={`${path}/${state.stock?.code}`}
             render={() => <Redirect to={`${path}/${state.stock?.code}/news`} />}
           />
-          <Route
-            path={`${path}/${state.stock?.code}/news`}
-            render={() => <DetailNews newsInfo={newsData} loading={loading} />}
-          />
-          <Route path={`${path}/${state.stock?.code}/finance`} render={() => <div onClick={getFin}>재무제표</div>} />
+          <Route path={`${path}/${state.stock?.code}/news`} render={() => <DetailNews />} />
+          <Route path={`${path}/${state.stock?.code}/finance`} render={() => <DetailFinancial />} />
           <Route path={`${path}/${state.stock?.code}/board`} render={() => <DetailBoard />} />
+          <Route path={`${path}/${state.stock?.code}/investor`} render={() => <DetailInvestor />} />
         </div>
       </div>
     </DetailStyled>

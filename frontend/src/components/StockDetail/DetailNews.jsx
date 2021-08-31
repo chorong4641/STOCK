@@ -1,13 +1,38 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { Table } from "antd";
 import Loading from "../Loading";
+import { store } from "../../store";
+import axios from "axios";
 
 const DetailNewsStyled = styled.div`
   //
 `;
 
-function DetailNews({ newsInfo, loading }) {
+function DetailNews() {
+  const [state, dispatch] = useContext(store);
+  // 종목 뉴스 정보
+  const [newsData, setNewsData] = useState([]);
+  // 로딩
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    onGetDetailNews();
+  }, [state.stock?.code]);
+
+  // 종목 뉴스 조회
+  const onGetDetailNews = async () => {
+    setLoading(true);
+    await axios
+      .get(`/api/searchnews/${state.stock?.name}`)
+      .then((res) => {
+        setNewsData(res.data);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.log("onGetDetailNews", error);
+      });
+  };
 
   const columns = [
     {
@@ -28,11 +53,12 @@ function DetailNews({ newsInfo, loading }) {
       key: "source",
       align: "center",
     },
-    // {
-    //   title: "발행시간",
-    //   dataIndex: "time",
-    //   key: "time",
-    // },
+    {
+      title: "발행일",
+      dataIndex: "date",
+      key: "date",
+      align: "center",
+    },
   ];
 
   return (
@@ -40,7 +66,7 @@ function DetailNews({ newsInfo, loading }) {
       <Loading loading={loading} />
 
       <Table
-        dataSource={newsInfo}
+        dataSource={newsData}
         columns={columns}
         size="small"
         // expandable={{

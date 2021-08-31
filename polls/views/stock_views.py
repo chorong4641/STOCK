@@ -115,7 +115,9 @@ def searchnews(request,stock_name):
             source = source.replace('언론사 선정','')
             href = i.select_one('.news_tit')['href']
             title = i.select_one('.news_tit')['title']
-            temp = { 'source':source, 'href':href, 'title':title }
+            span_el = i.select('.news_info > .info_group  span')
+            date = span_el[len(span_el) - 1].get_text() #발행일
+            temp = { 'source':source, 'href':href, 'title':title, 'date':date }
             data.append(temp)
         return JsonResponse(data,safe=False,json_dumps_params={'ensure_ascii': False}, status=200)
         #data = [{'source': 'http://www.newsis.com/view/?id=NISX20210602_0001461646&cID=13001&pID=13000','href': 'https://www.etoday.co.kr/news/view/2031898',
