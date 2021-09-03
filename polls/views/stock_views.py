@@ -247,23 +247,26 @@ def financial(request,stock_code):
         df2 = stock.get_market_ohlcv_by_date(str(datetime.today().year - 2) + '0101',datetime.today(),stock_code,'y') # 주가
         for k in range(len(title)) :
             temp = []
-            temp = {title[k]:{year-2:bfefrm_year[k],year-1:frm_year[k],year:ths_year[k]}}
+            temp = {'key': title[k],year-2:bfefrm_year[k],year-1:frm_year[k],year:ths_year[k]}
             data.append(temp)
             if title[k] == '자본총계':
                 temp = {}
-                pbr = {year-2:df['시가총액'][0]/int(bfefrm_year[k].replace(',','')),year-1:df['시가총액'][1]/int(frm_year[k].replace(',','')),year:df['시가총액'][2]/int(ths_year[k].replace(',',''))}
-                temp = {'PBR':{year-2:pbr[year-2],year-1:pbr[year-1],year:pbr[year]}}
+                pbr = {'key': title[k],year-2:df['시가총액'][0]/int(bfefrm_year[k].replace(',','')),year-1:df['시가총액'][1]/int(frm_year[k].replace(',','')),year:df['시가총액'][2]/int(ths_year[k].replace(',',''))}
+                temp = {'key': 'PBR',year-2:pbr[year-2],year-1:pbr[year-1],year:pbr[year]}
                 data.append(temp)
             elif title[k] == '당기순이익':
                 temp = {}
-                eps = {year-2:int(bfefrm_year[k].replace(',',''))/df['상장주식수'][0],year-1:int(frm_year[k].replace(',',''))/df['상장주식수'][1],year:int(ths_year[k].replace(',',''))/df['상장주식수'][2]}
-                per = {year-2:df2['종가'][0]/eps[year-2],year-1:df2['종가'][1]/eps[year-1],year:df2['종가'][2]/eps[year]}
-                temp = {
-                        'EPS':{year-2:eps[year-2],year-1:eps[year-1],year:eps[year]},
-                        'PER':{year-2:per[year-2],year-1:per[year-1],year:per[year]},
-                        'ROE':{year-2:round(pbr[year-2]/per[year-2]*100,2),year-1:round(pbr[year-1]/per[year-1]*100,2),year:round(pbr[year]/per[year]*100,2)},
-                }
-                data.append(temp)
+                eps = {'key': title[k],year-2:int(bfefrm_year[k].replace(',',''))/df['상장주식수'][0],year-1:int(frm_year[k].replace(',',''))/df['상장주식수'][1],year:int(ths_year[k].replace(',',''))/df['상장주식수'][2]}
+                per = {'key': title[k],year-2:df2['종가'][0]/eps[year-2],year-1:df2['종가'][1]/eps[year-1],year:df2['종가'][2]/eps[year]}
+                # temp = {
+                #         'EPS':{year-2:eps[year-2],year-1:eps[year-1],year:eps[year]},
+                #         'PER':{year-2:per[year-2],year-1:per[year-1],year:per[year]},
+                #         'ROE':{year-2:round(pbr[year-2]/per[year-2]*100,2),year-1:round(pbr[year-1]/per[year-1]*100,2),year:round(pbr[year]/per[year]*100,2)},
+                # }
+                # data.append(temp)
+                data.append({'key': 'EPS',year-2:eps[year-2],year-1:eps[year-1],year:eps[year]})
+                data.append({'key': 'PER',year-2:per[year-2],year-1:per[year-1],year:per[year]})
+                data.append({'key': 'ROE',year-2:round(pbr[year-2]/per[year-2]*100,2),year-1:round(pbr[year-1]/per[year-1]*100,2),year:round(pbr[year]/per[year]*100,2)})
 
     return JsonResponse(data,safe=False,json_dumps_params={'ensure_ascii': False}, status=200)
     # [{"rcept_no": "20180515001699", "account_nm": "당기순이익", "thstrm_nm": "제 50 기1분기", "thstrm_dt": "2018.01.01 ~ 2018.03.31", "thstrm_amount": "8,452,458,000,000", "frmtrm_nm": "제 49 기1분기", "frmtrm_dt": "2017.01.01 ~ 2017.03.31", "frmtrm_amount": "4,873,767,000,000", "thstrm_add_amount": "8,452,458,000,000", "frmtrm_add_amount": "4,873,767,000,000"}]
