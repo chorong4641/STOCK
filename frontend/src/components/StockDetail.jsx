@@ -217,6 +217,8 @@ function StockDetail() {
   const [visible, setVisible] = useState(false);
   // 차트 종류(봉차트, 선차트)
   const [chartType, setChartType] = useState("candlestick");
+  // 실시간 주가
+  const [curPrice, setCurPrice] = useState(0);
 
   useEffect(() => {
     // 종목 상세 정보 조회
@@ -351,6 +353,8 @@ function StockDetail() {
           month: { line: detailChartData.line["month"], candlestick: detailChartData.candlestick["month"] },
           year: { line: detailChartData.line["year"], candlestick: detailChartData.candlestick["year"] },
         });
+        // 실시간 주가 기본값 설정
+        setCurPrice(res.data.info[0].price);
 
         setLoading(false);
       })
@@ -365,7 +369,9 @@ function StockDetail() {
     await axios
       .get(`/api/chart/time/${state.stock?.code}`)
       .then((res) => {
-        //
+        if (res.data) {
+          setCurPrice(res.data[0]?.index);
+        }
       })
       .catch((error) => {
         console.log("onGetRealTimeStock", error);
@@ -491,7 +497,7 @@ function StockDetail() {
                 compare.status === "down" ? "blue" : ""
               }`}
             >
-              <div>{addComma(data.info?.price)}</div>
+              <div>{addComma(curPrice)}</div>
               <div className="compare">
                 <div className="compare-extra">
                   <div className="compare-text">{`어제보다 `} </div>

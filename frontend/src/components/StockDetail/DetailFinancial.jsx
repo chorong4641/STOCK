@@ -12,6 +12,7 @@ const DetailFinStyled = styled.div`
     }
   }
 `;
+
 function DetailFinancial() {
   const [state, dispatch] = useContext(store);
   const [loading, setLoading] = useState(false);
@@ -22,7 +23,7 @@ function DetailFinancial() {
   }, [state.stock?.code]);
 
   const onGetFinancial = async () => {
-    // setLoading(true);
+    setLoading(true);
 
     await axios
       .get(`/api/financial/${state.stock?.code}`)
@@ -42,7 +43,6 @@ function DetailFinancial() {
       dataIndex: "key",
       key: "key",
       render: (value, record) => {
-        console.log(value);
         let unit = "";
         if (value === "PER" || value === "PBR") {
           unit = "배";
@@ -67,7 +67,6 @@ function DetailFinancial() {
       key: year - 2,
       align: "right",
       render: (value, record) => {
-        console.log(value);
         return value;
       },
     },
@@ -77,7 +76,6 @@ function DetailFinancial() {
       key: year - 1,
       align: "right",
       render: (value, record) => {
-        console.log(value);
         return value;
       },
     },
@@ -87,7 +85,6 @@ function DetailFinancial() {
       key: year,
       align: "right",
       render: (value, record) => {
-        console.log(value);
         return value;
       },
     },
