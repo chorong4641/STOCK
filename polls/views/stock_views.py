@@ -200,8 +200,6 @@ def real_time(request,stock_code):
         objStockChart.SetInputValue(9, ord('1'))  # 수정주가 사용
         objStockChart.BlockRequest()
         
-        print(objStockChart.BlockRequest())
-        
         # 정보 데이터 처리
         count = objStockChart.GetHeaderValue(3)
         data = []

@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import home_views, stock_views, news_views, word_views, user_views , board_views , bookmark_views
+from .views import home_views, stock_views, news_views, word_views, user_views , board_views , bookmark_views , mockinvestment_view
 
 urlpatterns = [
         # 메인 페이지
@@ -31,10 +31,10 @@ urlpatterns = [
         path('api/user/edit',user_views.edit, name='edit'),
 
         # 게시판 페이지
-        path('api/board/create',board_views.create, name='create'),
-        path('api/board/read',board_views.read, name='read'),
-        path('api/board/update',board_views.update, name='update'),
-        path('api/board/delete',board_views.delete, name='delete'),
+        path('api/board/create',board_views.create, name='board_create'),
+        path('api/board/read',board_views.read, name='board_read'),
+        path('api/board/update',board_views.update, name='board_update'),
+        path('api/board/delete',board_views.delete, name='board_delete'),
 
         # 북마크 페이지
         path('api/bookmark/group_create/<str:group_name>',bookmark_views.group_create, name='group_create'),
@@ -42,4 +42,10 @@ urlpatterns = [
         path('api/bookmark/stock_create/<str:group_idx>/<str:stock_code>',bookmark_views.stock_create, name='stock_create'),
         path('api/bookmark/stock_delete',bookmark_views.stock_delete, name='stock_delete'),
         path('api/bookmark/read',bookmark_views.bookmark_read, name='bookmark_read'),
+
+        # 모의투자 페이지
+        path('api/mock/create',mockinvestment_view.create, name='mock_create'),
+        path('api/mock/read',mockinvestment_view.read, name='mock_read'),
+        # path('api/mock/update',mockinvestment_view.update, name='mock_update'),
+        # path('api/mock/delete',mockinvestment_view.delete, name='mock_delete'),
 ]

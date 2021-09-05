@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class AuthGroup(models.Model):
     name = models.CharField(unique=True, max_length=150)
 
@@ -155,10 +156,26 @@ class MockInvestment(models.Model):
     count = models.IntegerField(blank=True, null=True)
     date_insert = models.DateTimeField(blank=True, null=True)
     date_update = models.DateTimeField(blank=True, null=True)
+    type = models.CharField(max_length=20, blank=True, null=True)
 
     class Meta:
         managed = False
         db_table = 'mock_investment'
+
+
+class MockOrder(models.Model):
+    idx = models.AutoField(primary_key=True)
+    id = models.CharField(max_length=30, blank=True, null=True)
+    code = models.CharField(max_length=20, blank=True, null=True)
+    type = models.CharField(max_length=20, blank=True, null=True)
+    count = models.IntegerField(blank=True, null=True)
+    price = models.IntegerField(blank=True, null=True)
+    date_check = models.CharField(max_length=30, blank=True, null=True)
+    date_insert = models.DateTimeField(blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'mock_order'
 
 
 class Stock(models.Model):
@@ -173,7 +190,7 @@ class Stock(models.Model):
 
 class User(models.Model):
     idx = models.AutoField(primary_key=True)
-    id = models.CharField(max_length=30)
+    id = models.CharField(unique=True, max_length=30)
     password = models.TextField()
     name = models.CharField(max_length=30)
     email = models.CharField(max_length=50)
@@ -188,8 +205,8 @@ class User(models.Model):
 class UserCapital(models.Model):
     idx = models.AutoField(primary_key=True)
     id = models.CharField(max_length=30)
-    capital = models.TextField(blank=True, null=True)  # This field type is a guess.
-    date_check = models.DateTimeField(blank=True, null=True)
+    capital = models.IntegerField(blank=True, null=True)
+    date_check = models.CharField(max_length=30, blank=True, null=True)
     date_insert = models.DateTimeField(blank=True, null=True)
     date_update = models.DateTimeField(blank=True, null=True)
 
