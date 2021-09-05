@@ -70,12 +70,17 @@ def read(request):
                 'name': name[0],
                 'price': price[0],
                 'closing': closing,
+                'dtd': price[0] - closing,
+                'rating': round((price[0] - closing) / closing * 100,2)
             }
         # 데이터 가공
         for d in data:
             for k,v in stock_count.items() :
                 if d['code'] == k :
                     d['name'] = stock_info[k]['name']
+                    d['closing'] = stock_info[k]['closing']
+                    d['dtd'] = stock_info[k]['dtd']
+                    d['rating'] = stock_info[k]['rating']
                     closing_price += stock_info[k]['closing'] * v
                     current_price += stock_info[k]['price'] * v
                     print(k,v)
