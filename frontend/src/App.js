@@ -9,6 +9,7 @@ import Login from "./components/Login";
 import Header from "./components/Header";
 import FindId from "./components/FindId";
 import FindPwd from "./components/FindPwd";
+import Mock from "./components/Mock";
 
 import "./App.css";
 import { store } from "./store";
@@ -107,15 +108,27 @@ function App() {
       <BodyStyled>
         {/* router */}
         <Switch>
+          {/* 기본 */}
           <Route exact path="/" render={() => <Redirect to="/stock" />} />
+          {/* 홈 */}
           <Route path="/stock" component={Stock} />
+          {/* 뉴스 */}
           <Route path="/news" component={News} />
+          {/* 용어검색 */}
           <Route path="/word" component={Word} />
+          {/* 관심종목 */}
           <Route path="/mystock" render={() => (state.user ? <MyStock /> : <Redirect to="/login" />)} />
+          {/* 모의투자 */}
+          <Route path="/mock" render={() => (state.user ? <Mock /> : <Redirect to="/login" />)} />
+          {/* 회원가입 */}
           <Route path="/register" component={Register} />
+          {/* 로그인 */}
           <Route path="/login" component={Login} />
+          {/* 아이디찾기 */}
           <Route path="/findId" component={FindId} />
+          {/* 비밀번호찾기 */}
           <Route path="/findPwd" component={FindPwd} />
+          {/* 기타 URL (존재하지 않는 URL) */}
           <Route path="*" render={() => <Redirect to="/stock" />} />
         </Switch>
       </BodyStyled>

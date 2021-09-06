@@ -23,6 +23,7 @@ const HeaderStyled = styled.div`
   .logo-area {
     position: absolute;
     left: 30px;
+    cursor: pointer;
 
     .logo-text {
       position: relative;
@@ -126,7 +127,7 @@ function Header(params) {
         params[key] = formData[key];
       }
     });
-    
+
     await axios
       .post(`/api/user/edit`, params)
       .then((res) => {
@@ -143,7 +144,7 @@ function Header(params) {
   return (
     <>
       <HeaderStyled>
-        <div className="logo-area">
+        <div className="logo-area" onClick={() => history.push("/stock")}>
           <img src="/img/logo.png" alt="logo" />
           <span className="logo-text">Easy Stock</span>
         </div>
@@ -152,9 +153,6 @@ function Header(params) {
           <NavLink to="/stock" activeClassName="active">
             홈
           </NavLink>
-          {/* <NavLink to="/recommend" activeClassName="active">
-          추천종목
-        </NavLink> */}
           <NavLink to="/news" activeClassName="active">
             뉴스
           </NavLink>
@@ -163,6 +161,9 @@ function Header(params) {
           </NavLink>
           <NavLink to="/mystock" activeClassName="active">
             관심종목
+          </NavLink>
+          <NavLink to="/mock" activeClassName="active">
+            모의투자
           </NavLink>
         </NavStyled>
         {state.user ? (
