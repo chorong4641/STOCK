@@ -2,12 +2,12 @@ import axios from "axios";
 import React, { useContext, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import styled from "styled-components";
-import { Table } from "antd";
 import { CheckOutlined, CloseOutlined, DeleteOutlined, EditOutlined, SettingOutlined } from "@ant-design/icons";
 import { store } from "../../store";
 import CommonInput from "../common/CommonInput";
 import { validRequired } from "../../utils/validation";
 import Loading from "../Loading";
+import CommonTable from "../common/CommonTable";
 
 const DetailBoardStyled = styled.div`
   .add-contents {
@@ -39,7 +39,7 @@ const DetailBoardStyled = styled.div`
 function DetailBoard() {
   const [state, dispatch] = useContext(store);
   const [loading, setLoading] = useState(false);
-  const [boardData, setBoardData] = useState(null);
+  const [tableData, setTableData] = useState(null);
   const [editIdx, setEditIdx] = useState(null);
   const { register, watch, setValue, setError, handleSubmit, errors } = useForm();
   const watchValues = watch();
@@ -48,7 +48,7 @@ function DetailBoard() {
     onGetDetailBoard();
   }, [state.stock?.code]);
 
-  // 내용 조회
+  // 종목토론 목록 조회
   const onGetDetailBoard = async () => {
     setLoading(true);
     setEditIdx(null);
@@ -60,7 +60,7 @@ function DetailBoard() {
     await axios
       .post(`/api/board/read`, params)
       .then((res) => {
-        setBoardData(res.data);
+        setTableData(res.data);
         setLoading(false);
       })
       .catch((error) => {
@@ -220,7 +220,7 @@ function DetailBoard() {
     <DetailBoardStyled>
       <Loading loading={loading} />
 
-      <Table dataSource={boardData} columns={columns} size="small" pagination={false} />
+      <CommonTable data={tableData} columns={columns} pagination={false} />
 
       {/* 게시물 등록 */}
       <div className="add-contents">

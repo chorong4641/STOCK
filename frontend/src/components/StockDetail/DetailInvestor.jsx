@@ -1,14 +1,14 @@
-import { Table } from "antd";
 import axios from "axios";
 import React, { useContext, useEffect, useState } from "react";
 import { store } from "../../store";
 import { addComma } from "../common/CommonFunctions";
+import CommonTable from "../common/CommonTable";
 import Loading from "../Loading";
 
 function DetailInvestor() {
   const [state, dispatch] = useContext(store);
   const [loading, setLoading] = useState(false);
-  const [investorData, setInvestorData] = useState(null);
+  const [tableData, setTableData] = useState(null);
 
   useEffect(() => {
     onGetDetailInvestor();
@@ -22,7 +22,7 @@ function DetailInvestor() {
       .get(`/api/trading/${state.stock?.code}`)
       .then((res) => {
         setLoading(false);
-        setInvestorData(res.data);
+        setTableData(res.data);
       })
       .catch((error) => {
         setLoading(false);
@@ -116,7 +116,7 @@ function DetailInvestor() {
     <div>
       <Loading loading={loading} />
 
-      <Table dataSource={investorData} columns={columns} size="small" />
+      <CommonTable data={tableData} columns={columns} />
     </div>
   );
 }

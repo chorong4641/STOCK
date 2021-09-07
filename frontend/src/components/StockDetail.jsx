@@ -6,13 +6,14 @@ import { Popover } from "antd";
 import { CaretDownFilled, CaretUpFilled, PlusSquareFilled } from "@ant-design/icons";
 import { NavLink, Redirect, Route, useRouteMatch } from "react-router-dom";
 import { store } from "../store";
+import { getBookmark } from "../store/actions";
+import { addComma } from "./common/CommonFunctions";
 import Loading from "./Loading";
 import DetailNews from "./StockDetail/DetailNews";
 import DetailBoard from "./StockDetail/DetailBoard";
-import { addComma } from "./common/CommonFunctions";
-import { getBookmark } from "../store/actions";
 import DetailInvestor from "./StockDetail/DetailInvestor";
 import DetailFinancial from "./StockDetail/DetailFinancial";
+import DetailDart from "./StockDetail/DetailDart";
 
 const DetailStyled = styled.div`
   .detail-top {
@@ -227,9 +228,9 @@ function StockDetail() {
 
   useEffect(() => {
     // 1분마다 주가 갱신
-    setInterval(() => {
-      if (data && data.info) onGetRealTimeStock();
-    }, 60000);
+    // setInterval(() => {
+    //   if (data && data.info) onGetRealTimeStock();
+    // }, 60000);
   }, [data.info]);
 
   // 종목 상세 정보 조회
@@ -435,7 +436,7 @@ function StockDetail() {
       path: "/finance",
     },
     {
-      name: "전자공시",
+      name: "공시정보",
       path: "/dart",
     },
   ];
@@ -611,6 +612,7 @@ function StockDetail() {
             path={`${path}/${state.stock?.code}/investor`}
             render={() => data && data?.info && <DetailInvestor />}
           />
+          <Route path={`${path}/${state.stock?.code}/dart`} render={() => data && data?.info && <DetailDart />} />
         </div>
       </div>
     </DetailStyled>

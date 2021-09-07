@@ -1,18 +1,13 @@
 import React, { useContext, useEffect, useState } from "react";
-import styled from "styled-components";
-import { Table } from "antd";
 import Loading from "../Loading";
 import { store } from "../../store";
 import axios from "axios";
-
-const DetailNewsStyled = styled.div`
-  //
-`;
+import CommonTable from "../common/CommonTable";
 
 function DetailNews() {
   const [state, dispatch] = useContext(store);
   // 종목 뉴스 정보
-  const [newsData, setNewsData] = useState([]);
+  const [tableData, setTableData] = useState([]);
   // 로딩
   const [loading, setLoading] = useState(false);
 
@@ -26,7 +21,7 @@ function DetailNews() {
     await axios
       .get(`/api/searchnews/${state.stock?.name}`)
       .then((res) => {
-        setNewsData(res.data);
+        setTableData(res.data);
         setLoading(false);
       })
       .catch((error) => {
@@ -62,15 +57,11 @@ function DetailNews() {
   ];
 
   return (
-    <DetailNewsStyled>
+    <div>
       <Loading loading={loading} />
 
-      <Table
-        dataSource={newsData}
-        columns={columns}
-        size="small"
-      />
-    </DetailNewsStyled>
+      <CommonTable data={tableData} columns={columns} />
+    </div>
   );
 }
 

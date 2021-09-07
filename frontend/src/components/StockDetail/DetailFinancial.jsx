@@ -1,27 +1,20 @@
-import { Table } from "antd";
 import axios from "axios";
 import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { store } from "../../store";
+import CommonTable from "../common/CommonTable";
 import Loading from "../Loading";
-
-const DetailFinStyled = styled.div`
-  .ant-table-thead {
-    th {
-      text-align: center !important;
-    }
-  }
-`;
 
 function DetailFinancial() {
   const [state, dispatch] = useContext(store);
   const [loading, setLoading] = useState(false);
-  const [finData, setFinData] = useState(null);
+  const [tableData, setTableData] = useState(null);
 
   useEffect(() => {
     onGetFinancial();
   }, [state.stock?.code]);
 
+  // 재무제표 조회
   const onGetFinancial = async () => {
     setLoading(true);
 
@@ -29,7 +22,7 @@ function DetailFinancial() {
       .get(`/api/financial/${state.stock?.code}`)
       .then((res) => {
         setLoading(false);
-        setFinData(res.data);
+        setTableData(res.data);
       })
       .catch((error) => {
         console.log("onGetFinancial", error);
@@ -39,7 +32,7 @@ function DetailFinancial() {
   const year = new Date().getFullYear();
   const columns = [
     {
-      title: "재무 정보",
+      title: "재무정보",
       dataIndex: "key",
       key: "key",
       render: (value, record) => {
@@ -91,11 +84,11 @@ function DetailFinancial() {
   ];
 
   return (
-    <DetailFinStyled>
+    <div>
       <Loading loading={loading} />
 
-      <Table dataSource={finData} columns={columns} size="small" pagination={false} />
-    </DetailFinStyled>
+      <CommonTable data={tableData} columns={columns} pagination={false} />
+    </div>
   );
 }
 

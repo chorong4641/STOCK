@@ -1,5 +1,4 @@
-import { CloseOutlined, DeleteOutlined, PlusOutlined } from "@ant-design/icons";
-import { Table } from "antd";
+import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import Modal from "antd/lib/modal/Modal";
 import axios from "axios";
 import React, { useContext, useEffect, useState } from "react";
@@ -10,6 +9,7 @@ import { getBookmark } from "../store/actions";
 import { validRequired } from "../utils/validation";
 import { addComma } from "./common/CommonFunctions";
 import CommonInput from "./common/CommonInput";
+import CommonTable from "./common/CommonTable";
 import Loading from "./Loading";
 
 const MyStockStyled = styled.div`
@@ -216,10 +216,10 @@ function MyStock(props) {
                   </button>
                 </div>
               </div>
-              <Table
-                dataSource={tableData}
+
+              <CommonTable
+                data={tableData}
                 columns={columns}
-                size="small"
                 rowSelection={rowSelection}
                 pagination={{ pageSize: 5 }}
               />
