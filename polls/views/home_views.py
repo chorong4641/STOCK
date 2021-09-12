@@ -67,10 +67,10 @@ def stock(request):
             df.reset_index(inplace = True)
             df['Date'] = df['Date'].dt.strftime('%Y%m%d')
             df = df[['Date','Close']]
-            df = df.rename(columns={'Close':'Index'})
+            df = df.rename(columns={'Date':'date','Close':'index'})
             data[k].append(df.to_dict('records'))
         return JsonResponse(data, json_dumps_params={'ensure_ascii': False}, status=200)
-        # data = {"KOSPI": [[{"Date": "20210902", "Close": 3175.85}],"KODSDAQ":~}]]}
+        # data = {"KOSPI": [[{"date": "20210902", "index": 3175.85}],"KODSDAQ":~}]]}
 
 # 종목명으로 유사 종목 검색값 호출
 def searchstock(request,stock_name):
