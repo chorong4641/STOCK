@@ -3,7 +3,7 @@ from django.http import response,HttpRequest,HttpResponse, JsonResponse
 from django.core import serializers
 from django.contrib.auth.hashers import make_password, check_password
 from django.views.decorators.csrf import csrf_exempt
-from ..models import User
+from ..models import User, UserCapital
 from datetime import datetime
 from django.core.mail import EmailMessage
 from django.core.mail import send_mail
@@ -59,9 +59,18 @@ def register(request):
         user.email = request_data['email']
         user.date_insert = datetime.now()
         user.date_update = datetime.now()
+        # 모의투자
+        capital = UserCapital()
+        capital.id = request_data['id']
+        capital.capital = 10000000
+        capital.date_check = datetime.today().strftime('%Y-%m-%d')
+        capital.date_insert = datetime.now()
+        capital.date_update = datetime.now()
+
         data = {'error':1}
         try:
             user.save()
+            capital.save()
             data['error'] = 0
         except:
             data['error'] = 1
