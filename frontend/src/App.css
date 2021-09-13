@@ -46,6 +46,11 @@ a {
   color: #3f4753;
 }
 
+.half {
+  width: 50%;
+  margin: 0 auto;
+}
+
 .common-popover .ant-popover-title {
   font-weight: bold;
 }
