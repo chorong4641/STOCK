@@ -54,23 +54,10 @@ def stock(request):
     if request.method == 'GET':
         code = {'KOSPI':'KS11','KOSDAQ':'KQ11','DOW':'DJI','NASDAQ':'IXIC','SP500':'US500','SH':'SSEC'}
         data = {'KOSPI':[],'KOSDAQ':[],'DOW':[],'NASDAQ':[],'SP500':[],'SH':[]}
-        week = datetime.today().weekday()
-        if week == 6 :
-            dome_time = (datetime.now() + timedelta(days=-10)).strftime('%Y-%m-%d')
-            fore_time = (datetime.now() + timedelta(days=-10)).strftime('%Y-%m-%d')
-        elif week == 0 :
-            dome_time = (datetime.now() + timedelta(days=-9)).strftime('%Y-%m-%d')
-            fore_time = (datetime.now() + timedelta(days=-11)).strftime('%Y-%m-%d')
-        else :
-            dome_time = (datetime.now() + timedelta(days=-8)).strftime('%Y-%m-%d')
-            fore_time = (datetime.now() + timedelta(days=-9)).strftime('%Y-%m-%d')
-
+        time =  (datetime.now() + timedelta(days=-12)).strftime('%Y-%m-%d')
         for k,v in code.items() :
-            if k == 'KOSPI' or k == 'KOSDAQ' or k == 'SH' :
-                time = dome_time
-            else :
-                time = fore_time    
             df = fdr.DataReader(v,str(time))
+            df = df.head(6)
             df.reset_index(inplace = True)
             df['Date'] = df['Date'].dt.strftime('%Y%m%d')
             df = df[['Date','Close']]
