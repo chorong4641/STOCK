@@ -47,7 +47,7 @@ function CommonInput({
   name,
   type,
   register,
-  validation,
+  validation = {},
   disabled,
   placeholder,
   error,

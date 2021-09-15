@@ -2,11 +2,13 @@ import { InputNumber } from "antd";
 import axios from "axios";
 import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
+import { useForm } from "react-hook-form";
 import { store } from "../store";
 import { selectStock } from "../store/actions";
 import CommonSelect from "./common/CommonSelect";
 import CommonTable from "./common/CommonTable";
 import Loading from "./Loading";
+import CommonInput from "./common/CommonInput";
 
 const MockStyled = styled.div`
   width: 80%;
@@ -15,6 +17,7 @@ const MockStyled = styled.div`
 
   .mock-info {
     display: flex;
+    padding-top: 30px;
 
     .mock-flex {
       flex: 1;
@@ -22,21 +25,26 @@ const MockStyled = styled.div`
   }
 
   .stock-name {
-    padding-top: 10px;
-    font-size: 18px;
+    font-size: 22px;
     font-weight: bold;
   }
 
   .mock-item {
-    padding: 20px 0;
+    padding-bottom: 20px;
 
     .item-title {
       margin-bottom: 10px;
       font-weight: bold;
     }
 
-    .mock-input {
+    .mock-price {
+      font-size: 30px;
+      font-weight: bold;
+    }
+
+    input {
       height: 45px;
+      font-size: 18px;
       background-color: #fff;
       border: 1px solid #d9d9d9;
       border-radius: 2px;
@@ -75,33 +83,11 @@ function Mock() {
   const [loading, setLoading] = useState(false);
   const [count, setCount] = useState(0);
 
+  const { errors, register, watch, handleSubmit } = useForm({ mode: "all" });
+  const watchValues = watch();
+
   useEffect(() => {
-    onGetMock();
-    // setTableData([
-    //   {
-    //     idx: 1,
-    //     id: "test",
-    //     code: "032300",
-    //     price: 56200,
-    //     count: 150,
-    //     date_insert: "2021-09-04T17:56:03",
-    //     date_update: "2021-09-04T18:23:09.808",
-    //     type: null,
-    //     name: "한국파마",
-    //   },
-    //   {
-    //     idx: 4,
-    //     id: "test",
-    //     code: "060240",
-    //     price: 7260,
-    //     count: 150,
-    //     date_insert: "2021-09-05T13:01:06.822",
-    //     date_update: "2021-09-05T13:01:06.822",
-    //     type: null,
-    //     name: "룽투코리아",
-    //   },
-    //   // { price: { closing_price: 20717000, current_price: 20009000 } },
-    // ]);
+    // onGetMock();
   }, []);
 
   // 모의투자 잔고 조회
@@ -116,7 +102,7 @@ function Mock() {
         setTableData(res.data);
       })
       .catch((error) => {
-        console.log("onGetDart", error);
+        console.log("onGetMock", error);
       });
   };
 
@@ -139,23 +125,23 @@ function Mock() {
   // 구매하기
   const onBuyStock = async () => {
     if (!state.stock?.code) return;
+    setLoading(true);
 
-    // setLoading(true);
+    const params = {
+      code: state.stock.code,
+      price: parseInt(watchValues.orderPrice),
+      count: parseInt(watchValues.orderCount),
+    };
 
-    // const params = {
-    //   code:state.stock.code,
-    //   price:detailData.price,
-    //   count:
-    // }
-    // await axios
-    //   .post(`/api/mock/create`, params)
-    //   .then((res) => {
-    //     setLoading(false);
-    //     setDetailData(res.data?.info);
-    //   })
-    //   .catch((error) => {
-    //     console.log("onBuyStock", error);
-    //   });
+    await axios
+      .post(`/api/mock/create`, params)
+      .then((res) => {
+        setLoading(false);
+        // setDetailData(res.data?.info);
+      })
+      .catch((error) => {
+        console.log("onBuyStock", error);
+      });
   };
 
   const columns = [
@@ -180,7 +166,7 @@ function Mock() {
       },
     },
     {
-      title: "구매금액",
+      title: "손익분기",
       dataIndex: "price",
       key: "price",
       width: 200,
@@ -208,36 +194,38 @@ function Mock() {
             </div>
 
             <div className="mock-item">
-              <div className="item-title">{detailData && detailData?.price}</div>
+              <div className="mock-price">{detailData && detailData?.price}</div>
+              <div>등락률</div>
             </div>
           </div>
 
+          <div className="mock-flex">종목차트 영역</div>
+
           <div className="mock-flex">
-            <div className="mock-item">
-              <div className="item-title">금액</div>
-              <input
-                className="mock-input"
-                type="number"
-                defaultValue={detailData?.price || 0}
-                onChange={(e) => console.log(e.target.value)}
-              />
-            </div>
+            <form onSubmit={(e) => e.stopPropagation()} autoComplete="off">
+              <div className="mock-item">
+                <div className="item-title">금액</div>
+                <CommonInput
+                  name="orderPrice"
+                  type="number"
+                  register={register}
+                  defaultValue={detailData?.price || 0}
+                />
+              </div>
 
-            <div className="mock-item">
-              <div className="item-title">수량</div>
-              <input
-                className="mock-input"
-                type="number"
-                defaultValue={1}
-                onChange={(e) => console.log(e.target.value)}
-              />
-            </div>
+              <div className="mock-item">
+                <div className="item-title">수량</div>
+                <CommonInput name="orderCount" type="number" register={register} defaultValue={1} />
+              </div>
 
-            {/* 구매/판매 버튼 */}
-            <div className="mock-btns">
-              <button className="burgundy-bg">구매하기</button>
-              <button className="dark-bg">판매하기</button>
-            </div>
+              {/* 구매/판매 버튼 */}
+              <div className="mock-btns">
+                <button className="burgundy-bg" onClick={handleSubmit(onBuyStock)}>
+                  구매하기
+                </button>
+                <button className="dark-bg">판매하기</button>
+              </div>
+            </form>
           </div>
         </div>
       )}
@@ -246,6 +234,7 @@ function Mock() {
       <div className="balance">
         <div className="mock-item">
           <div className="item-title">평가손익</div>
+          <div>최근 일주일 잔고 그래프 영역</div>
           <CommonTable data={tableData} columns={columns} />
         </div>
       </div>
