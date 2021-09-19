@@ -92,7 +92,6 @@ def bookmark_read(request):
         group = BookmarkGroup.objects.filter(id=request.session['id']).values('idx','name')
         stock = BookmarkStock.objects.filter(id=request.session['id']).values('idx','group_idx','code')
         
-        # 크롤링데이터
         idx_arr = []
         for s in stock:
             idx_arr.append(s['code'])

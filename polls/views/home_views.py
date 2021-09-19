@@ -18,37 +18,6 @@ import FinanceDataReader as fdr
 def main(request):
     return HttpResponse('main')
 
-def MessagePump(timeout):
-    StopEvent = win32event.CreateEvent(None, 0, 0, None)
-    waitables = [StopEvent]
-    while 1:
-        rc = win32event.MsgWaitForMultipleObjects(
-            waitables,
-            0,  # Wait for all = false, so it waits for anyone
-            timeout, #(or win32event.INFINITE)
-            win32event.QS_ALLEVENTS)  # Accepts all input
- 
-        if rc == win32event.WAIT_OBJECT_0:
-            # Our first event listed, the StopEvent, was triggered, so we must exit
-            print('stop event')
-            break
- 
-        elif rc == win32event.WAIT_OBJECT_0 + len(waitables):
-            # A windows message is waiting - take care of it. (Don't ask me
-            # why a WAIT_OBJECT_MSG isn't defined < WAIT_OBJECT_0...!).
-            # This message-serving MUST be done for COM, DDE, and other
-            # Windowsy things to work properly!
-            # print('pump')
-            if pythoncom.PumpWaitingMessages():
-                break  # we received a wm_quit message
-        elif rc == win32event.WAIT_TIMEOUT:
-            # print('timeout')
-            return
-            pass
-        else:
-            print('exception')
-            raise RuntimeError("unexpected win32wait return value")
-
 #차트 데이터 호출
 def stock(request):
     if request.method == 'GET':

@@ -44,7 +44,7 @@ urlpatterns = [
         path('api/bookmark/read',bookmark_views.bookmark_read, name='bookmark_read'),
 
         # 모의투자 페이지
-        path('api/mock/create',mockinvestment_view.create, name='mock_create'),
+        path('api/mock/insert',mockinvestment_view.insert, name='mock_insert'),
         path('api/mock/read',mockinvestment_view.read, name='mock_read'),
         # path('api/mock/update',mockinvestment_view.update, name='mock_update'),
         # path('api/mock/delete',mockinvestment_view.delete, name='mock_delete'),
