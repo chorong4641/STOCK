@@ -59,7 +59,7 @@ def read(request):
         # 종목 정보
         count = objStockMst.GetHeaderValue(0)
         stock_info = {}
-        closing_price = 0
+        # closing_price = 0
         current_price = 0
         for c in range(count):
             code = objStockMst.GetDataValue(0,c),  # 종목코드
@@ -81,13 +81,13 @@ def read(request):
                     d['closing'] = stock_info[k]['closing']
                     d['dtd'] = stock_info[k]['dtd']
                     d['rating'] = stock_info[k]['rating']
-                    closing_price += stock_info[k]['closing'] * v
+                    # closing_price += stock_info[k]['closing'] * v
                     current_price += stock_info[k]['price'] * v
                     print(k,v)
-                    continue        
-        data.append({'price' : { 'closing_price' : usercapital.capital + closing_price,'current_price' : usercapital.capital + current_price }})
+                    continue
+        data.append({'price' : usercapital.capital + current_price })
     return JsonResponse(data,safe=False,json_dumps_params={'ensure_ascii': False},status=200)
-    # [{"idx": 1, "id": "test", "code": "032300", "price": 56200, "count": 150, "date_insert": "2021-09-04T17:56:03", "date_update": "2021-09-04T18:23:09.808", "type": null, "name": "한국파마"}, {"idx": 4, "id": "test", "code": "060240", "price": 7260, "count": 150, "date_insert": "2021-09-05T13:01:06.822", "date_update": "2021-09-05T13:01:06.822", "type": null, "name": "룽투코리아"}, {"price": {"closing_price": 20717000, "current_price": 20009000}}]
+    # [{"idx": 1, "id": "test", "code": "032300", "price": 56669, "count": 156, "date_insert": "2021-09-04T17:56:03", "date_update": "2021-09-15T16:37:59.406", "type": null, "name": "한국파마", "closing": 74700, "dtd": 1600, "rating": 2.14}, {"idx": 4, "id": "test", "code": "060240", "price": 7260, "count": 150, "date_insert": "2021-09-05T13:01:06.822", "date_update": "2021-09-05T13:01:06.822", "type": null, "name": "룽투코리아", "closing": 6760, "dtd": 640, "rating": 9.47}, {"idx": 5, "id": "test", "code": "066570", "price": 53000, "count": 2, "date_insert": "2021-09-15T16:47:40.401", "date_update": "2021-09-15T16:47:40.401", "type": null, "name": "LG전자", "closing": 141000, "dtd": -1500, "rating": -1.06}, {"price": 20481800}]
 
 # 작성
 @csrf_exempt
