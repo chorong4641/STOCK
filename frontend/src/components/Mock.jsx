@@ -1,14 +1,15 @@
-import { InputNumber } from "antd";
 import axios from "axios";
 import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { useForm } from "react-hook-form";
+import Chart from "react-apexcharts";
 import { store } from "../store";
 import { selectStock } from "../store/actions";
 import CommonSelect from "./common/CommonSelect";
 import CommonTable from "./common/CommonTable";
 import Loading from "./Loading";
 import CommonInput from "./common/CommonInput";
+import { addComma } from "./common/CommonFunctions";
 
 const MockStyled = styled.div`
   width: 80%;
@@ -20,7 +21,16 @@ const MockStyled = styled.div`
     padding-top: 30px;
 
     .mock-flex {
+      min-width: 200px;
       flex: 1;
+
+      &.flex-2 {
+        flex: 2;
+      }
+
+      &:nth-child(2n) {
+        margin: 0 50px;
+      }
     }
   }
 
@@ -73,6 +83,19 @@ const MockStyled = styled.div`
 
   .balance {
     margin: 50px 0;
+
+    .total-price {
+      font-weight: bold;
+
+      .price-text {
+        font-size: 18px;
+        margin-right: 20px;
+      }
+
+      .price-number {
+        font-size: 24px;
+      }
+    }
   }
 `;
 
@@ -81,13 +104,14 @@ function Mock() {
   const [tableData, setTableData] = useState(null);
   const [detailData, setDetailData] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [count, setCount] = useState(0);
+  // 총 자산
+  const [totalPrice, setTotalPrice] = useState(0);
 
   const { errors, register, watch, handleSubmit } = useForm({ mode: "all" });
   const watchValues = watch();
 
   useEffect(() => {
-    // onGetMock();
+    onGetMock();
   }, []);
 
   // 모의투자 잔고 조회
@@ -99,7 +123,15 @@ function Mock() {
       .post(`/api/mock/read`)
       .then((res) => {
         setLoading(false);
-        setTableData(res.data);
+        if (res.data) {
+          const { data } = res;
+          // 종목별 잔고 테이블 데이터
+          const tableData = data.splice(0, data.length - 1);
+          setTableData(tableData);
+          // 총 자산
+          const price = data[data.length - 1]?.price;
+          setTotalPrice(addComma(price));
+        }
       })
       .catch((error) => {
         console.log("onGetMock", error);
@@ -134,7 +166,7 @@ function Mock() {
     };
 
     await axios
-      .post(`/api/mock/create`, params)
+      .post(`/api/mock/insert`, params)
       .then((res) => {
         setLoading(false);
         // setDetailData(res.data?.info);
@@ -162,7 +194,7 @@ function Mock() {
       width: 200,
       align: "center",
       render: (value, record) => {
-        return value;
+        return addComma(value);
       },
     },
     {
@@ -172,7 +204,7 @@ function Mock() {
       width: 200,
       align: "center",
       render: (value, record) => {
-        return value;
+        return addComma(value);
       },
     },
   ];
@@ -199,9 +231,27 @@ function Mock() {
             </div>
           </div>
 
-          <div className="mock-flex">종목차트 영역</div>
+          <div className="mock-flex flex-2">
+            종목차트 영역
+            <Chart
+              className="detail-chart-graph"
+              // options={data[period]?.line?.options}
+              // series={[data[period]?.line?.series]}
+              options={{
+                chart: {
+                  // zoom: {
+                  //   enabled: false,
+                  // },
+                },
+                xaxis: { categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997] },
+              }}
+              series={[{ data: [30, 40, 45, 50, 49, 60, 70] }]}
+              type="line"
+              height={200}
+            />
+          </div>
 
-          <div className="mock-flex">
+          <div className="mock-flex flex-2">
             <form onSubmit={(e) => e.stopPropagation()} autoComplete="off">
               <div className="mock-item">
                 <div className="item-title">금액</div>
@@ -232,11 +282,30 @@ function Mock() {
 
       {/* 잔고 */}
       <div className="balance">
-        <div className="mock-item">
-          <div className="item-title">평가손익</div>
-          <div>최근 일주일 잔고 그래프 영역</div>
-          <CommonTable data={tableData} columns={columns} />
+        <div className="total-price">
+          <span className="price-text">총 자산</span>
+          <span className="price-number">{totalPrice}</span>
         </div>
+        <div>
+          최근 일주일 잔고 그래프(데이터 변경 필요)
+          <Chart
+            className="detail-chart-graph"
+            // options={data[period]?.line?.options}
+            // series={[data[period]?.line?.series]}
+            options={{
+              chart: {
+                zoom: {
+                  enabled: false,
+                },
+              },
+              xaxis: { categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997] },
+            }}
+            series={[{ data: [30, 40, 45, 50, 49, 60, 70] }]}
+            type="line"
+            height={200}
+          />
+        </div>
+        <CommonTable data={tableData} columns={columns} />
       </div>
     </MockStyled>
   );
