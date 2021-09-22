@@ -29,7 +29,7 @@ cursor = db.cursor()
 cursor.execute('select distinct code from public.mock_investment')
 code = cursor.fetchall()
 code_list = []
-date = (datetime.now() + timedelta(days=-3)).strftime('%Y-%m-%d')
+date = (datetime.now() + timedelta(days=-7)).strftime('%Y-%m-%d')
 price = {}
 for c in code:
     df = fdr.DataReader(c[0],str(date))
@@ -66,4 +66,8 @@ for c in capital:
     data[c[0]] = data[c[0]] + c[1]
 
 # 오늘 잔고로 업데이트 업데이트는 (12시이후새벽)
-# insert(user_capital)
+for x,y in data.items():
+    cursor.execute('INSERT INTO public.user_capital (id, capital, date_check, date_insert, date_update) VALUES (%s, %s, %s, %s, %s)', (x, y, datetime.now().strftime('%Y-%m-%d') , datetime.now(),datetime.now()))
+db.commit()
+db.close()
+cursor.close()
