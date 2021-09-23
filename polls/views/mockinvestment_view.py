@@ -73,7 +73,8 @@ def read(request):
                 'dtd': price[0] - closing,
                 'rating': round((price[0] - closing) / closing * 100,2)
             }
-        # 데이터 가공
+
+        # 종목 데이터 가공
         for d in data:
             for k,v in stock_count.items() :
                 if d['code'] == k :
@@ -81,11 +82,26 @@ def read(request):
                     d['closing'] = stock_info[k]['closing']
                     d['dtd'] = stock_info[k]['dtd']
                     d['rating'] = stock_info[k]['rating']
-                    # closing_price += stock_info[k]['closing'] * v
                     current_price += stock_info[k]['price'] * v
-                    print(k,v)
                     continue
-        data.append({'price' : usercapital.capital + current_price })
+        user_price = {'price': usercapital.capital + current_price}
+        # data.extend({'price': usercapital.capital + current_price })
+
+        # 잔고 리스트
+        queryset2 = UserCapital.objects.filter(id=request.session['id']).order_by('date_insert')
+        serialize = serializers.serialize('json', queryset2)
+        capital = {}
+        try:    
+            # 데이터 가공
+            for s in json.loads(serialize):
+                for k,v in s.items() :
+                    if k == "fields" :
+                        capital[v['date_check']] = v['capital']
+            user_price['capital'] = capital
+            data.append(user_price)
+        except:
+            data['error'] = 1
+
     return JsonResponse(data,safe=False,json_dumps_params={'ensure_ascii': False},status=200)
     # [{"idx": 1, "id": "test", "code": "032300", "price": 56669, "count": 156, "date_insert": "2021-09-04T17:56:03", "date_update": "2021-09-15T16:37:59.406", "type": null, "name": "한국파마", "closing": 74700, "dtd": 1600, "rating": 2.14}, {"idx": 4, "id": "test", "code": "060240", "price": 7260, "count": 150, "date_insert": "2021-09-05T13:01:06.822", "date_update": "2021-09-05T13:01:06.822", "type": null, "name": "룽투코리아", "closing": 6760, "dtd": 640, "rating": 9.47}, {"idx": 5, "id": "test", "code": "066570", "price": 53000, "count": 2, "date_insert": "2021-09-15T16:47:40.401", "date_update": "2021-09-15T16:47:40.401", "type": null, "name": "LG전자", "closing": 141000, "dtd": -1500, "rating": -1.06}, {"price": 20481800}]
 
@@ -143,7 +159,7 @@ def insert(request):
             usercapital.save()
             data['error'] = 0
         except:
-            data['error'] = 1   
+            data['error'] = 1
         return JsonResponse(data,json_dumps_params={'ensure_ascii': False})
 
 # # 수정 및 삭제
