@@ -10,6 +10,8 @@ import CommonTable from "./common/CommonTable";
 import Loading from "./Loading";
 import CommonInput from "./common/CommonInput";
 import { addComma } from "./common/CommonFunctions";
+import { CalculatorOutlined, CaretDownFilled } from "@ant-design/icons";
+import { Modal } from "antd";
 
 const MockStyled = styled.div`
   width: 80%;
@@ -34,6 +36,19 @@ const MockStyled = styled.div`
     }
   }
 
+  .group-text {
+    font-size: 18px;
+    font-weight: bold;
+
+    .anticon {
+      margin-left: 5px;
+    }
+  }
+
+  .group-contents {
+    padding: 10px 0;
+  }
+
   .stock-name {
     font-size: 22px;
     font-weight: bold;
@@ -50,20 +65,6 @@ const MockStyled = styled.div`
     .mock-price {
       font-size: 30px;
       font-weight: bold;
-    }
-
-    input {
-      height: 45px;
-      font-size: 18px;
-      background-color: #fff;
-      border: 1px solid #d9d9d9;
-      border-radius: 2px;
-
-      &::-webkit-outer-spin-button,
-      &::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-      }
     }
   }
 
@@ -99,6 +100,26 @@ const MockStyled = styled.div`
   }
 `;
 
+const MockModalStyled = styled.div`
+  .calc-btn {
+    width: 100%;
+    height: 40px;
+    margin: 20px 0;
+  }
+
+  .avg-result {
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    margin: 15px 0 5px;
+
+    span {
+      font-size: 18px;
+      color: #9d141d;
+    }
+  }
+`;
+
 function Mock() {
   const [state, dispatch] = useContext(store);
   const [tableData, setTableData] = useState(null);
@@ -106,9 +127,17 @@ function Mock() {
   const [loading, setLoading] = useState(false);
   // 총 자산
   const [totalPrice, setTotalPrice] = useState(0);
+  // 자산 그래프 데이터
+  const [capitalData, setCapitalData] = useState(null);
+  // 평단가 계산기 모달
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  // 계산한 평단가
+  const [avgPrice, setAvgPrice] = useState({});
 
-  const { errors, register, watch, handleSubmit } = useForm({ mode: "all" });
+  const { register, watch, handleSubmit } = useForm({ mode: "all" });
+  const { register: registerModal, watch: watchModal, handleSubmit: handleSubmitModal } = useForm({ mode: "all" });
   const watchValues = watch();
+  const watchModalValues = watchModal();
 
   useEffect(() => {
     onGetMock();
@@ -131,6 +160,7 @@ function Mock() {
           // 총 자산
           const price = data[data.length - 1]?.price;
           setTotalPrice(addComma(price));
+          setCapitalData(data[data.length - 1]?.capital);
         }
       })
       .catch((error) => {
@@ -174,6 +204,22 @@ function Mock() {
       .catch((error) => {
         console.log("onBuyStock", error);
       });
+  };
+
+  // 평단가 계산하기 이벤트
+  const onCalcPrice = () => {
+    const intValues = {};
+    // 폼 입력값이 string으로 처리되므로 int형으로 변경
+    Object.keys(watchModalValues).forEach((key) => (intValues[key] = parseInt(watchModalValues[key])));
+    const { originPrice, originCount, newPrice, newCount } = intValues;
+
+    // 입력값이 있을 때만 계산 수행
+    if (originPrice && originCount && newPrice && newCount) {
+      const calcPrice = (originPrice * originCount + newPrice * newCount) / (originCount + newCount);
+      setAvgPrice({ count: originCount + newCount, price: calcPrice.toFixed(2) });
+    } else {
+      setAvgPrice({ count: 0, price: 0 });
+    }
   };
 
   const columns = [
@@ -231,7 +277,7 @@ function Mock() {
             </div>
           </div>
 
-          <div className="mock-flex flex-2">
+          {/* <div className="mock-flex flex-2">
             종목차트 영역
             <Chart
               className="detail-chart-graph"
@@ -249,10 +295,19 @@ function Mock() {
               type="line"
               height={200}
             />
-          </div>
+          </div> */}
 
-          <div className="mock-flex flex-2">
-            <form onSubmit={(e) => e.stopPropagation()} autoComplete="off">
+          <div className="mock-flex">
+            <div className="group-text">
+              주식매매
+              <CalculatorOutlined
+                onClick={() => setIsModalVisible(true)}
+                title="평단가 계산기"
+                style={{ color: "#9d141d" }}
+              />
+            </div>
+
+            <form className="group-contents" onSubmit={(e) => e.stopPropagation()} autoComplete="off">
               <div className="mock-item">
                 <div className="item-title">금액</div>
                 <CommonInput
@@ -287,7 +342,6 @@ function Mock() {
           <span className="price-number">{totalPrice}</span>
         </div>
         <div>
-          최근 일주일 잔고 그래프(데이터 변경 필요)
           <Chart
             className="detail-chart-graph"
             // options={data[period]?.line?.options}
@@ -298,15 +352,83 @@ function Mock() {
                   enabled: false,
                 },
               },
-              xaxis: { categories: [1991, 1992, 1993, 1994, 1995, 1996, 1997] },
+              xaxis: { categories: capitalData ? Object.keys(capitalData).map((key) => key) : [] },
+              yaxis: {
+                labels: {
+                  formatter: function (value) {
+                    return addComma(value);
+                  },
+                },
+              },
+              colors: ["#3f4753"],
             }}
-            series={[{ data: [30, 40, 45, 50, 49, 60, 70] }]}
+            series={[{ data: capitalData ? Object.keys(capitalData).map((key) => capitalData[key]) : [] }]}
             type="line"
             height={200}
           />
         </div>
         <CommonTable data={tableData} columns={columns} />
       </div>
+
+      {isModalVisible && (
+        <Modal
+          title="평단가 계산기"
+          visible={isModalVisible}
+          onCancel={() => {
+            setAvgPrice({});
+            setIsModalVisible(false);
+          }}
+          footer={null}
+          maskClosable={false}
+        >
+          <MockModalStyled>
+            <form onSubmit={(e) => e.stopPropagation()} autoComplete="off">
+              <div className="input-item">
+                <div className="label">보유단가</div>
+                <CommonInput name="originPrice" type="number" register={registerModal} placeholder={0} />
+              </div>
+              <div className="input-item">
+                <div className="label">보유수량</div>
+                <CommonInput name="originCount" type="number" register={registerModal} />
+              </div>
+              <div className="input-item">
+                <div className="label">매수단가</div>
+                <CommonInput name="newPrice" type="number" register={registerModal} />
+              </div>
+              <div className="input-item">
+                <div className="label">매수수량</div>
+                <CommonInput name="newCount" type="number" register={registerModal} />
+              </div>
+            </form>
+            <button className="dark-bg calc-btn" onClick={() => handleSubmitModal(onCalcPrice())}>
+              계산하기
+            </button>
+
+            {/* 평단가 계산 결과 */}
+            {!!avgPrice?.count && (
+              <>
+                {/* 결과 화살표 */}
+                <CaretDownFilled
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    fontSize: "16px",
+                  }}
+                />
+
+                <div className="avg-result">
+                  <div>
+                    총 보유수량: <span>{addComma(avgPrice.count)}개</span>
+                  </div>
+                  <div>
+                    평단가: <span>{addComma(avgPrice.price)}원</span>
+                  </div>
+                </div>
+              </>
+            )}
+          </MockModalStyled>
+        </Modal>
+      )}
     </MockStyled>
   );
 }
