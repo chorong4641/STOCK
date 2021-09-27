@@ -1,48 +1,11 @@
 import React from "react";
-import styled from "styled-components";
 import { useForm } from "react-hook-form";
 import { useHistory } from "react-router-dom";
 import axios from "axios";
 import CommonInput from "./common/CommonInput";
 import { validRequired, validEmail } from "../utils/validation";
+import { LayoutStyled } from "./common/Styled";
 
-const RegisterStyled = styled.div`
-  width: 80%;
-  margin: 0 auto;
-  padding: 30px 0;
-
-  form {
-    position: relative;
-    width: 500px;
-    height: inherit;
-    display: flex;
-    flex-direction: column;
-    margin: 0 auto;
-
-    .page-title {
-      margin-bottom: 30px;
-      font-size: 18px;
-      font-weight: bold;
-      text-align: center;
-    }
-
-    .input-item {
-      margin-top: 20px;
-
-      .label {
-        margin-bottom: 5px;
-        color: #3f4753;
-      }
-    }
-
-    .register-btn {
-      height: 35px;
-      margin-top: 40px;
-      color: #fff;
-      background-color: #9d141d;
-    }
-  }
-`;
 function Register(props) {
   const history = useHistory();
   const {
@@ -77,7 +40,7 @@ function Register(props) {
   };
 
   return (
-    <RegisterStyled>
+    <LayoutStyled>
       <form onSubmit={handleSubmit(onRegister)} autoComplete="off">
         <div className="page-title">EASY STOCK</div>
 
@@ -143,7 +106,7 @@ function Register(props) {
           회원가입
         </button>
       </form>
-    </RegisterStyled>
+    </LayoutStyled>
   );
 }
 

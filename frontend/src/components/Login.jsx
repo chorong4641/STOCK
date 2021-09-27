@@ -7,61 +7,25 @@ import { store } from "../store";
 import { login } from "../store/actions";
 import CommonInput from "./common/CommonInput";
 import { validRequired } from "../utils/validation";
+import { LayoutStyled } from "./common/Styled";
 
-const LoginStyled = styled.div`
-  display: flex;
-  flex-direction: column;
-  width: 80%;
-  margin: 0 auto;
-  padding: 30px 0;
+const LoginStyled = styled(LayoutStyled)`
+  .extra-link {
+    margin: 40px auto;
 
-  form {
-    position: relative;
-    width: 500px;
-    height: inherit;
-    display: flex;
-    flex-direction: column;
-    margin: 0 auto;
+    a {
+      padding: 0 10px;
+      color: #3f4753;
+      font-size: 13px;
+      border-right: 1px solid #b1b1b1;
 
-    .page-title {
-      margin-bottom: 30px;
-      font-size: 18px;
-      font-weight: bold;
-      text-align: center;
-    }
-
-    .input-item {
-      margin-top: 20px;
-
-      .label {
-        margin-bottom: 5px;
-        color: #3f4753;
-      }
-    }
-
-    .login-btn {
-      height: 35px;
-      margin-top: 40px;
-      color: #fff;
-      background-color: #9d141d;
-    }
-
-    .extra-link {
-      margin: 40px auto;
-
-      a {
-        padding: 0 10px;
-        color: #3f4753;
-        font-size: 13px;
-        border-right: 1px solid #b1b1b1;
-
-        &:last-child {
-          border: none;
-        }
+      &:last-child {
+        border: none;
       }
     }
   }
 `;
+
 function Login(props) {
   const history = useHistory();
   const [state, dispatch] = useContext(store);

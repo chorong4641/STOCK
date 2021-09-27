@@ -81,7 +81,6 @@ def joongangnews(request):
             href = i.select_one('.headline > a')['href'] #링크
             try: # 이미지 예외처리
                 img = i.select_one('.card_image  img')['data-src']
-                print(img)
             except:
                 img = None
             title = i.select_one('.headline > a').get_text() #제목
