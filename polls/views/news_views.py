@@ -72,7 +72,7 @@ def joongangnews(request):
         soup = BeautifulSoup(webpage.content, 'html.parser')
 
         # 데이터 호출
-        list = soup.select('.list_basic > ul > li')
+        list = soup.select('.story_list > li')
         data = []
 
         #데이터 추출
@@ -80,12 +80,13 @@ def joongangnews(request):
             temp = {}
             href = i.select_one('.headline > a')['href'] #링크
             try: # 이미지 예외처리
-                img = i.find('img')['src']
+                img = i.select_one('.card_image  img')['data-src']
+                print(img)
             except:
                 img = None
             title = i.select_one('.headline > a').get_text() #제목
-            text = i.select_one('.lead > a').get_text() #내용
-            date = i.select_one('.byline').get_text() #날짜
+            text = i.select_one('.description > a').get_text() #내용
+            date = i.select_one('.meta > .date').get_text() #날짜
             temp = {'href':href, 'img':img, 'title':title, 'text':text , 'date':date}
             data.append(temp)
         return JsonResponse(data,safe=False,json_dumps_params={'ensure_ascii': False}, status=200)

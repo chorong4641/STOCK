@@ -46,8 +46,8 @@ const NewsStyled = styled.div`
         }
 
         img {
-          width: 100px;
-          height: 60px;
+          width: 110px;
+          height: 70px;
           margin-top: 3px;
           border-radius: 5px;
         }
@@ -57,8 +57,8 @@ const NewsStyled = styled.div`
           justify-content: center;
           align-items: center;
           margin-top: 3px;
-          width: 100px;
-          height: 60px;
+          width: 110px;
+          height: 70px;
           color: #3f47533d;
           background-color: #3f47530d;
           border-radius: 5px;
@@ -66,26 +66,29 @@ const NewsStyled = styled.div`
 
         .right {
           width: calc(100% - 100px);
-          padding-left: 10px;
-          color: #3f4753;
+          padding-left: 15px;
 
           .news-headline {
             line-height: 1.4;
             font-size: 15px;
-            font-weight: 700;
+            font-weight: bold;
           }
 
           .news-content {
-            display: block;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
             width: 100%;
-            line-height: 1.8;
+            white-space: normal;
+            line-height: 1.3em;
             overflow: hidden;
             text-overflow: ellipsis;
-            white-space: nowrap;
+            margin: 5px 0 3px;
+            color: #666;
           }
 
           .news-date {
-            color: #3f47530;
+            color: #888;
             font-size: 12px;
           }
         }
