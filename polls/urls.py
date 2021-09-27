@@ -29,6 +29,9 @@ urlpatterns = [
         path('api/user/login',user_views.login, name='login'),
         path('api/user/logout',user_views.logout, name='logout'),
         path('api/user/edit',user_views.edit, name='edit'),
+        path('api/user/find_id',user_views.find_id, name='find_id'),
+        path('api/user/confirm_pw',user_views.confirm_pw, name='confirm_pw'),
+        path('api/user/reset_pw',user_views.reset_pw, name='reset_pw'),
 
         # 게시판 페이지
         path('api/board/create',board_views.create, name='board_create'),

@@ -104,16 +104,47 @@ def edit(request):
 
         return JsonResponse(data,json_dumps_params={'ensure_ascii': False})
 
-# 패스워드 찾기
+# 아이디 찾기
 @csrf_exempt
-def find_password(request):
+def find_id(request):
     if request.method == 'POST':
-        # email = EmailMessage(
-        #     '[EasyStock]인증번호',      # 제목
-        #     'Body goes here',           # 내용
-        #     # 'e3hope21@gmail.com',       # 보내는 이메일 (settings에서 설정해서 작성안해도 됨)
-        #     to=['e3hope@naver.com'],    # 받는 이메일 리스트
-        # )
-        # email.send()
-        send_mail('[EasyStock]인증번호', 'contents', 'e3hope93@naver.com', ['e3hope@naver.com'], fail_silently=False)
-        return HttpResponse('수정완료')
+        request_data = json.loads(request.body)
+        data = {'error':1}
+        try:
+            user = User.objects.get(email = request_data['email'],name = request_data['name'])
+            data['error'] = 0
+            data['data'] = {'id':user.id}
+        except:
+            data['error'] = 1
+        return JsonResponse(data,json_dumps_params={'ensure_ascii': False})
+
+# 패스워드 인증
+@csrf_exempt
+def confirm_pw(request):
+    if request.method == 'POST':
+        request_data = json.loads(request.body)
+        data = {'error':1}
+        try:
+            user = User.objects.get(email = request_data['email'],name = request_data['name'],id = request_data['id'])
+            request.session['id'] = user.id
+            data['error'] = 0
+        except:
+            data['error'] = 1
+        return JsonResponse(data,json_dumps_params={'ensure_ascii': False})
+
+
+# 패스워드 재설정
+@csrf_exempt
+def reset_pw(request):
+    if request.method == 'POST':
+        request_data = json.loads(request.body)
+        data = {'error':1}
+        try:
+            user = User.objects.get(id = request.session['id'])
+            user.password = make_password(request_data['pw'])
+            user.save()
+            request.session.clear()
+            data['error'] = 0
+        except:
+            data['error'] = 1
+        return JsonResponse(data,json_dumps_params={'ensure_ascii': False})
