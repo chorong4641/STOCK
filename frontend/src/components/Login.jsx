@@ -16,7 +16,6 @@ const LoginStyled = styled(LayoutStyled)`
     a {
       padding: 0 10px;
       color: #3f4753;
-      font-size: 13px;
       border-right: 1px solid #b1b1b1;
 
       &:last-child {
@@ -30,7 +29,7 @@ function Login(props) {
   const history = useHistory();
   const [state, dispatch] = useContext(store);
   const { errors, register, handleSubmit } = useForm({ mode: "all" });
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
 
   const onLogin = async (formData) => {
     const params = {
@@ -44,7 +43,7 @@ function Login(props) {
           dispatch(login(res.data.data));
           history.push(`/stock`);
         } else {
-          setErrorMessage("아이디/비밀번호가 일치하지 않습니다.");
+          setErrorMsg("아이디/비밀번호가 일치하지 않습니다.");
         }
       })
       .catch((error) => {
@@ -78,7 +77,9 @@ function Login(props) {
             validation={{ validate: { required: (value) => validRequired(value) } }}
           />
         </div>
-        <div className="error-message">{errorMessage}</div>
+
+        {/* 에러 메시지 */}
+        {!!errorMsg && <div className="error-message">{errorMsg}</div>}
 
         <button type="submit" className="login-btn">
           로그인

@@ -19,7 +19,7 @@ export const LayoutStyled = styled.div`
 
     .page-title {
       margin-bottom: 30px;
-      font-size: 18px;
+      font-size: 20px;
       font-weight: bold;
       text-align: center;
     }
@@ -34,10 +34,21 @@ export const LayoutStyled = styled.div`
     }
 
     button {
-      height: 35px;
+      height: 40px;
       margin-top: 40px;
+      padding: 0 15px;
       color: #fff;
       background-color: #9d141d;
+    }
+
+    .find-result {
+      padding: 20px 0;
+      text-align: center;
+
+      .find-text {
+        padding: 30px 0;
+        font-size: 18px;
+      }
     }
   }
 `;

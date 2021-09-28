@@ -10,7 +10,9 @@ const InputStyled = styled.div`
   input {
     position: relative;
     width: 100%;
-    padding: 5px 35px 5px 5px;
+    height: "40px"
+    padding: "0px 35px 0px 10px"
+    font-size: "15px"
     border: 1px solid #b1b1b1;
     border-radius: 3px;
     outline: none;
@@ -19,6 +21,21 @@ const InputStyled = styled.div`
       background-color: #fbfbfb;
       opacity: 0.7;
       pointer-events: none;
+    }
+  }
+
+  input[type="number"] {
+    height: "45px";
+    padding-left: 10px;
+    background-color: #fff;
+    font-size: 18px;
+    border: 1px solid #d9d9d9;
+    border-radius: 2px;
+
+    &::-webkit-outer-spin-button,
+    &::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
     }
   }
 
