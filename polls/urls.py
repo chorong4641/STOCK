@@ -17,9 +17,7 @@ urlpatterns = [
         path('api/trading/<str:stock_code>',stock_views.trading, name='trading'),
 
         # 뉴스 페이지
-        path('api/news/heraldnews',news_views.heraldnews, name='heraldnews'),
-        path('api/news/ytnnews',news_views.ytnnews, name='ytnnews'),
-        path('api/news/joongangnews',news_views.joongangnews, name='joongangnews'),
+        path('api/news/<str:company_name>',news_views.news, name='news'),
 
         # 주식 용어 페이지
         path('api/word/stockword',word_views.stockword, name='stockword'),

@@ -178,6 +178,20 @@ class MockOrder(models.Model):
         db_table = 'mock_order'
 
 
+class News(models.Model):
+    idx = models.AutoField(primary_key=True)
+    company = models.CharField(max_length=20, blank=True, null=True)
+    title = models.CharField(max_length=50, blank=True, null=True)
+    text = models.CharField(max_length=1000, blank=True, null=True)
+    date = models.CharField(max_length=20, blank=True, null=True)
+    img = models.CharField(max_length=200, blank=True, null=True)
+    href = models.CharField(max_length=300, blank=True, null=True)
+
+    class Meta:
+        managed = False
+        db_table = 'news'
+
+
 class Stock(models.Model):
     field_idx = models.IntegerField(db_column='\ufeffidx', primary_key=True)  # Field renamed to remove unsuitable characters. Field renamed because it started with '_'.
     code = models.CharField(max_length=20, blank=True, null=True)
