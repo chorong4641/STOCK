@@ -29,7 +29,7 @@ cursor = db.cursor()
 
 # 시간 변수
 now = datetime.now()
-delta = timedelta(hours = 1)
+delta = timedelta(minutes = 10)
 time = ( now - delta ).strftime('%Y-%m-%d %H:%M')
 time = datetime.strptime(time,'%Y-%m-%d %H:%M')
 
