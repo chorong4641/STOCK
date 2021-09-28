@@ -114,7 +114,7 @@ function News() {
     setLoading(true);
 
     await axios
-      .get(`api/news/heraldnews`)
+      .get(`api/news/herald`)
       .then((res) => {
         setHeraldnews(res.data);
       })
@@ -128,7 +128,7 @@ function News() {
     setLoading(true);
 
     await axios
-      .get(`api/news/ytnnews`)
+      .get(`api/news/ytn`)
       .then((res) => {
         setYtnnews(res.data);
       })
@@ -142,7 +142,7 @@ function News() {
     setLoading(true);
 
     await axios
-      .get(`api/news/joongangnews`)
+      .get(`api/news/joongang`)
       .then((res) => {
         setJoongangnews(res.data);
         setLoading(false);
