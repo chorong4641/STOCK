@@ -110,7 +110,8 @@ class DjangoAdminLog(models.Model):
     object_repr = models.CharField(max_length=200)
     action_flag = models.SmallIntegerField()
     change_message = models.TextField()
-    content_type = models.ForeignKey('DjangoContentType', models.DO_NOTHING, blank=True, null=True)
+    content_type = models.ForeignKey(
+        'DjangoContentType', models.DO_NOTHING, blank=True, null=True)
     user = models.ForeignKey(AuthUser, models.DO_NOTHING)
 
     class Meta:
@@ -181,7 +182,7 @@ class MockOrder(models.Model):
 class News(models.Model):
     idx = models.AutoField(primary_key=True)
     company = models.CharField(max_length=20, blank=True, null=True)
-    title = models.CharField(max_length=50, blank=True, null=True)
+    title = models.CharField(max_length=80, blank=True, null=True)
     text = models.CharField(max_length=1000, blank=True, null=True)
     date = models.CharField(max_length=20, blank=True, null=True)
     img = models.CharField(max_length=200, blank=True, null=True)
@@ -193,7 +194,7 @@ class News(models.Model):
 
 
 class Stock(models.Model):
-    field_idx = models.IntegerField(db_column='\ufeffidx', primary_key=True)  # Field renamed to remove unsuitable characters. Field renamed because it started with '_'.
+    idx = models.AutoField(primary_key=True)
     code = models.CharField(max_length=20, blank=True, null=True)
     name = models.CharField(max_length=100, blank=True, null=True)
 
