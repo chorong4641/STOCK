@@ -87,12 +87,13 @@ def edit(request):
             
             # 정보 수정 데이터 확인 변수
             change_data = False
-            
+
             # 정보 수정
             for k,v in request_data.items() :
-                if v != request.session[k] :
+                if k == 'id' and v != request.session[k] :
+                    break
+                elif k != 'id':
                     setattr(user, k, v)
-                    request.session[k] = v
                     change_data = True
 
             if change_data == True :
