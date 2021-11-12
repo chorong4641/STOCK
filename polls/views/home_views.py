@@ -26,7 +26,7 @@ def stock(request):
         time =  (datetime.now() + timedelta(days=-12)).strftime('%Y-%m-%d')
         for k,v in code.items() :
             df = fdr.DataReader(v,str(time))
-            df = df.head(6)
+            df = df.tail(6)
             df.reset_index(inplace = True)
             df['Date'] = df['Date'].dt.strftime('%Y%m%d')
             df = df[['Date','Close']]
