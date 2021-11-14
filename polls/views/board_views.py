@@ -37,7 +37,7 @@ def create(request):
     if request.method == 'POST':
         request_data = json.loads(request.body)
         board = Board()
-        board.id = request.session['id']
+        board.id = request_data['id']
         board.code = request_data['code']
         board.contents = request_data['contents']
         board.date_insert = datetime.now()
@@ -59,7 +59,7 @@ def update(request):
         board = Board.objects.get(idx=request_data['idx'])
         data = {'error':1}
 
-        if request.session['id'] == board.id :
+        if request_data['id'] == board.id :
             try:
                 board.contents = request_data['contents']
                 board.date_update = datetime.now()
@@ -77,7 +77,7 @@ def delete(request):
         request_data = json.loads(request.body)
         board = Board.objects.get(idx=request_data['idx'])
         data = {'error':1}
-        if request.session['id'] == board.id :
+        if request_data['id'] == board.id :
             try:
                 board.delete()
                 data['error'] = 0

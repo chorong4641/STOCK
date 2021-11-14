@@ -13,15 +13,17 @@ import win32com.client
 import pythoncom
 
 # 그룹 추가
-def group_create(request,group_name):
-    if request.method == 'GET':
+@csrf_exempt
+def group_create(request):
+    if request.method == 'POST':
+        request_data = json.loads(request.body)
         data = {'error':1}
 
         # 로그인 사용자만 추가 가능
-        if request.session['id']:
+        if request_data['id']:
             bookmark_group = BookmarkGroup()
-            bookmark_group.id = request.session['id']
-            bookmark_group.name = group_name
+            bookmark_group.id = request_data['id']
+            bookmark_group.name = request_data['group_name']
             bookmark_group.date_insert = datetime.now()
             bookmark_group.date_update = datetime.now()
             data['error'] = 1
@@ -33,16 +35,18 @@ def group_create(request,group_name):
         return JsonResponse(data,json_dumps_params={'ensure_ascii': False})
 
 # 종목 추가
-def stock_create(request,group_idx,stock_code):
-    if request.method == 'GET':
+@csrf_exempt
+def stock_create(request):
+    if request.method == 'POST':
+        request_data = json.loads(request.body)
         data = {'error':1}
         try:
-            queryset = BookmarkGroup.objects.filter(idx=group_idx,id=request.session['id'])
+            queryset = BookmarkGroup.objects.filter(idx=request_data['group_idx'],id=request_data['id'])
             if serializers.serialize('json', queryset) :
                 bookmark_stock = BookmarkStock()
-                bookmark_stock.group_idx = group_idx
-                bookmark_stock.code = stock_code
-                bookmark_stock.id = request.session['id']
+                bookmark_stock.group_idx = request_data['group_idx']
+                bookmark_stock.code = request_data['stock_code']
+                bookmark_stock.id = request_data['id']
                 bookmark_stock.date_insert = datetime.now()
                 bookmark_stock.save()
                 data['error'] = 0
@@ -59,7 +63,7 @@ def group_delete(request):
         bookmark_group = BookmarkGroup.objects.get(idx=request_data['idx'])
         bookmark_stock = BookmarkStock.objects.filter(group_idx=request_data['idx'])
         data = {'error':1}
-        if request.session['id'] == bookmark_group.id :
+        if request_data['id'] == bookmark_group.id :
             try:
                 bookmark_group.delete()
                 if bookmark_stock:
@@ -77,7 +81,7 @@ def stock_delete(request):
         for idx in request_data['idx']:
             bookmark_stock = BookmarkStock.objects.get(idx=idx)
             data = {'error':1}
-            if request.session['id'] == bookmark_stock.id :
+            if request_data['id'] == bookmark_stock.id :
                 try:
                     bookmark_stock.delete()
                     data['error'] = 0
@@ -87,10 +91,12 @@ def stock_delete(request):
 
 
 # 조회 -> 조인필요
+@csrf_exempt
 def bookmark_read(request):
     if request.method == 'GET':
-        group = BookmarkGroup.objects.filter(id=request.session['id']).values('idx','name')
-        stock = BookmarkStock.objects.filter(id=request.session['id']).values('idx','group_idx','code')
+        request_data = json.loads(request.body)
+        group = BookmarkGroup.objects.filter(id=request_data['id']).values('idx','name')
+        stock = BookmarkStock.objects.filter(id=request_data['id']).values('idx','group_idx','code')
         
         idx_arr = []
         for s in stock:

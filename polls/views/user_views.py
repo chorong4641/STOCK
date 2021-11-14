@@ -28,7 +28,7 @@ def login(request):
             
             # 해쉬비번 검증 후 세션생성(로그인 성공)
             if check_password(request_data['pw'], querydata['password']) :
-                request.session['id'] = querydata['id']
+                # request.session['id'] = querydata['id']
                 data['error'] = 0
                 data['data'] = {'id':querydata['id'],'name':querydata['name'],'email':querydata['email']}
         except:
@@ -41,7 +41,7 @@ def login(request):
 def logout(request):
     data = {'error':1}
     try:
-        request.session.clear()
+        # request.session.clear()
         data['error'] = 0
     except:
         data['error'] = 1
@@ -83,14 +83,16 @@ def edit(request):
         data = {'error':1}
         try:
             request_data = json.loads(request.body)
-            user = User.objects.get(id=request.session['id'])
+            # user = User.objects.get(id=request.session['id'])
+            user = User.objects.get(id=request_data['id'])
             
             # 정보 수정 데이터 확인 변수
             change_data = False
 
             # 정보 수정
             for k,v in request_data.items() :
-                if k == 'id' and v != request.session[k] :
+                # if k == 'id' and v != request.session[k] :
+                if k == 'id' and v != request_data[k]:
                     break
                 elif k != 'id':
                     setattr(user, k, v)
@@ -141,7 +143,8 @@ def reset_pw(request):
         request_data = json.loads(request.body)
         data = {'error':1}
         try:
-            user = User.objects.get(id = request.session['id'])
+            # user = User.objects.get(id = request.session['id'])
+            user = User.objects.get(id = request_data['id'])
             user.password = make_password(request_data['pw'])
             user.save()
             request.session.clear()

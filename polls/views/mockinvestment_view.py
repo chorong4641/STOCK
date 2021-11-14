@@ -17,9 +17,10 @@ import pythoncom
 @csrf_exempt
 def read(request):
     if request.method == 'POST':
-        queryset = MockInvestment.objects.filter(id=request.session['id']).order_by('date_insert')
+        request_data = json.loads(request.body)
+        queryset = MockInvestment.objects.filter(id=request_data['id']).order_by('date_insert')
         serialize = serializers.serialize('json', queryset)
-        usercapital = UserCapital.objects.get(id=request.session['id'], date_check='2021-09-04')
+        usercapital = UserCapital.objects.get(id=request_data['id'], date_check='2021-09-04')
         data = []
         code = []
         stock_count = {}
@@ -88,7 +89,7 @@ def read(request):
         # data.extend({'price': usercapital.capital + current_price })
 
         # 잔고 리스트
-        queryset2 = UserCapital.objects.filter(id=request.session['id']).order_by('date_insert')
+        queryset2 = UserCapital.objects.filter(id=request_data['id']).order_by('date_insert')
         serialize = serializers.serialize('json', queryset2)
         capital = {}
         try:    
@@ -114,7 +115,7 @@ def insert(request):
         try:
             # 주문
             mockorder = MockOrder()
-            mockorder.id = request.session['id']
+            mockorder.id = request_data['id']
             mockorder.code = request_data['code']
             mockorder.price = request_data['price']
             mockorder.count = request_data['count']
@@ -130,7 +131,7 @@ def insert(request):
             mockinvestment = MockInvestment()
             if queryset is None :
                 # 매수 시
-                mockinvestment.id = request.session['id']
+                mockinvestment.id = request_data['id']
                 mockinvestment.code = request_data['code']
                 mockinvestment.price = request_data['price']
                 mockinvestment.count = request_data['count']
@@ -141,7 +142,7 @@ def insert(request):
                 # 추가 매수 및 부분 매도
                 if mockinvestment.price != request_data['price']:
                     mockinvestment.idx = queryset.idx
-                    mockinvestment.id = request.session['id']
+                    mockinvestment.id = request_data['id']
                     mockinvestment.code = request_data['code']
                     mockinvestment.price = round((queryset.price * queryset.count + request_data['price'] * request_data['count']) / ( queryset.count + request_data['count'] ))
                     mockinvestment.count = queryset.count + request_data['count']
@@ -153,7 +154,7 @@ def insert(request):
                     queryset.delete()
                 
             # 자본 업데이트
-            usercapital = UserCapital.objects.get(id=request.session['id'])
+            usercapital = UserCapital.objects.get(id=request_data['id'])
             usercapital.capital = usercapital.capital - request_data['price'] * request_data['count']
             usercapital.date_update = datetime.now()
             usercapital.save()
