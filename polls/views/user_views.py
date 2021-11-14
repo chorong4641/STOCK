@@ -129,7 +129,7 @@ def confirm_pw(request):
         data = {'error':1}
         try:
             user = User.objects.get(email = request_data['email'],name = request_data['name'],id = request_data['id'])
-            request.session['id'] = user.id
+            # request.session['id'] = user.id
             data['error'] = 0
         except:
             data['error'] = 1
@@ -147,7 +147,7 @@ def reset_pw(request):
             user = User.objects.get(id = request_data['id'])
             user.password = make_password(request_data['pw'])
             user.save()
-            request.session.clear()
+            # request.session.clear()
             data['error'] = 0
         except:
             data['error'] = 1
