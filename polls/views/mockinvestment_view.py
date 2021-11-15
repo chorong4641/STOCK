@@ -20,7 +20,7 @@ def read(request):
         request_data = json.loads(request.body)
         queryset = MockInvestment.objects.filter(id=request_data['id']).order_by('date_insert')
         serialize = serializers.serialize('json', queryset)
-        usercapital = UserCapital.objects.get(id=request_data['id'], date_check='2021-09-04')
+        usercapital = UserCapital.objects.get(id=request_data['id'], date_check=datetime.today().strftime('%Y-%m-%d'))
         data = []
         code = []
         stock_count = {}
