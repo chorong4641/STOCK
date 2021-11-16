@@ -9,7 +9,6 @@ export const validEmail = (value, message) => {
 };
 
 export const validRange = (value, min, max) => {
-  console.log("value, min, max", parseInt(value), min, max);
   const intValue = parseInt(value);
   if (min && max) {
     return intValue && intValue >= min && intValue <= max ? undefined : `값은 ${min} 이상 ${max} 이하여야 합니다.`;

@@ -121,7 +121,9 @@ function Header(params) {
 
   // 내 정보 수정
   const onEditUserInfo = async (formData) => {
-    const params = {};
+    const params = {
+      id: state.user?.id,
+    };
     Object.keys(formData).forEach((key) => {
       if (state.user[key] !== formData[key]) {
         params[key] = formData[key];
@@ -158,6 +160,9 @@ function Header(params) {
           </NavLink>
           <NavLink to="/word" activeClassName="active">
             용어검색
+          </NavLink>
+          <NavLink to="/recommend" activeClassName="active">
+            종목추천
           </NavLink>
           <NavLink to="/mystock" activeClassName="active">
             관심종목

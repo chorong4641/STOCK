@@ -125,7 +125,7 @@ def insert(request):
 
             # 종합
             try :
-                queryset = MockInvestment.objects.get(id=request.session['id'],code=request_data['code'])
+                queryset = MockInvestment.objects.get(id=request_data['id'],code=request_data['code'])
             except:
                 queryset = None
             mockinvestment = MockInvestment()

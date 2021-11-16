@@ -93,7 +93,7 @@ def stock_delete(request):
 # 조회 -> 조인필요
 @csrf_exempt
 def bookmark_read(request):
-    if request.method == 'GET':
+    if request.method == 'POST':
         request_data = json.loads(request.body)
         group = BookmarkGroup.objects.filter(id=request_data['id']).values('idx','name')
         stock = BookmarkStock.objects.filter(id=request_data['id']).values('idx','group_idx','code')

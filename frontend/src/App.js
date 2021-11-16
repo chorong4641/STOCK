@@ -10,6 +10,8 @@ import Header from "./components/Header";
 import FindId from "./components/FindId";
 import FindPwd from "./components/FindPwd";
 import Mock from "./components/Mock";
+import Recommend from "./components/Recommend";
+
 
 import "./App.css";
 import { store } from "./store";
@@ -118,6 +120,8 @@ function App() {
           <Route path="/word" component={Word} />
           {/* 관심종목 */}
           <Route path="/mystock" render={() => (state.user ? <MyStock /> : <Redirect to="/login" />)} />
+          {/* 종목추천 */}
+          <Route path="/recommend" component={Recommend} />
           {/* 모의투자 */}
           <Route path="/mock" render={() => (state.user ? <Mock /> : <Redirect to="/login" />)} />
           {/* 회원가입 */}

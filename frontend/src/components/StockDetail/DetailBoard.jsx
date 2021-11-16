@@ -78,6 +78,7 @@ function DetailBoard() {
     setLoading(true);
 
     const params = {
+      id: state.user?.id,
       code: state.stock?.code,
       contents: watchValues.addContents,
     };
@@ -104,6 +105,7 @@ function DetailBoard() {
     setLoading(true);
 
     const params = {
+      id: state.user?.id,
       idx: idx,
       contents: watchValues.contents,
     };
@@ -125,6 +127,7 @@ function DetailBoard() {
     setLoading(true);
 
     const params = {
+      id: state.user?.id,
       idx: idx,
     };
 

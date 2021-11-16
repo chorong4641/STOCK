@@ -70,9 +70,12 @@ function MyStock(props) {
   // 관심그룹 및 종목 조회
   const onGetBookmark = async () => {
     setLoading(true);
+    const params = {
+      id: state.user?.id,
+    };
 
     await axios
-      .get("/api/bookmark/read")
+      .post("/api/bookmark/read", params)
       .then((res) => {
         dispatch(getBookmark(res.data));
         setLoading(false);
@@ -86,8 +89,13 @@ function MyStock(props) {
   const onAddGroup = async () => {
     const { groupName } = watch();
 
+    const params = {
+      id: state?.user.id,
+      group_name: groupName,
+    };
+
     await axios
-      .get(`/api/bookmark/group_create/${groupName}`)
+      .post(`/api/bookmark/group_create`, params)
       .then((res) => {
         if (!res.error) {
           setOpenModal(false);
@@ -102,6 +110,7 @@ function MyStock(props) {
   // 관심그룹 삭제
   const onDeleteGroup = async (groupKey) => {
     const params = {
+      id: state.user?.id,
       idx: groupKey,
     };
 
@@ -120,6 +129,7 @@ function MyStock(props) {
   // 관심종목 삭제
   const onDeleteStock = async () => {
     const params = {
+      id: state.user?.id,
       idx: selectedStock.map((code) => Number(code)),
     };
 
