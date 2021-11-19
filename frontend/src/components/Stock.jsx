@@ -33,10 +33,16 @@ const StockStyled = styled.div`
       border-radius: 5px;
 
       .chart-text {
-        margin-bottom: 15px;
         font-size: 1rem;
         font-weight: 700;
         text-align: center;
+      }
+      
+      .chart-index {
+        text-align: center;
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 15px;
       }
 
       .chart-graph {
@@ -145,6 +151,7 @@ function Stock(props) {
               return (
                 <div className="chart-item" key={data.text}>
                   <div className="chart-text">{data.text}</div>
+                  <div className="chart-index">{data.series.data[data.series.data.length - 1]}</div>
                   <Chart className="chart-graph" options={data.options} series={[data.series]} type="line" />
                 </div>
               );

@@ -238,8 +238,12 @@ function Mock() {
     setLoading(true);
     await dispatch(selectStock(null));
 
+    const params = {
+      id: state.user?.id,
+    };
+
     await axios
-      .post(`/api/mock/read`)
+      .post(`/api/mock/read`, params)
       .then((res) => {
         setLoading(false);
         if (res.data) {
@@ -292,6 +296,7 @@ function Mock() {
     setLoading(true);
 
     const params = {
+      id: state.user?.id,
       code: state.stock.code,
       price: parseInt(watchValues.orderPrice),
       count: type === "buy" ? parseInt(watchValues.orderCount) : parseInt(-watchValues.orderCount),

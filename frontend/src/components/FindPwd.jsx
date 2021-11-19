@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import styled from "styled-components";
 import { useForm } from "react-hook-form";
 import { useHistory } from "react-router-dom";
@@ -49,7 +49,10 @@ function FindPwd() {
 
   // 비밀번호 재설정
   const onSetPwd = async (formData) => {
-    const params = { pw: formData.pw };
+    const params = {
+      id: formData.id,
+      pw: formData.pw,
+    };
 
     await axios
       .post(`/api/user/reset_pw`, params)

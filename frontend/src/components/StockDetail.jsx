@@ -381,8 +381,11 @@ function StockDetail() {
 
   // 관심그룹 및 종목 조회
   const onGetBookmark = async () => {
+    const params = {
+      id: state.user?.id,
+    };
     await axios
-      .get("/api/bookmark/read")
+      .post("/api/bookmark/read", params)
       .then((res) => {
         dispatch(getBookmark(res.data));
       })
@@ -393,8 +396,13 @@ function StockDetail() {
 
   // 관심종목 추가
   const onAddBookmark = async () => {
+    const params = {
+      id: state.user?.id,
+      group_idx: selectGroupIdx,
+      stock_code: state.stock?.code,
+    };
     await axios
-      .get(`/api/bookmark/stock_create/${selectGroupIdx}/${state.stock?.code}`)
+      .post(`/api/bookmark/stock_create`, params)
       .then((res) => {
         setVisible(false);
       })
