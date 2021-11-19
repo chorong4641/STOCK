@@ -110,8 +110,7 @@ class DjangoAdminLog(models.Model):
     object_repr = models.CharField(max_length=200)
     action_flag = models.SmallIntegerField()
     change_message = models.TextField()
-    content_type = models.ForeignKey(
-        'DjangoContentType', models.DO_NOTHING, blank=True, null=True)
+    content_type = models.ForeignKey('DjangoContentType', models.DO_NOTHING, blank=True, null=True)
     user = models.ForeignKey(AuthUser, models.DO_NOTHING)
 
     class Meta:
@@ -147,6 +146,32 @@ class DjangoSession(models.Model):
     class Meta:
         managed = False
         db_table = 'django_session'
+
+
+class Krx(models.Model):
+    idx = models.AutoField(primary_key=True)
+    code = models.CharField(max_length=1024, blank=True, null=True)
+    name = models.CharField(db_column='Name', max_length=1024, blank=True, null=True)  # Field name made lowercase.
+    market = models.CharField(max_length=1024, blank=True, null=True)
+    dept = models.CharField(max_length=1024, blank=True, null=True)
+    close = models.FloatField(db_column='Close', blank=True, null=True)  # Field name made lowercase.
+    changecode = models.IntegerField(blank=True, null=True)
+    changes = models.FloatField(blank=True, null=True)
+    chagesratio = models.FloatField(blank=True, null=True)
+    open = models.FloatField(db_column='Open', blank=True, null=True)  # Field name made lowercase.
+    high = models.FloatField(blank=True, null=True)
+    low = models.FloatField(blank=True, null=True)
+    volume = models.FloatField(blank=True, null=True)
+    amount = models.FloatField(blank=True, null=True)
+    marcap = models.FloatField(blank=True, null=True)
+    stocks = models.FloatField(blank=True, null=True)
+    marketid = models.CharField(max_length=1024, blank=True, null=True)
+    rank = models.IntegerField(db_column='Rank', blank=True, null=True)  # Field name made lowercase.
+    date = models.CharField(db_column='Date', max_length=1024, blank=True, null=True)  # Field name made lowercase.
+
+    class Meta:
+        managed = False
+        db_table = 'krx'
 
 
 class MockInvestment(models.Model):

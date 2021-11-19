@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import home_views, stock_views, news_views, word_views, user_views , board_views , bookmark_views , mockinvestment_view
+from .views import home_views, stock_views, news_views, word_views, user_views , board_views , bookmark_views , mockinvestment_view , suggestion_views
 
 urlpatterns = [
         # 메인 페이지
@@ -47,6 +47,7 @@ urlpatterns = [
         # 모의투자 페이지
         path('api/mock/insert',mockinvestment_view.insert, name='mock_insert'),
         path('api/mock/read',mockinvestment_view.read, name='mock_read'),
-        # path('api/mock/update',mockinvestment_view.update, name='mock_update'),
-        # path('api/mock/delete',mockinvestment_view.delete, name='mock_delete'),
+        
+         # 종목추천 페이지
+        path('api/suggestion',suggestion_views.suggestion, name='suggestion'),
 ]
