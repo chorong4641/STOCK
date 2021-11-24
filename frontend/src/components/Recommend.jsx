@@ -13,12 +13,51 @@ const RecommendStyled = styled.div`
   width: 80%;
   margin: 0 auto;
   padding: 30px 0;
+
+  .recommend-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 50px;
+  }
+
+  .recommend-box {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 0 20px;
+    text-align: center;
+
+    .sector-name {
+      width: 100%;
+      padding: 5px 0;
+      font-weight: bold;
+      color: #fff;
+      background-color: #3f4753;
+    }
+
+    .company-list {
+      width: 100%;
+      border: 1px solid #f0f0f0;
+
+      .company-name {
+        border-bottom: 1px solid #f0f0f0;
+        padding: 5px 0;
+
+        &:last-child {
+          border-bottom: 1px solid transparent;
+        }
+      }
+    }
+  }
 `;
 
 function Recommend() {
   const [loading, setLoading] = useState(false);
   const [state, dispatch] = useContext(store);
-  const [data, setData] = useState(null);
+  const [graphData, setGraphData] = useState(null);
+  const [rankData, setRankData] = useState([]);
 
   useEffect(() => {
     onGetRecommend();
@@ -29,8 +68,8 @@ function Recommend() {
     setLoading(true);
 
     const params = {
-      id: state.user?.id,
-      // period: '6month', '1year', '5year'
+      period: "6month",
+      // , '1year', '5year'
     };
 
     await axios
@@ -38,7 +77,10 @@ function Recommend() {
       .then((res) => {
         setLoading(false);
         if (res.data) {
-          const { graph, sector, company } = res.data;
+          const { graph, sug } = res.data;
+
+          // 섹터별 종목 데이터
+          setRankData(sug);
 
           // 그래프 데이터
           const parsedGraph = JSON.parse(graph);
@@ -62,7 +104,7 @@ function Recommend() {
             });
           });
 
-          setData({
+          setGraphData({
             series: seriesData,
             options: {
               chart: {
@@ -88,7 +130,7 @@ function Recommend() {
               },
               stroke: {
                 curve: "straight",
-                width: 2
+                width: 2,
               },
               colors: [
                 "#008ffb",
@@ -115,7 +157,60 @@ function Recommend() {
     <RecommendStyled>
       <Loading loading={loading} />
 
-      {data && <Chart className="chart-graph" options={data.options} series={data.series} type="line" height="450" />}
+      {graphData && (
+        <Chart className="chart-graph" options={graphData.options} series={graphData.series} type="line" height="450" />
+      )}
+
+      {rankData && (
+        <>
+          <div className="recommend-container">
+            {rankData.map((item, index) => {
+              const sector = Object.keys(item)[0];
+
+              if (index <= 4) {
+                return (
+                  <div key={index} className="recommend-box">
+                    {/* 섹터 이름 */}
+                    <div className="sector-name">{sector}</div>
+                    {/* 종목명 */}
+                    <div className="company-list">
+                      {item[sector].map((company, index) => (
+                        <div key={company} className="company-name">
+                          {company}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              }
+              return <></>;
+            })}
+          </div>
+
+          <div className="recommend-container">
+            {rankData.map((item, index) => {
+              const sector = Object.keys(item)[0];
+              if (index > 4) {
+                return (
+                  <div key={index} className="recommend-box">
+                    {/* 섹터 이름 */}
+                    <div className="sector-name">{sector}</div>
+                    {/* 종목명 */}
+                    <div className="company-list">
+                      {item[sector].map((company, index) => (
+                        <div key={company} className="company-name">
+                          {company}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              }
+              return <></>;
+            })}
+          </div>
+        </>
+      )}
     </RecommendStyled>
   );
 }
