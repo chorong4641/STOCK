@@ -100,8 +100,8 @@ function Stock(props) {
               marketText = "나스닥(NASDAQ)";
             } else if (key === "SP500") {
               marketText = "S&P 500";
-            } else if (key === "SH") {
-              marketText = "상해(SH)";
+            } else if (key === "NK") {
+              marketText = "니케이(NIKKEI)";
             }
 
             chartData.push({

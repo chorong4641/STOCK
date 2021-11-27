@@ -60,7 +60,7 @@ function DetailFinancial() {
       key: year - 2,
       align: "right",
       render: (value, record) => {
-        return value;
+        return `${value}원`;
       },
     },
     {
@@ -69,7 +69,7 @@ function DetailFinancial() {
       key: year - 1,
       align: "right",
       render: (value, record) => {
-        return value;
+        return `${value}원`;
       },
     },
     {
@@ -78,7 +78,7 @@ function DetailFinancial() {
       key: year,
       align: "right",
       render: (value, record) => {
-        return value;
+        return `${value}원`;
       },
     },
   ];
