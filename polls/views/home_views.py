@@ -12,8 +12,8 @@ import pandas as pd
 import os
 import json
 import win32event
-import FinanceDataReader as fdr
-
+# import FinanceDataReader as fdr
+import pandas_datareader as fdr
 # 메인
 def main(request):
     return HttpResponse('main')
@@ -21,11 +21,12 @@ def main(request):
 #차트 데이터 호출
 def stock(request):
     if request.method == 'GET':
-        code = {'KOSPI':'KS11','KOSDAQ':'KQ11','DOW':'DJI','NASDAQ':'IXIC','SP500':'US500','SH':'SSEC'}
-        data = {'KOSPI':[],'KOSDAQ':[],'DOW':[],'NASDAQ':[],'SP500':[],'SH':[]}
+        code = {'KOSPI':'^KS11','KOSDAQ':'^KQ11','DOW':'^DJI','NASDAQ':'^IXIC','SP500':'^GSPC','NK':'^N225'}
+        data = {'KOSPI':[],'KOSDAQ':[],'DOW':[],'NASDAQ':[],'SP500':[],'NK':[]}
         time =  (datetime.now() + timedelta(days=-12)).strftime('%Y-%m-%d')
         for k,v in code.items() :
-            df = fdr.DataReader(v,str(time))
+            # df = fdr.DataReader(v,str(time))
+            df = fdr.get_data_yahoo(v,str(time))
             df = df.tail(6)
             df.reset_index(inplace = True)
             df['Date'] = df['Date'].dt.strftime('%Y%m%d')

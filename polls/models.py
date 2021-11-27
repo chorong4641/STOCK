@@ -149,23 +149,23 @@ class DjangoSession(models.Model):
 
 
 class Krx(models.Model):
-    idx = models.AutoField(primary_key=True)
-    code = models.CharField(db_column='Code', max_length=1024, blank=True, null=True)  # Field name made lowercase.
+    idx = models.AutoField(primary_key=True)    
+    code = models.CharField(max_length=1024, blank=True, null=True)
     name = models.CharField(db_column='Name', max_length=1024, blank=True, null=True)  # Field name made lowercase.
-    market = models.CharField(db_column='Market', max_length=1024, blank=True, null=True)  # Field name made lowercase.
-    dept = models.CharField(db_column='Dept', max_length=1024, blank=True, null=True)  # Field name made lowercase.
+    market = models.CharField(max_length=1024, blank=True, null=True)
+    dept = models.CharField(max_length=1024, blank=True, null=True)
     close = models.FloatField(db_column='Close', blank=True, null=True)  # Field name made lowercase.
-    changecode = models.IntegerField(db_column='ChangeCode', blank=True, null=True)  # Field name made lowercase.
-    changes = models.FloatField(db_column='Changes', blank=True, null=True)  # Field name made lowercase.
-    chagesratio = models.FloatField(db_column='ChagesRatio', blank=True, null=True)  # Field name made lowercase.
+    changecode = models.IntegerField(blank=True, null=True)
+    changes = models.FloatField(blank=True,null=True)
+    chagesratio = models.FloatField(blank=True, null=True)
     open = models.FloatField(db_column='Open', blank=True, null=True)  # Field name made lowercase.
-    high = models.FloatField(db_column='High', blank=True, null=True)  # Field name made lowercase.
-    low = models.FloatField(db_column='Low', blank=True, null=True)  # Field name made lowercase.
-    volume = models.FloatField(db_column='Volume', blank=True, null=True)  # Field name made lowercase.
-    amount = models.FloatField(db_column='Amount', blank=True, null=True)  # Field name made lowercase.
-    marcap = models.FloatField(db_column='Marcap', blank=True, null=True)  # Field name made lowercase.
-    stocks = models.FloatField(db_column='Stocks', blank=True, null=True)  # Field name made lowercase.
-    marketid = models.CharField(db_column='MarketId', max_length=1024, blank=True, null=True)  # Field name made lowercase.
+    high = models.FloatField(blank=True, null=True)
+    low = models.FloatField(blank=True, null=True)
+    volume = models.FloatField(blank=True, null=True)
+    amount = models.FloatField(blank=True, null=True)
+    marcap = models.FloatField(blank=True, null=True)
+    stocks = models.FloatField(blank=True, null=True)
+    marketid = models.CharField(max_length=1024, blank=True, null=True)
     rank = models.IntegerField(db_column='Rank', blank=True, null=True)  # Field name made lowercase.
     date = models.CharField(db_column='Date', max_length=1024, blank=True, null=True)  # Field name made lowercase.
 
