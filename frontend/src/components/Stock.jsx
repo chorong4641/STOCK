@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import Chart from "react-apexcharts";
 import { useHistory, useLocation } from "react-router-dom";
 import { Select } from "antd";
-import { SearchOutlined } from "@ant-design/icons";
+import { CaretDownOutlined, CaretUpOutlined, SearchOutlined } from "@ant-design/icons";
 import styled from "styled-components";
 import axios from "axios";
 import Loading from "./Loading";
@@ -33,16 +33,20 @@ const StockStyled = styled.div`
       border-radius: 5px;
 
       .chart-text {
-        font-size: 1rem;
+        font-size: 1.1rem;
         font-weight: 700;
         text-align: center;
       }
-      
+
       .chart-index {
         text-align: center;
-        font-size: 1.5rem;
+        font-size: 1.2rem;
         font-weight: bold;
         margin-bottom: 15px;
+
+        .rate-text {
+          font-size: 0.9rem;
+        }
       }
 
       .chart-graph {
@@ -148,11 +152,41 @@ function Stock(props) {
         <div className="market-chart">
           {marketData?.length > 0 &&
             marketData?.map((data) => {
+              const { text, series, options } = data;
+              const marketIndex = series.data;
+              const yesterday = marketIndex[marketIndex.length - 2];
+              const today = marketIndex[marketIndex.length - 1];
+
+              // 글자 및 아이콘 색상
+              let color = "dark";
+              // 아이콘
+              let icon = null;
+              // 차이값
+              let value = 0;
+              // 등락률
+              const rate = (((today - yesterday) / yesterday) * 100).toFixed(2);
+
+              if (today > yesterday) {
+                color = "burgundy";
+                icon = <CaretUpOutlined />;
+                value = (today - yesterday).toFixed(2);
+              } else if (today < yesterday) {
+                color = "blue";
+                icon = <CaretDownOutlined />;
+                value = (yesterday - today).toFixed(2);
+              }
+
               return (
-                <div className="chart-item" key={data.text}>
-                  <div className="chart-text">{data.text}</div>
-                  <div className="chart-index">{data.series.data[data.series.data.length - 1]}</div>
-                  <Chart className="chart-graph" options={data.options} series={[data.series]} type="line" />
+                <div className="chart-item" key={text}>
+                  <div className="chart-text">{text}</div>
+                  <div className={`chart-index ${color}`}>
+                    {today}
+                    <div className="rate-text">
+                      {icon}
+                      {`${value} ${rate}`}
+                    </div>
+                  </div>
+                  <Chart className="chart-graph" options={options} series={[series]} type="line" />
                 </div>
               );
             })}
