@@ -183,54 +183,6 @@ function Mock() {
 
   useEffect(() => {
     onGetMock();
-    // 총 자산
-    // const price = 20481800;
-    // setTotalPrice(addComma(price));
-    // setCapitalData(0);
-    // setTableData([
-    //   {
-    //     closing: 67000,
-    //     code: "032300",
-    //     high: 71100,
-    //     low: 65700,
-    //     name: "한국파마",
-    //     opening: 66900,
-    //     price: 56256,
-    //     count: 146,
-    //     time: 1559,
-    //     trading_volume: 977412,
-    //     warning: "1",
-    //   },
-    //   {
-    //     idx: 4,
-    //     id: "test",
-    //     code: "060240",
-    //     price: 7260,
-    //     count: 150,
-    //     date_insert: "2021-09-05T13:01:06.822",
-    //     date_update: "2021-09-05T13:01:06.822",
-    //     type: null,
-    //     name: "룽투코리아",
-    //     closing: 6760,
-    //     dtd: 640,
-    //     rating: 9.47,
-    //   },
-    //   {
-    //     idx: 5,
-    //     id: "test",
-    //     code: "066570",
-    //     price: 53000,
-    //     count: 2,
-    //     date_insert: "2021-09-15T16:47:40.401",
-    //     date_update: "2021-09-15T16:47:40.401",
-    //     type: null,
-    //     name: "LG전자",
-    //     closing: 141000,
-    //     dtd: -1500,
-    //     rating: -1.06,
-    //   },
-    //   // { price: 20481800 },
-    // ]);
   }, []);
 
   // 모의투자 잔고 조회
@@ -265,29 +217,36 @@ function Mock() {
   // 종목 상세 정보 조회
   const onGetStockDetail = async (code) => {
     if (!code || loading) return;
-    // setDetailData({
-    //   code: "A032300",
-    //   name: "한국파마",
-    //   price: 62700,
-    //   closing: 65700,
-    //   opening: 64000,
-    //   high: 65300,
-    //   low: 61200,
-    //   time: 1559,
-    //   trading_volume: 453747,
-    //   warning: "1",
-    // });
 
     setLoading(true);
-    await axios
-      .get(`/api/getstock/${code}`)
-      .then((res) => {
-        setLoading(false);
-        setDetailData(res.data?.info[0]);
-      })
-      .catch((error) => {
-        console.log("onGetStockDetail", error);
-      });
+    // await axios
+    //   .get(`/api/getstock/${code}`)
+    //   .then((res) => {
+    //     setLoading(false);
+    //     setDetailData(res.data?.info[0]);
+    //   })
+    //   .catch((error) => {
+    //     console.log("onGetStockDetail", error);
+    //   });
+
+    // 샘플 데이터
+    setDetailData({
+      code: "A035720",
+      name: "카카오",
+      price: 125500,
+      closing: 128000,
+      opening: 127500,
+      high: 128500,
+      low: 125000,
+      time: 1559,
+      trading_volume: 1679040,
+      warning: "1",
+    });
+
+    // 1초 후 로딩 사라지도록 처리
+    setTimeout(() => {
+      setLoading(false);
+    }, 1000);
   };
 
   // 구매/판매 이벤트
@@ -543,7 +502,11 @@ function Mock() {
                   enabled: false,
                 },
               },
-              xaxis: { categories: capitalData ? Object.keys(capitalData).map((key) => key) : [] },
+              xaxis: {
+                categories: capitalData ? Object.keys(capitalData).map((key) => key) : [],
+                labels: { rotate: 0 },
+                tickAmount: 10,
+              },
               yaxis: {
                 labels: {
                   formatter: function (value) {
