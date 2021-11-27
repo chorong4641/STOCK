@@ -6,8 +6,7 @@ from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 
 import pandas as pd
-# import FinanceDataReader as fdr
-import pandas_datareader as fdr
+import FinanceDataReader as fdr
 import json
 import requests
 import datetime
@@ -15,7 +14,7 @@ import datetime
 @csrf_exempt
 def suggestion(request):
     if request.method == 'POST':
-        try:
+        # try:
             request_data = json.loads(request.body)
             # start_date = (datetime.datetime.strptime(request_data['start_date'],'%Y-%m-%d') + datetime.timedelta(1)).strftime("%Y-%m-%d")
             # end_date = (datetime.datetime.strptime(request_data['end_date'],'%Y-%m-%d') - datetime.timedelta(1)).strftime("%Y-%m-%d")
@@ -37,7 +36,7 @@ def suggestion(request):
             df_master = df_master.dropna(subset=['Sector'])
             df = pd.merge(df_marcap[['code', 'name', 'marcap']].reset_index(), df_master[['Symbol', 'Sector']], left_on='code', right_on="Symbol")
             marcap_sector = pd.pivot_table(df, index='date', columns='Sector', values='marcap', aggfunc='sum')
-            cols = pd.DataFrame(marcap_sector.loc['2020-11-09'].sort_values(ascending=False)).head(10).index
+            cols = pd.DataFrame(marcap_sector.loc['2021-11-09'].sort_values(ascending=False)).head(10).index
             graph = marcap_sector.loc[(datetime.datetime.strptime(start_date,'%Y-%m-%d') + datetime.timedelta(1)).strftime("%Y-%m-%d"):, cols].to_json()
             
             top_sector = marcap_sector.loc['2021-11-09'].sort_values(ascending=False)[:10]
@@ -50,8 +49,8 @@ def suggestion(request):
                 temp = temp.sort_values(by = ['marcap'], ascending = False).head(5)
                 sug.append({s:temp['name'].values.tolist()})
             data = {'sug':sug,'graph':graph}
-        except:
-            data = {'error':1}
-        return JsonResponse(data,safe=False,json_dumps_params={'ensure_ascii': False}, status=200)
+        # except:
+            # data = {'error':1}
+            return JsonResponse(data,safe=False,json_dumps_params={'ensure_ascii': False}, status=200)
         # {"sector": "통신 및 방송 장비 제조업", "company": ["삼성전자", "LG전자", "케이엠더블유"]}
         # https://github.com/FinanceData/marcap/blob/master/marcap-tutorial-04-sector-analysis.ipynb <- 참고사이트
