@@ -165,7 +165,18 @@ function Recommend() {
                 curve: "straight",
                 width: 2,
               },
-              colors: ["#008ffb", "#00e396", "#feb019", "#ff4560", "#775dd0", "#2a587b", "#2c8400", "#f4f868", "#fc9ec9", "#32fff4"],
+              colors: [
+                "#008ffb",
+                "#00e396",
+                "#feb019",
+                "#ff4560",
+                "#775dd0",
+                "#2a587b",
+                "#2c8400",
+                "#f4f868",
+                "#fc9ec9",
+                "#32fff4",
+              ],
             },
           });
         }
@@ -201,7 +212,13 @@ function Recommend() {
             </button>
           </div>
           {/* 시가총액 그래프 */}
-          <Chart className="chart-graph" options={graphData.options} series={graphData.series} type="line" height="450" />
+          <Chart
+            className="chart-graph"
+            options={graphData.options}
+            series={graphData.series}
+            type="line"
+            height="450"
+          />
         </>
       )}
 
@@ -216,7 +233,7 @@ function Recommend() {
             {rankData.map((item, index) => {
               const sector = Object.keys(item)[0];
               const contentList = [...item[sector]];
-              if (item[sector].length < 5) {
+              for (let i = 0; i < 5 - item[sector].length; i++) {
                 contentList.push(" ");
               }
 
@@ -245,7 +262,7 @@ function Recommend() {
             {rankData.map((item, index) => {
               const sector = Object.keys(item)[0];
               const contentList = [...item[sector]];
-              if (item[sector].length < 5) {
+              for (let i = 0; i < 5 - item[sector].length; i++) {
                 contentList.push(" ");
               }
 
