@@ -14,7 +14,7 @@ import datetime
 @csrf_exempt
 def suggestion(request):
     if request.method == 'POST':
-        # try:
+        try:
             request_data = json.loads(request.body)
             # start_date = (datetime.datetime.strptime(request_data['start_date'],'%Y-%m-%d') + datetime.timedelta(1)).strftime("%Y-%m-%d")
             # end_date = (datetime.datetime.strptime(request_data['end_date'],'%Y-%m-%d') - datetime.timedelta(1)).strftime("%Y-%m-%d")
@@ -45,12 +45,12 @@ def suggestion(request):
             sug = []
             # 1등섹터에서 시가총액1위
             for s in top_sector.keys():
-                temp = df[(df['date'] == '2020-11-09') & (df['Sector'] == s)]
+                temp = df[(df['date'] == '2021-11-09') & (df['Sector'] == s)]
                 temp = temp.sort_values(by = ['marcap'], ascending = False).head(5)
                 sug.append({s:temp['name'].values.tolist()})
             data = {'sug':sug,'graph':graph}
-        # except:
-            # data = {'error':1}
-            return JsonResponse(data,safe=False,json_dumps_params={'ensure_ascii': False}, status=200)
+        except:
+            data = {'error':1}
+        return JsonResponse(data,safe=False,json_dumps_params={'ensure_ascii': False}, status=200)
         # {"sector": "통신 및 방송 장비 제조업", "company": ["삼성전자", "LG전자", "케이엠더블유"]}
         # https://github.com/FinanceData/marcap/blob/master/marcap-tutorial-04-sector-analysis.ipynb <- 참고사이트
