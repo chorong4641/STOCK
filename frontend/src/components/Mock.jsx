@@ -233,34 +233,34 @@ function Mock() {
     if (!code || loading) return;
 
     setLoading(true);
-    await axios
-      .get(`/api/getstock/${code}`)
-      .then((res) => {
-        setLoading(false);
-        setDetailData(res.data?.info[0]);
-      })
-      .catch((error) => {
-        console.log("onGetStockDetail", error);
-      });
+    // await axios
+    //   .get(`/api/getstock/${code}`)
+    //   .then((res) => {
+    //     setLoading(false);
+    //     setDetailData(res.data?.info[0]);
+    //   })
+    //   .catch((error) => {
+    //     console.log("onGetStockDetail", error);
+    //   });
 
     // 샘플 데이터
-    // setDetailData({
-    //   code: "A035720",
-    //   name: "카카오",
-    //   price: 125500,
-    //   closing: 128000,
-    //   opening: 127500,
-    //   high: 128500,
-    //   low: 125000,
-    //   time: 1559,
-    //   trading_volume: 1679040,
-    //   warning: "1",
-    // });
+    setDetailData({
+      code: "A035720",
+      name: "카카오",
+      price: 125500,
+      closing: 128000,
+      opening: 127500,
+      high: 128500,
+      low: 125000,
+      time: 1559,
+      trading_volume: 1679040,
+      warning: "1",
+    });
 
-    // // // 1초 후 로딩 사라지도록 처리
-    // setTimeout(() => {
-    //   setLoading(false);
-    // }, 1000);
+    // // 1초 후 로딩 사라지도록 처리
+    setTimeout(() => {
+      setLoading(false);
+    }, 1000);
   };
 
   // 구매/판매 이벤트
