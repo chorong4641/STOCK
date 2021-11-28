@@ -35,10 +35,6 @@ const MockStyled = styled.div`
     padding-bottom: 10px;
     font-size: 18px;
     font-weight: bold;
-
-    .anticon {
-      margin-left: 5px;
-    }
   }
 
   .group-contents {
@@ -106,6 +102,23 @@ const MockStyled = styled.div`
 
   .capital {
     margin: 65px 0 30px;
+
+    .flex-area {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+
+      .calculate-btn {
+        margin-left: 5px;
+        background-color: #3f4753;
+        color: #fff;
+        font-size: 14px;
+
+        .anticon {
+          margin-right: 5px;
+        }
+      }
+    }
 
     .total-price {
       margin-left: 18px;
@@ -434,13 +447,6 @@ function Mock() {
           </div> */}
 
           <div className="mock-flex">
-            <div className="group-text">
-              주식매매
-              <Tooltip placement="right" title="평단가 계산기">
-                <CalculatorOutlined onClick={() => setIsModalVisible(true)} style={{ color: "#9d141d" }} />
-              </Tooltip>
-            </div>
-
             <form className="group-contents" onSubmit={(e) => e.preventDefault()} autoComplete="off">
               <div className="mock-item">
                 <div className="item-title">금액</div>
@@ -486,10 +492,17 @@ function Mock() {
 
       {/* 잔고 */}
       <div className="capital">
-        {/* <div className="group-text">자산정보</div> */}
-        <div className="total-price">
-          <span className="price-text">총 자산</span>
-          <span className="price-number">{totalPrice}</span>
+        <div className="flex-area">
+          <div className="total-price">
+            <span className="price-text">총 자산</span>
+            <span className="price-number">{totalPrice}</span>
+          </div>
+          <div>
+            <button className="calculate-btn" onClick={() => setIsModalVisible(true)}>
+              <CalculatorOutlined />
+              평단가 계산기
+            </button>
+          </div>
         </div>
         <div className="capital-chart">
           <Chart
