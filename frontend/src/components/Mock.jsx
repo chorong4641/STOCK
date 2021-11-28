@@ -13,7 +13,6 @@ import { addComma } from "./common/CommonFunctions";
 import { CalculatorOutlined, CaretDownFilled, CaretUpFilled } from "@ant-design/icons";
 import { Modal, Tooltip } from "antd";
 import { validRange } from "../utils/validation";
-import ErrorList from "antd/lib/form/ErrorList";
 
 const MockStyled = styled.div`
   width: 70%;
@@ -199,9 +198,11 @@ function Mock() {
   }, []);
 
   // 모의투자 잔고 조회
-  const onGetMock = async () => {
+  const onGetMock = async (init = true) => {
     setLoading(true);
-    await dispatch(selectStock(null));
+    if (init) {
+      await dispatch(selectStock(null));
+    }
 
     const params = {
       id: state.user?.id,
@@ -232,34 +233,34 @@ function Mock() {
     if (!code || loading) return;
 
     setLoading(true);
-    // await axios
-    //   .get(`/api/getstock/${code}`)
-    //   .then((res) => {
-    //     setLoading(false);
-    //     setDetailData(res.data?.info[0]);
-    //   })
-    //   .catch((error) => {
-    //     console.log("onGetStockDetail", error);
-    //   });
+    await axios
+      .get(`/api/getstock/${code}`)
+      .then((res) => {
+        setLoading(false);
+        setDetailData(res.data?.info[0]);
+      })
+      .catch((error) => {
+        console.log("onGetStockDetail", error);
+      });
 
     // 샘플 데이터
-    setDetailData({
-      code: "A035720",
-      name: "카카오",
-      price: 125500,
-      closing: 128000,
-      opening: 127500,
-      high: 128500,
-      low: 125000,
-      time: 1559,
-      trading_volume: 1679040,
-      warning: "1",
-    });
+    // setDetailData({
+    //   code: "A035720",
+    //   name: "카카오",
+    //   price: 125500,
+    //   closing: 128000,
+    //   opening: 127500,
+    //   high: 128500,
+    //   low: 125000,
+    //   time: 1559,
+    //   trading_volume: 1679040,
+    //   warning: "1",
+    // });
 
-    // 1초 후 로딩 사라지도록 처리
-    setTimeout(() => {
-      setLoading(false);
-    }, 1000);
+    // // // 1초 후 로딩 사라지도록 처리
+    // setTimeout(() => {
+    //   setLoading(false);
+    // }, 1000);
   };
 
   // 구매/판매 이벤트
@@ -270,15 +271,15 @@ function Mock() {
     const params = {
       id: state.user?.id,
       code: state.stock.code,
-      price: parseInt(watchValues.orderPrice),
-      count: type === "buy" ? parseInt(watchValues.orderCount) : parseInt(-watchValues.orderCount),
+      price: parseInt(watchValues.orderPrice) || detailData.price,
+      count: type === "buy" ? parseInt(watchValues.orderCount) || 1 : parseInt(-watchValues.orderCount) || 1,
     };
 
     await axios
       .post(`/api/mock/insert`, params)
       .then((res) => {
         setLoading(false);
-        console.log(res.data);
+        onGetMock(false);
         // setDetailData(res.data?.info);
       })
       .catch((error) => {
