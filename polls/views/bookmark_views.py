@@ -4,13 +4,13 @@ from django.http import HttpResponse, JsonResponse
 from django.core import serializers
 from django.core.serializers.json import DjangoJSONEncoder
 from django.views.decorators.csrf import csrf_exempt
-from ..models import BookmarkGroup , BookmarkStock
-from datetime import datetime
-
+from ..models import BookmarkGroup , BookmarkStock , Stock
+from datetime import datetime, timedelta
 import json
 import sys
 import win32com.client
 import pythoncom
+import FinanceDataReader as fdr
 
 # 그룹 추가
 @csrf_exempt
@@ -99,44 +99,56 @@ def bookmark_read(request):
         stock = BookmarkStock.objects.filter(id=request_data['id']).values('idx','group_idx','code')
         
         idx_arr = []
+        stockname = {}
         for s in stock:
             idx_arr.append(s['code'])
-        idx_list = ',A'.join(map(str,idx_arr))
-        pythoncom.CoInitialize()
-        objCpCybos = win32com.client.Dispatch("CpUtil.CpCybos")
-        bConnect = objCpCybos.IsConnect
-        if (bConnect == 0):
-            print("PLUS가 정상적으로 연결되지 않음. ")
-            exit()
+        stocktemp = Stock.objects.filter(code__in=idx_arr).values('code','name')
+        for st in stocktemp:
+            if st['code'] in stockname:
+                continue
+            else:
+                stockname[st['code']] = st['name']
+            
+        # idx_list = ','.join(map(str,idx_arr))
         
-        # 현재가 객체 구하기
-        objStockMst = win32com.client.Dispatch("DsCbo1.StockMst2")
-        objStockMst.SetInputValue(0,'A'+idx_list)   
-        objStockMst.BlockRequest()
+        # pythoncom.CoInitialize()
+        # objCpCybos = win32com.client.Dispatch("CpUtil.CpCybos")
+        # bConnect = objCpCybos.IsConnect
+        # if (bConnect == 0):
+        #     print("PLUS가 정상적으로 연결되지 않음. ")
+        #     exit()
         
-        # 현재가 통신 및 통신 에러 처리 
-        rqStatus = objStockMst.GetDibStatus()
-        rqRet = objStockMst.GetDibMsg1()
-        print("통신상태", rqStatus, rqRet)
-        if rqStatus != 0:
-            exit()
+        # # 현재가 객체 구하기
+        # objStockMst = win32com.client.Dispatch("DsCbo1.StockMst2")
+        # objStockMst.SetInputValue(0,'A'+idx_list)   
+        # objStockMst.BlockRequest()
+        
+        # # 현재가 통신 및 통신 에러 처리 
+        # rqStatus = objStockMst.GetDibStatus()
+        # rqRet = objStockMst.GetDibMsg1()
+        # print("통신상태", rqStatus, rqRet)
+        # if rqStatus != 0:
+        #     exit()
 
-        # 종목 정보
-        count = objStockMst.GetHeaderValue(0)
-        stock_info = {}
-        for c in range(count):
-            print(c)
-            code = objStockMst.GetDataValue(0,c),  # 종목코드
-            name = objStockMst.GetDataValue(1,c),  # 종목명
-            price = objStockMst.GetDataValue(3,c), # 현재가
-            closing = objStockMst.GetDataValue(19,c) # 전일종가
-            stock_info[code[0][1:]] = {
-                'name': name[0],
-                'price': price[0],
-                'dtd': price[0] - closing,
-                'rating': round((price[0] - closing) / closing * 100,2)
-            }
-
+        # # 종목 정보
+        # count = objStockMst.GetHeaderValue(0)
+        # stock_info = {}
+        # for c in range(count):
+        #     print(c)
+        #     code = objStockMst.GetDataValue(0,c),  # 종목코드
+        #     name = objStockMst.GetDataValue(1,c),  # 종목명
+        #     price = objStockMst.GetDataValue(3,c), # 현재가
+        #     closing = objStockMst.GetDataValue(19,c) # 전일종가
+        #     stock_info[code[0][1:]] = {
+        #         'name': name[0],
+        #         'price': price[0],
+        #         'dtd': price[0] - closing,
+        #         'rating': round((price[0] - closing) / closing * 100,2)
+        #     }
+        
+        # fdr
+        
+        
         # 데이터 가공
         data = []
         for g in group:
@@ -144,6 +156,24 @@ def bookmark_read(request):
             temp['values'] = []
             for s in stock:
                 if g['idx'] == s['group_idx']:
+                    
+                    # fdr
+                    time =  (datetime.now() + timedelta(days=-4)).strftime('%Y-%m-%d')
+                    df = fdr.DataReader(s['code'],str(time))
+                    df.reset_index(inplace = True)
+                    df = df.tail(2)
+                    pantemp = df['Close'].values
+                    df['name'] = stockname[s['code']]
+                    df['dtd'] = pantemp[1] - pantemp[0]
+                    df['Change'] = round(df['Change']*100,2)
+                    
+                    df = df.tail(1)
+                    df = df[['name','Close','dtd','Change']]
+                    
+                    df = df.rename(columns={'Close':'price','Change':'rating'})
+                    df = df.to_dict('records')
+                    stock_info = {}
+                    stock_info[s['code']] = df[0]
                     stock_data = {}
                     stock_data['idx'] = s['idx']
                     stock_data['code'] = s['code']
