@@ -17,7 +17,7 @@ const WordStyled = styled.div`
 
   .word-info {
     width: 80%;
-    max-height: 350px;
+    max-height: 450px;
     margin-top: 100px;
     padding: 15px 10px 10px;
     border-radius: 5px;

@@ -157,6 +157,7 @@ function MyStock(props) {
       dataIndex: "price",
       key: "price",
       width: 200,
+      align: "right",
       render: (value) => addComma(value),
     },
     {
@@ -164,6 +165,7 @@ function MyStock(props) {
       dataIndex: "dtd",
       key: "dtd",
       width: 200,
+      align: "right",
       render: (value) => {
         let color = "";
         if (value) {
@@ -177,6 +179,7 @@ function MyStock(props) {
       dataIndex: "rating",
       key: "rating",
       width: 200,
+      align: "right",
       render: (value) => {
         let color = "";
         if (value) {

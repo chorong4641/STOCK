@@ -81,8 +81,8 @@ const MockStyled = styled.div`
 
     div {
       display: flex;
-      justify-content: space-between;
-      font-size: 16px;
+      justify-content: space-around;
+      font-size: 17px;
 
       span {
         width: 100px;
@@ -327,7 +327,7 @@ function Mock() {
   if (detailData) {
     const { warning } = detailData;
     if (warning === "1") {
-      warningInfo = { text: "정상", textColor: "#fff", bgColor: "#14950c" };
+      warningInfo = { text: "정상", textColor: "#fff", bgColor: "#028667" };
     } else if (warning === "2") {
       warningInfo = { text: "주의", textColor: "#fff", bgColor: "#eacd02" };
     } else if (warning === "3") {
