@@ -6,8 +6,11 @@ from django.views.decorators.csrf import csrf_exempt
 from ..models import MockInvestment
 from ..models import MockOrder
 from ..models import UserCapital
-from datetime import datetime
-
+from ..models import Stock
+from datetime import datetime,timedelta
+from pandas import Timestamp
+import pandas as pd
+import FinanceDataReader as fdr
 import json
 import sys
 import win32com.client
@@ -17,14 +20,15 @@ import pythoncom
 @csrf_exempt
 def read(request):
     if request.method == 'POST':
-        request_data = json.loads(request.body)
-        queryset = MockInvestment.objects.filter(id=request_data['id']).order_by('date_insert')
-        serialize = serializers.serialize('json', queryset)
-        usercapital = UserCapital.objects.get(id=request_data['id'], date_check=datetime.today().strftime('%Y-%m-%d'))
-        data = []
-        code = []
-        stock_count = {}
-        try:    
+        try: 
+            request_data = json.loads(request.body)
+            queryset = MockInvestment.objects.filter(id=request_data['id']).order_by('date_insert')
+            serialize = serializers.serialize('json', queryset)
+            usercapital = UserCapital.objects.get(id=request_data['id'], date_check=datetime.today().strftime('%Y-%m-%d'))
+            data = []
+            code = []
+            stock_count = {}
+            
             # 데이터 가공
             for s in json.loads(serialize):
                 temp = {}
@@ -36,63 +40,93 @@ def read(request):
                         code.append(v['code'])
                         stock_count[v['code']] = v['count']
                 data.append(temp)
-        except:
-            data['error'] = 1
-        pythoncom.CoInitialize()
-        objCpCybos = win32com.client.Dispatch("CpUtil.CpCybos")
-        bConnect = objCpCybos.IsConnect
-        if (bConnect == 0):
-            print("PLUS가 정상적으로 연결되지 않음. ")
-            exit()
-        
-        # 현재가 객체 구하기
-        objStockMst = win32com.client.Dispatch("DsCbo1.StockMst2")
-        objStockMst.SetInputValue(0,'A'+',A'.join(map(str,code)))   
-        objStockMst.BlockRequest()
-        
-        # 현재가 통신 및 통신 에러 처리 
-        rqStatus = objStockMst.GetDibStatus()
-        rqRet = objStockMst.GetDibMsg1()
-        print("통신상태", rqStatus, rqRet)
-        if rqStatus != 0:
-            exit()
-
-        # 종목 정보
-        count = objStockMst.GetHeaderValue(0)
-        stock_info = {}
-        # closing_price = 0
-        current_price = 0
-        for c in range(count):
-            code = objStockMst.GetDataValue(0,c),  # 종목코드
-            name = objStockMst.GetDataValue(1,c),  # 종목명
-            price = objStockMst.GetDataValue(3,c), # 현재가
-            closing = objStockMst.GetDataValue(19,c) # 전일종가
-            stock_info[code[0][1:]] = {
-                'name': name[0],
-                'price': price[0],
-                'closing': closing,
-                'dtd': price[0] - closing,
-                'rating': round((price[0] - closing) / closing * 100,2)
-            }
-
-        # 종목 데이터 가공
-        for d in data:
-            for k,v in stock_count.items() :
-                if d['code'] == k :
-                    d['name'] = stock_info[k]['name']
-                    d['closing'] = stock_info[k]['closing']
-                    d['dtd'] = stock_info[k]['dtd']
-                    d['rating'] = stock_info[k]['rating']
-                    current_price += stock_info[k]['price'] * v
+                
+            
+            stockname = {}
+            stocktemp = Stock.objects.filter(code__in=code).values('code','name')
+            for st in stocktemp:
+                if st['code'] in stockname:
                     continue
-        user_price = {'price': usercapital.capital + current_price}
-        # data.extend({'price': usercapital.capital + current_price })
+                else:
+                    stockname[st['code']] = st['name']
+            # pythoncom.CoInitialize()
+            # objCpCybos = win32com.client.Dispatch("CpUtil.CpCybos")
+            # bConnect = objCpCybos.IsConnect
+            # if (bConnect == 0):
+            #     print("PLUS가 정상적으로 연결되지 않음. ")
+            #     exit()
+            
+            # # 현재가 객체 구하기
+            # objStockMst = win32com.client.Dispatch("DsCbo1.StockMst2")
+            # objStockMst.SetInputValue(0,'A'+',A'.join(map(str,code)))   
+            # objStockMst.BlockRequest()
+            
+            # # 현재가 통신 및 통신 에러 처리 
+            # rqStatus = objStockMst.GetDibStatus()
+            # rqRet = objStockMst.GetDibMsg1()
+            # print("통신상태", rqStatus, rqRet)
+            # if rqStatus != 0:
+            #     exit()
 
-        # 잔고 리스트
-        queryset2 = UserCapital.objects.filter(id=request_data['id']).order_by('date_insert')
-        serialize = serializers.serialize('json', queryset2)
-        capital = {}
-        try:    
+            # # 종목 정보
+            # count = objStockMst.GetHeaderValue(0)
+            # stock_info = {}
+            # # closing_price = 0
+            # current_price = 0
+            # for c in range(count):
+            #     code = objStockMst.GetDataValue(0,c),  # 종목코드
+            #     name = objStockMst.GetDataValue(1,c),  # 종목명
+            #     price = objStockMst.GetDataValue(3,c), # 현재가
+            #     closing = objStockMst.GetDataValue(19,c) # 전일종가
+            #     stock_info[code[0][1:]] = {
+            #         'name': name[0],
+            #         'price': price[0],
+            #         'closing': closing,
+            #         'dtd': price[0] - closing,
+            #         'rating': round((price[0] - closing) / closing * 100,2)
+            #     }
+            current_price = 0
+            # 종목 데이터 가공
+            for d in data:
+                for k,v in stock_count.items() :
+                    if d['code'] == k :
+                        # d['name'] = stock_info[k]['name']   
+                        # d['closing'] = stock_info[k]['closing'] 
+                        # d['dtd'] = stock_info[k]['dtd']
+                        # d['rating'] = stock_info[k]['rating']
+                        # current_price += stock_info[k]['price'] * v
+                    
+                        # fdr
+                        time =  (datetime.now() + timedelta(days=-4)).strftime('%Y-%m-%d')
+                        df = fdr.DataReader(d['code'],str(time))
+                        df.reset_index(inplace = True)
+                        df = df.tail(2)
+                        pantemp = df['Close'].values
+                        df['name'] = stockname[d['code']]
+                        df['dtd'] = pantemp[1] - pantemp[0]
+                        df['Change'] = round(df['Change']*100,2)
+                        
+                        df = df.tail(1)
+                        df = df[['name','Close','dtd','Change']]
+                        
+                        df = df.rename(columns={'Close':'price','Change':'rating'})
+                        df = df.to_dict('records')
+                        stock_info = {}
+                        # stock_info[s['code']] = df[0]
+                        d['name'] = df[0]['name']
+                        d['closing'] = int(pantemp[1])
+                        d['dtd'] = df[0]['dtd']
+                        d['rating'] = df[0]['rating']
+                        current_price += df[0]['price'] * v
+                        continue
+            user_price = {'price': usercapital.capital + current_price}
+            # data.extend({'price': usercapital.capital + current_price })
+            
+            # 잔고 리스트
+            queryset2 = UserCapital.objects.filter(id=request_data['id']).order_by('date_insert')
+            serialize = serializers.serialize('json', queryset2)
+            capital = {}   
+            
             # 데이터 가공
             for s in json.loads(serialize):
                 for k,v in s.items() :
@@ -101,8 +135,7 @@ def read(request):
             user_price['capital'] = capital
             data.append(user_price)
         except:
-            data['error'] = 1
-
+            data = {'error':1}
     return JsonResponse(data,safe=False,json_dumps_params={'ensure_ascii': False},status=200)
     # [{"idx": 1, "id": "test", "code": "032300", "price": 56669, "count": 156, "date_insert": "2021-09-04T17:56:03", "date_update": "2021-09-15T16:37:59.406", "type": null, "name": "한국파마", "closing": 74700, "dtd": 1600, "rating": 2.14}, {"idx": 4, "id": "test", "code": "060240", "price": 7260, "count": 150, "date_insert": "2021-09-05T13:01:06.822", "date_update": "2021-09-05T13:01:06.822", "type": null, "name": "룽투코리아", "closing": 6760, "dtd": 640, "rating": 9.47}, {"idx": 5, "id": "test", "code": "066570", "price": 53000, "count": 2, "date_insert": "2021-09-15T16:47:40.401", "date_update": "2021-09-15T16:47:40.401", "type": null, "name": "LG전자", "closing": 141000, "dtd": -1500, "rating": -1.06}, {"price": 20481800}]
 
